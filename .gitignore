@@ -1,0 +1,56 @@
+# Rust
+/target/
+
+# Node
+node_modules/
+dist/
+
+# Tauri build output
+src-tauri/gen/
+src-tauri/target/
+
+# Dados gerados por update.sh (recrie com ./update.sh após clonar)
+data/items_list.json
+data/mods_all.json
+data/prices.json
+data/modLocations.json
+data/enemyModTables.json
+data/enemyLocations.json
+data/missionRewards.json
+data/cetusBountyRewards.json
+data/solarisBountyRewards.json
+data/zarimanRewards.json
+data/transientRewards.json
+data/relics.json
+data/prime_parts.json
+data/rivenStats.json
+data/rivenWeaponRules.json
+data/filtered_items.json
+data/misc_wfcd.json
+data/resources_wfcd.json
+data/dict.en.json
+
+# Exports brutos do Warframe (baixados por update.sh)
+data/Export*.json
+
+# Dados do usuário (nunca versionar)
+data/inventory.json
+data/builds.json
+data/hub_state.json
+data/build_images/
+
+# Fontes CSV dos rivens (geradas externamente — ignore se não forem mantidas manualmente)
+# data/rivenWeaponRulesSource_*.csv
+
+# Instruções de agentes/AI e docs locais
+CLAUDE.md
+AGENTS.md
+README-en_US.md
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Env
+.env
+.env.local

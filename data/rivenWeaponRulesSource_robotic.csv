@@ -1,0 +1,18 @@
+WEAPON,POSITIVE STATS:,,,NEGATIVE STATS:,,Notes:
+akaten,CC CD DMG,,,SLIDE/EFF/FIN/PUNC,,
+artax,DMG MS TOX,,,DTI,,
+batoten,CC CD DMG,,,SLIDE/EFF/FIN/IMP/PUNC,,
+burst laser,DMG MS TOX,,,PUNC,,
+cryotra,MS SC FR/PT,,,IMP,,
+deconstructor,DMG SC ELEMENT,,,SLIDE/EFF/FIN/IMP,,
+deth machine rifle,MS SC FR/PT,,,DTI,,
+helstrum,MS SC FR/PFS,,,IMP,,
+lacerten,CC CD DMG,,,SLIDE/EFF/FIN/IMP,,
+laser rifle,DMG MS TOX,,,PUNC,,
+multron,DMG MS TOX,,,DTI,,
+stinger,DMG MS TOX,,,DTI,,
+sweeper,MS SC FR/PT,,,IMP,,
+tazicor,MS SC FR/PT,,,DTI,,
+verglas,CC MS CD/FR/DMG or MS FR DMG/SC/ELEMENT,,,DTI,,(NOTE: CC breakpoint of >257.2% for tenacious bond with a +2-1 riven)
+vulcax,CC MS FR/CD/DMG,,,DTI,,
+vulklok,CC MS FR/CD/DMG,,,DTI,,

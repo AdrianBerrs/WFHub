@@ -1,0 +1,173 @@
+WEAPON,POSITIVE STATS:,,,,,NEGATIVE STATS:,,,Notes:
+ack & brunt,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+amanata,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+amphis,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP,,,
+anku,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/PUNC,,,
+ankyros,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP,,,
+arca titron,CD AS RANGE or CD/RANGE AS ELEC/DMG or CC/CD/IC/DMG,,,,,SLIDE/FIN/IMP,,,"(NOTE: ELEC is for melee infuence, negative EFF is harmful for heavy builds)"
+argo & vel,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+arum spinosa,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+atterax,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+azothane,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP,,,
+balla,CD AS RANGE or CD/RANGE AS ELEC or CD AS/DMG/DTC HEAT/TOX/COLD,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,"(NOTE: you do not want IMP or PUNC with the profit taker roll""CD AS DMG/DTC"")"
+bo,CD AS RANGE or CD/RANGE AS ELEC/HEAT or CD DMG CC/SC,,,,,EFF/SLIDE/FIN/IMP,,,"(NOTE: NEGATIVE IMP not wanted if you're doing a build for incarnon around the 5th EVO""FLASHING BLEED: 40% chance of slash on impact status effect"")"
+boltace,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC,,,
+broken scepter,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP,,,
+broken war,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+cadus,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+cassowar,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC,,,
+caustacyst,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+ceramic dagger,CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/PUNC,,,"(NOTE: NEGATIVE PUNC hurts for heavy attack, breakpoint of 34 IC to transform incarnon instantly)"
+cerata,CC/CD/IC/DMG or CD/RANGE/AS,,,,,EFF/SLIDE/FIN,,,(NOTE: RANGE is not a good stat for use but it can sell)
+cobra & crane,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP,,,
+coda motovore,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,EFF/SLIDE/FIN/PUNC/IMP,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+corufell,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,EFF/SLIDE/FIN/PUNC/IMP,,,
+cronus,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP,,,
+cyath,CD AS RANGE or CD/RANGE AS ELEC or CD AS DMG/DTC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,"(NOTE: you do not want IMP or PUNC with the profit taker roll""CD AS DMG/DTC"")"
+dakra prime,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+dark dagger,CC/CD/IC/DMG or CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+dark split-sword,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC/IMP,,,
+dark sword,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+dehtat,CD AS RANGE or CD/RANGE AS ELEC or CD AS DMG/DTC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,"(NOTE: you do not want IMP or PUNC with the profit taker roll""CD AS DMG/DTC"")"
+destreza,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/PUNC,,,
+dex dakra,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+dokrahm,CD AS RANGE or CD/RANGE AS ELEC/DMG,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+dorrclave,CD AS RANGE or CD/RANGE AS ELEC,,,,,SLIDE/FIN/EFF,,,
+dragon nikana,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,SLIDE/FIN/EFF,,,
+dual cleavers,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+dual ether,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+dual heat swords,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+dual ichor,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,(NOTE: ELEC is for melee infuence)
+dual kamas,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+dual keres,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC,,,
+dual raza,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+dual skana,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+dual viciss,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+dual zoren,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+edun,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/PUNC,,,
+ekhein,CC/CD/IC/DMG or CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP,,,(NOTE: negative EFF is harmful for heavy builds)
+endura,CC/CD/IC/DMG or CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC,,,
+ether daggers,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+ether reaper,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+ether sword,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+falcor,CC/CD/IC/DMG/ELEC or CD/RANGE/AS,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,"(NOTE: RANGE is not a good stat for use but it can sell, ELEC for melee influence)"
+fang,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/PUNC,,,
+fragor,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP,,,
+furax,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP,,,"(NOTE: NEGATIVE IMP not wanted if you're doing a build for incarnon around the 5th EVO""FLASHING BLEED: 40% chance of slash on impact status effect"")"
+galariak prime,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+galatine,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+galvacord,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+gazal machete,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+ghoulsaw,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+glaive,CC/CD/IC/DMG or CD/RANGE/AS,,,,,EFF/SLIDE/FIN/SLASH,,,
+gram,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+guandao,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+gunsen,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+halikar,CC/CD/IC/DMG or CD/RANGE/AS,,,,,EFF/SLIDE/FIN/PUNC,,,(NOTE: RANGE is not a good stat for use but it can sell)
+harmony,CD AS RANGE or CD/RANGE AS ELEC or IC CD/DMG/CC/SD,,,,,EFF/SLIDE/FIN/PUNC,,,
+hate,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+heat dagger,CD/RANGE/AS,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+heat sword,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+heliocor,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP,,,(NOTE: negative EFF is harmful for heavy builds)
+hespar,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP,,,
+hirudo,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC,,,
+innodem,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC,,,
+jat kittag,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG or TOX DTG/DTC/DTI,,,,,EFF/SLIDE/FIN/IMP,,,(NOTE: TOX DTG/DTC/DTI only for use with saryn toxic lash)
+jat kusar,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+jaw sword,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+kama,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+karyst,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+keratinos,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+kesheg,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP,,,
+kestrel,CC/CD/IC/DMG or CD/RANGE/AS,,,,,EFF/SLIDE/FIN/IMP,,,(NOTE: RANGE is not a good stat for use but it can sell)
+kogake,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP,,,
+korrudo,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP,,,
+korumm,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/PUNC,,,
+kreska,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+krohkur,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+kronen,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+kronsh,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG or CD AS DMG/DTC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,"(NOTE: you do not want IMP or PUNC with the profit taker roll""CD AS DMG/DTC"")"
+kuva shildeg,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+lacera,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,(NOTE: ELEC for melee influence)
+lecta,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+lesion,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+machete,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+magistar,CD AS RANGE or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP,,,(NOTE: negative EFF is harmful for heavy builds)
+masseter,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP,,,
+mewan,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+mios,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+mire,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+nami skyla,CD/RANGE/AS,,,,,EFF/SLIDE/FIN,,,
+nami solo,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/SLASH,,,"(NOTE: negative SLASH is for melee influence, ELEC for melee influence)"
+nepheri,CD/RANGE/AS,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+nikana,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,SLIDE/FIN/EFF,,,
+ninkondi,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+obex,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP,,,(NOTE: ELEC for melee influence)
+ohma,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,(NOTE: ELEC for melee influence)
+okina,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC/SLASH,,,(NOTE: ELEC and negative SLASH for melee influence)
+ooltha,CD AS RANGE or CD/RANGE AS ELEC or CD AS DMG/DTC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,"(NOTE: you do not want IMP or PUNC with the profit taker roll""CD AS DMG/DTC"")"
+orthos,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+orvius,CC/CD/IC/DMG or CD/RANGE/AS,,,,,EFF/SLIDE/FIN,,,(NOTE: RANGE is not a good stat for use but it can sell)
+pangolin sword,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+paracesis,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+pathocyst,CC/CD/IC/DMG or CD/RANGE/AS,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,(NOTE: RANGE is not a good stat for use but it can sell)
+pennant,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,EFF/SLIDE/FIN/PUNC,,,
+plague keewar,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+plague kripath,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+plasma sword,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+praedos,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+prova,CC/CD/IC/DMG or CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+pulmonars,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+pupacyst,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+quassus,CC/CD/IC/DMG or CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,(NOTE: RANGE is not a good stat for use but it can sell)
+rabvee,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG or CD AS DMG/DTC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,"(NOTE: you do not want IMP or PUNC with the profit taker roll""CD AS DMG/DTC"")"
+reaper prime,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,EFF/SLIDE/FIN,,,
+redeemer,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,EFF/SLIDE/FIN,,,(NOTE: RANGE doesn't affect the pellets/projectile)
+ripkas,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+rumblejack,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+ruvox,CD AS RANGE or CD/RANGE AS ELEC/HEAT,,,,,EFF/SLIDE/FIN/IMP,,,
+sampotes,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP,,,(NOTE: negative EFF is harmful for heavy builds)
+sarofang,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP,,,
+sarpa,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,(NOTE: RANGE doesn't affect the pellets/projectile)
+scindo,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+scoliac,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+sepfahn,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,SLIDE/FIN/IMP/PUNC/EFF,,,
+serro,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,EFF/SLIDE/FIN,,,
+shaku,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP,,,
+sheev,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+sibear,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,(NOTE: negative EFF is harmful for heavy builds)
+sigma & octantis,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+silva & aegis,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+skana,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+skiajati,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,EFF/SLIDE/FIN,,,
+slaytra,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,EFF/SLIDE/FIN/PUNC,,,
+spinnerex,CD AS RANGE,,,,,EFF/SLIDE/FIN,,,
+stropha,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,(NOTE: RANGE doesn't affect the pellets/projectile)
+sun & moon,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+sydon,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG or CD AS HEAT/TOX,,,,,EFF/SLIDE/FIN/PUNC,,,
+syam,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/PUNC,,,
+tak & lug,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+tatsu,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP/PUNC,,,
+tekko,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+tenet agendus,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP/PUNC/SLASH,,,(NOTE: ELEC for melee influence)
+tenet grigori,CD AS RANGE or CD/RANGE AS ELEC/EFF or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/PUNC,,,
+tenet livia,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,EFF/SLIDE/FIN,,,
+tenet exec,CD AS RANGE or CD/RANGE AS ELEC or CC IC CD/DMG,,,,,EFF/SLIDE/FIN/IMP,,,(NOTE: ELEC for melee influence)
+thalys,CD AS RANGE or CC/CD/IC/DMG or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/SLASH,,,(NOTE: ELEC and negative SLASH for melee influence)
+tipedo,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+tonbo,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+tonkkatt,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+twin basolk,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+twin krohkur,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,
+vastilok,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN,,,(NOTE: RANGE doesn't affect the pellets/projectile)
+venato,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC,,,
+venka,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+verdilac,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC,,,
+vericres,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN,,,
+vinquibus,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC,,,
+vitrica,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/PUNC/IMP,,,
+volnus,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/PUNC,,,
+war,CD AS RANGE or CD/RANGE AS ELEC,,,,,EFF/SLIDE/FIN/IMP,,,
+wolf sledge,CD AS RANGE or CD/RANGE AS ELEC or CC/CD/IC/DMG,,,,,EFF/SLIDE/FIN/IMP,,,
+xoris,CC/CD/IC/DMG or CD/RANGE/AS,,,,,EFF/SLIDE/FIN/PUNC,,,(NOTE: RANGE is not a good stat for use but it can sell)
+zenistar,IC AS RANGE/DMG or AS RANGE/DMG,,,,,EFF/SLIDE/FIN,,,

@@ -1,0 +1,16 @@
+WEAPON,POSITIVE STATS:,,,,,,NEGATIVE STATS:,,Notes:
+arbucep,CD MS DMG/CC/FR,,,,,,ZOOM/REC,,
+cortege,CD MS DMG/CC/FR,,,,,,ZOOM/REC,,
+corvas,CD MS FR/DTC/CC/DMG/COLD/ELEC,,,,,,ZOOM/REC/IMP,,(NOTE: COLD/ELEC/DTC are for profit taker)
+cyngas,CD MS DMG/CC/FR,,,,,,ZOOM/REC/IMP/PUNC,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+dual decurion,CD MS FR/DTC/CC/DMG/COLD/ELEC/AMMO,,,,,,ZOOM/REC/IMP/PUNC,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+fluctus,CD MS DMG/CC/FR,,,,,,ZOOM/REC,,(NOTE: COLD/ELEC/DTC are for profit taker)
+grattler,CD MS FR/DTC/CC/DMG,,,,,,PUNC/REC/ZOOM,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+imperator,CD MS FR/DTC/CC/DMG/COLD/ELEC,,,,,,PUNC/REC/ZOOM/IMP,,"(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5, COLD/ELEC/DTC are for profit taker)"
+kuva ayanga,CD MS DMG/CC/FR,,,,,,IMP/REC/ZOOM,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+larkspur,MS DMG/TOX/SC/FR,,,,,,REC/IMP/PUNC/ZOOM,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+mandonel,CD MS FR/DTC/CC/DMG,,,,,,ZOOM/REC,,
+mausolon,CD MS FR/CC/DMG or CC FR COLD/ELEC/DMG/CD/MS/DTC,,,,,,ZOOM/REC/IMP/PUNC,,(NOTE: COLD/ELEC/DTC are for profit taker)
+morgha,CD MS DMG/CC/FR,,,,,,ZOOM/REC/IMP,,
+phaedra,CD MS DMG/CC/FR,,,,,,PUNC/REC/ZOOM,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+velocitus,CC DMG/CD/COLD/ELEC/DTC or CC MS DMG/CD/FR,,,,,,ZOOM,,(NOTE: COLD/ELEC/DTC are for profit taker)

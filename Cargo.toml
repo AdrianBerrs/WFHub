@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "src-tauri",
+]
+resolver = "2"
+
+[patch.crates-io]
+xcap = { path = "xcap-patch" }
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

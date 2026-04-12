@@ -1,0 +1,112 @@
+WEAPON,POSITIVE STATS:,,,,NEGATIVE STATS:,,,Notes:
+acceltra,CD MS/TOX/DMG/CC/FR,,,,IMP/ZOOM,,,
+aeolak,CD MS/TOX/DMG/CC/FR/RLS,,,,IMP/PUNC/ZOOM/REC,,,"(NOTE: having 2 quality of life stats are good for use but don't sell well(RLS AND FR), if PUNC is enough to not proc it's worse.)"
+afentis,CD MS/TOX/DMG/CC/FR,,,,ZOOM/REC/PUNC,,,
+alternox,MS DMG/SC/TOX or CD MS/TOX/CC/DMG,,,,ZOOM/REC,,,
+ambassador,CD MS/TOX/DMG/CC/FR,,,,ZOOM/REC,,,
+amprex,CD MS/TOX/DMG/CC/FR,,,,ZOOM/REC,,,
+arca plasmor,CD MS/DMG/CC/FR/RLS/TOX,,,,REC,,,
+argonak,CD MS/TOX/DMG/CC/FR,,,,IMP/ZOOM/REC,,,
+astilla,CD MS/TOX/DMG/CC/FR,,,,IMP/REC,,,
+attica,CD MS/TOX/DMG/CC/FR/RLS,,,,PUNC/ZOOM/REC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+ax-52,CD MS/TOX/DMG/CC/FR,,,,ZOOM/REC/PUNC,,,"(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5, positive CC isn't as wanted for use because the zoom in function giving 100%CC on headshot)"
+basmu,CD MS/TOX/DMG/CC/FR,,,,ZOOM/REC/AMMO,,,
+battacor,CD MS/TOX/DMG/CC/FR,,,,PUNC/ZOOM/REC/IMP/SLASH,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+baza,CD MS/TOX/DMG/CC/FR,,,,IMP/PUNC/ZOOM,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+boar,CD MS/TOX/HEAT/PT/DMG/CC/FR or MS SC HEAT/FR,,,,IMP/REC,,,
+boltor,CD MS/TOX/DMG/CC/FR/SC,,,,PUNC/ZOOM/REC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+braton,CD MS/TOX/DMG/CC/FR,,,,PUNC/ZOOM/REC/IMP,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+bubonico,CD MS/DMG/CC/FR/ELEC,,,,PUNC/REC/IMP/AMMO,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+burston,CD MS/TOX/DMG/CC/FR,,,,PUNC/ZOOM/IMP/MAG,,,"(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5, MAG on negative is only good with the incarnon evo)"
+buzlok,CD MS/TOX/DMG/CC/FR,,,,PUNC/ZOOM/REC/IMP,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+cedo,TOX FR CD/MS or SC MS SD/PFS,,,,AMMO/REC/PUNC,,,"(NOTE: REC is high on this, -PUNC hurts damage but collectors still buy it)"
+cernos,CD MS/TOX/CC/DMG/FR,,,,IMP/REC/MAG/ZOOM,,,(NOTE: negative IMP kills IB build)
+cinta,CD MS FR/CC/DMG/TOX,,,,REC/ZOOM/MAG/PUNC,,,
+coda bassocyst,CD MS FR/CC/PT/DMG,,,,REC,,,
+convectrix,CD MS FR/CC/PT/DMG or MS CD/FR HEAT/ELEC,,,,REC/SLASH,,,(NOTE: negative SLASH only for builds with DOT elements)
+corinth,CD MS/TOX/DMG/CC/FR/RLS,,,,IMP/PUNC/REC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+daikyu,CD MS/TOX/CC/DMG/FR,,,,IMP/PUNC/REC/MAG/ZOOM,,,
+dera,MS DMG/SC/TOX or CD MS/TOX/CC/DMG,,,,PUNC/ZOOM/REC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+drakgoon,CD MS/TOX/CC/DMG/FR,,,,SLASH/REC,,,
+dread,CD MS/TOX/CC/DMG/FR,,,,REC/MAG/ZOOM,,,
+efv-5 jupiter,CD MS/TOX/CC/DMG/FR,,,,REC/ZOOM/PUNC/IMP,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+evensong,CD MS/TOX/CC/DMG/FR,,,,REC/ZOOM/MAG,,,
+exergis,MS DMG/TOX/SC/MAG/PT/SLASH,,,,PUNC/REC/IMP,,,"(NOTE: the MAG must be >=50%, TOX is only for collectors)"
+felarx,MS DMG/FR/TOX/SC,,,,PUNC/REC/CC,,,(NOTE: CC is only good if you're using the 5th evolution)
+ferrox,DMG FR ELEMENT or CD MS/CC/DMG/FR/TOX,,,,PUNC/ZOOM/REC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+flux rifle,CD MS/CC/FR/DMG/TOX or CC CD DTI/DTG/DTC,,,,ZOOM/AMMO/REC/SLASH,,,"(NOTE: AMMO only harmless for the base flux rifle, it does affect the tenet flux rifle. The rolls with DTI/DTG/DTC are for tenet flux)"
+fulmin,CD MS/TOX/CC/DMG/FR,,,,ZOOM/IMP/REC/AMMO,,,(NOTE: FR can cause you to go over IB breakpoint)
+glaxion,CD MS FR/TOX/DMG/CC,,,,ZOOM/REC,,,
+gorgon,CD MS/TOX/CC/DMG/FR,,,,ZOOM/IMP,,,
+gotva prime,CD MS/TOX/CC/DMG,,,,ZOOM/REC/PUNC,,,
+grakata,CD MS/TOX/CC/DMG/FR,,,,ZOOM/IMP/PUNC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+grinlok,CD MS/TOX/CC/DMG/FR,,,,ZOOM/PUNC/IMP/REC,,,
+harpak,CD MS/TOX/CC/DMG/FR,,,,ZOOM/PUNC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+hek,CD MS/TOX/DMG/CC/FR/RLS,,,,REC/PUNC,,,
+hema,CD MS/TOX/CC/DMG/FR,,,,ZOOM/REC/AMMO,,,
+higasa,CD MS/CC/DMG/FR/TOX/SC,,,,ZOOM/REC/PUNC,,,
+hind,CD MS/CC/DMG/FR/TOX/SC,,,,ZOOM/REC/SLASH,,,
+ignis,COLD TOX CD/MS/FR,,,,ZOOM/REC,,,
+javlok,CD MS/TOX/CC/DMG OR CC CD DMG,,,,ZOOM/REC/MS,,,(NOTE: MS only harmless for the throw)
+karak,CD MS/CC/DMG/FR/TOX,,,,ZOOM/PUNC/REC/IMP,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+kohm,CD MS/FR/TOX/DMG OR DMG MS FR/TOX,,,,SLASH/REC,,,
+komorex,CC MS/FR/CD/DMG/TOX,,,,ZOOM/PUNC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+kuva bramma,CD MS/CC/DMG/FR/TOX,,,,ZOOM/REC/IMP/MAG,,,
+kuva chakkhurr,CD MS/CC/DMG/FR,,,,ZOOM/REC/IMP,,,(NOTE: FR only harmless as long as it stays below breakpoint for internal bleeding)
+lanka,CD MS/FR/CC/DMG/ELEC,,,,ZOOM/REC/PFS,,,(NOTE: PFS only harmless for mag use)
+latron,CD MS/TOX/CC/FR/DMG,,,,ZOOM/REC/PUNC,,,(NOTE: for incarnon you do not want -PUNC for 2 of the evolutions)
+lenz,CD MS/TOX/CC/FR/DMG,,,,ZOOM/REC/MAG/IMP,,,
+miter,CD MS/FR/CC/SC/DMG/TOX,,,,ZOOM/REC,,,
+mutalist cernos,CC CD DMG,,,,REC/ZOOM/MAG/IMP,,,(NOTE: negative IMP hurts for use but still sells)
+mutalist quanta,MS FR/SC/DMG OR MS CD/DMG/TOX,,,,ZOOM/REC/PUNC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+nagantaka,CD MS/TOX/CC/DMG/FR/SC,,,,ZOOM/REC,,,(NOTE: REC was harmless for prime but not normal as of making this. AUG 16th 2022)
+nataruk,CD MS/TOX/COLD/CC/DMG/FR,,,,PUNC/ZOOM/REC/MAG/AMMO,,,
+ogris,MS DMG MAG/PFS or MS MAG/PFS/TOX/REC/RLS,,,,ZOOM/REC/CC/SC/SD/DTI/DTG/DTC,,,(NOTE: negative DTI/DTG/DTC is for profit taker otherwise it is a harmful negative)
+opticor,CD MS/TOX/CC/DMG/FR,,,,ZOOM/PUNC/REC,,,
+panthera,CD MS/TOX/CC/DMG/FR/SC,,,,ZOOM/REC,,,
+paracyst,CD MS/FR/CC/DMG or DMG MS SC/FR,,,,ZOOM,,,
+paris,CD MS/TOX/CC/DMG/FR/SC,,,,PUNC/ZOOM/REC/MAG,,,
+penta,CD MS/CC/DMG or CD DMG CC,,,,IMP/REC/ZOOM,,,
+perigale,CD MS/CC/DMG/FR/TOX/ELEC/HEAT,,,,REC/ZOOM/PUNC,,,"(NOTE: PUNC will lower damage if used for eidolon, for eidolon prefer CC over CD for more consistency, needs 107.2CC to hit 100% CC with point strike)"
+phage,CD MS/SC/FR/PT/DMG/CC/TOX,,,,REC,,,
+phantasma,MS FR/SC/DMG HEAT/ELEC,,,,IMP/REC/PUNC/SLASH,,,"(NOTE: IMP negative has a breakpoint at 90.6, any more than that and it removes IMP completely resulting in less damage)"
+phenmor,MS DMG/FR/TOX/SC or MS FR TOX,,,,ZOOM/REC/CC,,,
+proboscis cernos,MS DMG/FR/ELEC/SC,,,,IMP/REC/ZOOM/MAG,,,
+purgator 1,CD MS/FR/DMG/CC,,,,ZOOM/REC/IMP/PUNC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+quanta,CD MS/FR/ELEC/DMG/CC,,,,ZOOM/REC/PFS,,,(NOTE: PFS only affects the alt fire and stops it from going far)
+quartakk,CD MS/FR/DMG/CC/TOX,,,,ZOOM/IMP/PUNC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+quellor,CD MS/TOX/DMG/CC/FR,,,,ZOOM/REC/IMP/PUNC,,,(NOTE: FR as long as it stays below the breakpoint for internal bleeding on the alternate fire)
+rauta,CD MS/FR/TOX/CC/DMG or MS FR SC,,,,RECOIL/SLASH,,,
+reconifex,CD MS/FR/CC/DMG/HEAT/TOX,,,,ZOOM/REC/IMP/PUNC,,,(NOTE: you want HEAT or TOX not both)
+rubico,CD MS FR/HEAT/CC/DMG,,,,ZOOM/REC/IMP,,,(NOTE: >= 50%MS on Prime's Disposition and >=73.1%MS on Base Disposition is a must & IMP can be considered bad for eidolon)
+scourge,MS DMG/SC/TOX/FR or CD MS/TOX/CC/DMG/FR,,,,ZOOM/REC,,,
+shedu,CD MS/TOX/FR/CC/DMG/RLS,,,,ZOOM/AMMO,,,
+simulor,CC CD/DMG/ELEC/FR or CD MS TOX/CC/FR/DMG,,,,IMP/REC/ZOOM,,,(NOTE: MS must be at 100% exactly for orb stacking purposes)
+snipetron,CC MS FR/CD/DMG/HEAT,,,,ZOOM/REC/PUNC,,,(NOTE: PUNC will lower damage if used for eidolon)
+sobek,TOX DTC or TOX DTG or TOX DTI or CD MS/TOX/FR/CC/DMG,,,,REC/IMP,,,
+soma,CD MS/TOX/CC/DMG/FR,,,,PUNC/ZOOM/REC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+sporothrix,MS FR/DMG/SC/SLASH or CD MS/SC/FR/DMG,,,,PUNC/ZOOM/REC/IMP,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+stahlta,CD MS/TOX/CC/DMG/FR,,,,PUNC/ZOOM/REC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+stradavar,CD MS/TOX/CC/DMG/FR,,,,PUNC/IMP/ZOOM,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+steflos,CD MS/TOX/CC/DMG/FR,,,,REC/IMP,,,
+strun,CD MS/TOX/FR/CC/DMG/SC,,,,IMP/REC,,,
+supra,CD MS/TOX/FR/CC/DMG,,,,PUNC/ZOOM,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+sybaris,CD MS/TOX/FR/CC/DMG,,,,PUNC/IMP/ZOOM/REC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+synapse,CD MS/TOX/FR/CC/DMG,,,,ZOOM/REC,,,
+tenet envoy,CD MS/CC/DMG/FR/TOX,,,,ZOOM/IMP/REC,,,
+tenora,CD MS/TOX/FR/DMG/CC,,,,ZOOM/REC/PUNC/IMP,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+tetra,CD MS/FR/DMG/CC/TOX,,,,ZOOM/REC/PUNC/MAG,,,"(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5, negative MAG makes the alt fire on tenet use less ammo)"
+thornbak,CD MS/TOX/FR/DMG,,,,ZOOM/REC,,,
+tiberon,CD MS/TOX/FR/DMG/CC,,,,ZOOM/PUNC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+tigris,CD MS/TOX/PT/CC/DMG,,,,REC/SLASH,,,
+tonkor,CD MS/DMG/CC/RLS,,,,ZOOM/REC/PUNC/MAG,,,
+torid,CD MS/CC/DMG/FR/TOX,,,,ZOOM/REC/MAG,,,"(NOTE: -MAG on negative only good with incarnon evo, has a breakpoint of >=50%)"
+trumna,CD MS/TOX/FR/CC/DMG,,,,ZOOM/PFS/REC,,,"(NOTE: -PFS makes the alternate fire bounce more condensed, negative REC can be difficult to use)"
+vadarya prime,CD MS CC/DMG/FR/TOX,,,,ZOOM/REC,,,
+vectis,CC MS CD/HEAT/DMG,,,,ZOOM/MAG/IMP/PUNC,,,(NOTE: IMP/PUNC is less damage for eidolon)
+veldt,CD MS/TOX/FR/CC/DMG,,,,ZOOM/REC/IMP/PUNC/PFS,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
+vinquibus,CD MS/TOX/FR/CC/DMG,,,,ZOOM/REC/PUNC/AMMO,,,
+vulkar,CC MS CD/HEAT/DMG,,,,ZOOM/REC/IMP,,,(NOTE: needs >200%CC on wraith and 210%CC on normal)
+zarr,CD MS/FR/CC/DMG/TOX,,,,ZOOM/REC/IMP,,,
+zenith,DMG MS CD/TOX/FR or CD FR DMG/MS or CD MS TOX or CD MS,,,,AMMO/SLASH/REC/ZOOM,,,"(NOTE: needs >100%MS for profit taker and >110%MS for eidolon, -ZOOM hurts for profit taker, -SLASH is bad for both profit taker and eidolon as it's essentially -Damage)"
+zhuge,CD MS/TOX/DMG/CC/FR,,,,PUNC/ZOOM/REC,,,(NOTE: negative PUNC hurts some if you can reliablly proc it because each stack of PUNC gives 5%CC each with max stack of 5)
