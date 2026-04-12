@@ -50,7 +50,7 @@ function formatSlotDateTime(timestampMs: number): string {
 }
 
 function formatDayTitle(dayStartMs: number, offset: number): string {
-    const rawLabel = new Date(dayStartMs).toLocaleDateString("pt-BR", {
+    const rawLabel = new Date(dayStartMs).toLocaleDateString("en-US", {
         weekday: "long",
         day: "2-digit",
         month: "2-digit",
@@ -58,7 +58,7 @@ function formatDayTitle(dayStartMs: number, offset: number): string {
 
     const label = capitalize(rawLabel);
 
-    if (offset === 0) return `Hoje - ${label}`;
+    if (offset === 0) return `Today - ${label}`;
     return label;
 }
 
@@ -94,7 +94,7 @@ export default function ArbitrationSchedulePage() {
                 setSlots((parsed.slots ?? []).slice().sort((a, b) => a.start_at_ms - b.start_at_ms));
                 setDays(Math.max(1, Math.min(14, parsed.days || 7)));
                 setSource(parsed.source);
-                setStaleMessage(parsed.stale ? (parsed.message ?? "Dados em cache") : null);
+                setStaleMessage(parsed.stale ? (parsed.message ?? "Cached data") : null);
             } catch (e) {
                 if (cancelled) return;
                 setError(String(e));
@@ -127,28 +127,28 @@ export default function ArbitrationSchedulePage() {
         <div className="flex h-full flex-col gap-4 p-4">
             <div className="flex items-center justify-between gap-2">
                 <div>
-                    <h1 className="text-lg font-bold text-purple-400">Arbitrations (7 dias)</h1>
-                    <p className="text-xs text-gray-500">Agenda futura a partir de hoje.</p>
+                    <h1 className="text-lg font-bold text-purple-400">Arbitrations (7 days)</h1>
+                    <p className="text-xs text-gray-500">Upcoming schedule from today.</p>
                 </div>
                 <button
                     type="button"
                     onClick={() => navigate("/hub")}
                     className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-xs font-medium text-gray-200 hover:border-purple-500/40 hover:text-purple-300"
                 >
-                    Voltar ao Hub
+                    Back to Hub
                 </button>
             </div>
 
             {source && (
                 <div className="rounded-lg border border-gray-800 bg-gray-900 px-3 py-2 text-xs text-gray-400">
-                    Fonte: {source}
+                    Source: {source}
                 </div>
             )}
 
             {staleMessage && (
                 <div
                     className="rounded-lg border border-yellow-700/40 bg-yellow-900/10 px-3 py-2 text-xs text-yellow-300">
-                    Exibindo fallback: {staleMessage}
+                    Showing fallback: {staleMessage}
                 </div>
             )}
 
@@ -164,7 +164,7 @@ export default function ArbitrationSchedulePage() {
                         type="button"
                         onClick={() => setSelectedDay((prev) => Math.max(0, prev - 1))}
                         disabled={selectedDay === 0}
-                        title="Dia anterior"
+                        title="Previous day"
                         className="flex items-center justify-center rounded-lg p-2 text-gray-500 transition hover:bg-gray-800 hover:text-white active:scale-95">
                         <ChevronLeft size={16}/>
                     </button>
@@ -177,7 +177,7 @@ export default function ArbitrationSchedulePage() {
                         type="button"
                         onClick={() => setSelectedDay((prev) => Math.min(days - 1, prev + 1))}
                         disabled={selectedDay >= days - 1}
-                        title="Próximo dia"
+                        title="Next day"
                         className="flex items-center justify-center rounded-lg p-2 text-2ray-400 transition hover:bg-gray-800 hover:text-white active:scale-95">
                         <ChevronRight size={16}/>
                     </button>
@@ -185,9 +185,9 @@ export default function ArbitrationSchedulePage() {
 
                 <div className="mt-4 space-y-2">
                     {loading ? (
-                        <p className="text-sm text-gray-500">Carregando arbitrations...</p>
+                        <p className="text-sm text-gray-500">Loading arbitrations...</p>
                     ) : daySlots.length === 0 ? (
-                        <p className="text-sm text-gray-500">Sem arbitrations neste dia.</p>
+                        <p className="text-sm text-gray-500">No arbitrations on this day.</p>
                     ) : (
                         daySlots.map((slot) => (
                             <div

@@ -33,10 +33,10 @@ interface Props {
 }
 
 const GROUP_META = {
-    enemy: {title: "Inimigos", icon: "🗡️"},
-    mission: {title: "Missões", icon: "🎯"},
+    enemy: {title: "Enemies", icon: "🗡️"},
+    mission: {title: "Missions", icon: "🎯"},
     bounty: {title: "Bounties", icon: "🏆"},
-    special: {title: "Especial", icon: "⭐"},
+    special: {title: "Special", icon: "⭐"},
     relic: {title: "Relics", icon: "💠"},
 } as const;
 
@@ -102,7 +102,7 @@ function OrderRow({
                     onClick={copyWhisper}
                     className="rounded bg-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-600"
                 >
-                    Copiar whisper
+                    Copy whisper
                 </button>
             </div>
         </div>
@@ -190,7 +190,7 @@ export default function QuickSearchPage({autoSearch, onAutoSearchDone}: Props) {
             const marketRaw = await Promise.all(marketCalls);
             const baseData = JSON.parse(marketRaw[0]);
             if (baseData.error) {
-                setError("Item não encontrado no market.");
+                setError("Item not found on market.");
             } else {
                 setBaseOrders(baseData.data ?? null);
             }
@@ -204,7 +204,7 @@ export default function QuickSearchPage({autoSearch, onAutoSearchDone}: Props) {
             const specialRules = getSpecialModSources(displayName);
             setFarmResults([...specialRules, ...parsedFarm]);
         } catch {
-            setError("Erro ao buscar resultados do market/farm.");
+            setError("Error fetching market/farm results.");
         } finally {
             setLoading(false);
         }
@@ -241,7 +241,7 @@ export default function QuickSearchPage({autoSearch, onAutoSearchDone}: Props) {
                                 )}
                                 {isEnemy && entry.dropTableChance !== undefined && entry.itemChance !== undefined && (
                                     <p className="mt-0.5 text-[11px] text-gray-500">
-                                        {entry.dropTableChance.toFixed(2)}% tabela × {entry.itemChance.toFixed(2)}% item
+                                        {entry.dropTableChance.toFixed(2)}% table × {entry.itemChance.toFixed(2)}% item
                                     </p>
                                 )}
                                 {!isEnemy && entry.extra && (
@@ -258,7 +258,7 @@ export default function QuickSearchPage({autoSearch, onAutoSearchDone}: Props) {
                                 </p>
                                 {estimatedRuns !== null && (
                                     <p className="text-[11px] text-gray-500">
-                                        ~{estimatedRuns} {isEnemy ? "kills" : isRelic ? "aberturas" : "runs"}
+                                        ~{estimatedRuns} {isEnemy ? "kills" : isRelic ? "runs" : "runs"}
                                     </p>
                                 )}
                             </div>
@@ -273,11 +273,11 @@ export default function QuickSearchPage({autoSearch, onAutoSearchDone}: Props) {
     const hasFarm = farmResults.length > 0;
 
     function isOpen(key: string): boolean {
-        return collapsed[key] !== true;
+        return !collapsed[key];
     }
 
     function toggleGroup(key: string) {
-        setCollapsed((prev) => ({...prev, [key]: prev[key] !== true}));
+        setCollapsed((prev) => ({...prev, [key]: !prev[key]}));
     }
 
     function GroupHeader({
@@ -308,21 +308,21 @@ export default function QuickSearchPage({autoSearch, onAutoSearchDone}: Props) {
         <div className="flex h-full flex-col gap-4 p-4">
 
             <div className="space-y-2">
-                <h1 className="text-lg font-bold text-purple-400">Busca Rápida</h1>
+                <h1 className="text-lg font-bold text-purple-400">Quick Search</h1>
                 <p className="mt-1 text-sm text-gray-500">
-                    Captura por atalho (`Cmd+Shift+3`) e exibe resultado consolidado de Market + Farm.
+                    Capture via shortcut (`Cmd+Shift+3`) and display consolidated Market + Farm results.
                 </p>
             </div>
 
             {capturedName && (
                 <p className="text-sm text-gray-300">
-                    Item detectado: <span className="font-semibold text-purple-300">{capturedName}</span>
+                    Detected item: <span className="font-semibold text-purple-300">{capturedName}</span>
                 </p>
             )}
 
             {loading && (
                 <div className="rounded-lg border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-gray-400">
-                    Processando resultado...
+                    Processing results...
                 </div>
             )}
 
@@ -337,14 +337,14 @@ export default function QuickSearchPage({autoSearch, onAutoSearchDone}: Props) {
                     <section className="space-y-3">
                         <h2 className="text-lg font-semibold text-purple-400">Market</h2>
                         {!hasMarket && (
-                            <p className="text-sm text-gray-500">Sem resultado de market para este item.</p>
+                            <p className="text-sm text-gray-500">No market results for this item.</p>
                         )}
                         {hasMarket && (
                             <div className="space-y-3">
                                 <div>
                                     <GroupHeader
                                         id="market-base"
-                                        title={maxRank !== null ? "Mais barato (qualquer rank)" : "Mais barato"}
+                                        title={maxRank !== null ? "Cheapest (any rank)" : "Cheapest"}
                                         count={(baseOrders?.sell ?? []).length}
                                     />
                                     {isOpen("market-base") && (
@@ -382,7 +382,7 @@ export default function QuickSearchPage({autoSearch, onAutoSearchDone}: Props) {
                     <section className="space-y-3">
                         <h2 className="text-lg font-semibold text-purple-400">Farm Advisor</h2>
                         {!hasFarm && (
-                            <p className="text-sm text-gray-500">Sem fontes de farm encontradas para este item.</p>
+                            <p className="text-sm text-gray-500">No farm sources found for this item.</p>
                         )}
                         {hasFarm && (
                             <div className="space-y-3">

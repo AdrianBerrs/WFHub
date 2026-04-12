@@ -1,22 +1,22 @@
 # WFHub
 
-App desktop macOS para utilitarios do Warframe. Combina frontend React com backend Tauri/Rust para capturar a janela do jogo, ler o `EE.log`, rodar OCR via Apple Vision e automatizar interacoes dentro do jogo.
+macOS desktop app with utilities for Warframe. Combines a React frontend with a Tauri/Rust backend to capture the game window, read `EE.log`, run OCR via Apple Vision, and automate in-game interactions.
 
-## Funcionalidades
+## Features
 
-- **Hub**: painel rápido com ações e atalhos
-- **Busca Rapida**: busca unificada por itens, builds e telas
-- **Market**: preços e top orders do `warframe.market`
-- **Farm Advisor**: fontes de drop agrupadas por tipo, com chance e estimativa de runs
-- **Build Analyzer**: OCR de screenshot de build para identificar mods
-- **Build Tracker**: armazenamento e gerenciamento de builds salvas
-- **Prime Tracker**: checklist de partes prime cruzado com inventário escaneado
-- **Inventário**: scan automatizado de mods, arcanes e partes prime
-- **Rivens**: advisor de rivens com análise por OCR, avaliação de roll e tutorial de progenitors Kuva/Tenet
-- **Forja**: automação de crafting recorrente na Foundry
-- **Arbitration Schedule**: agenda de arbitrations
-- **Void Trader Inventory**: inventário do Baro Ki'Teer
-- **Configurações**: ajustes e ações utilitárias
+- **Hub**: quick panel with actions and shortcuts
+- **Quick Search**: unified search across items, builds, and pages
+- **Market**: prices and top orders from `warframe.market`
+- **Farm Advisor**: drop sources grouped by type, with drop chance and run estimates
+- **Build Analyzer**: OCR of build screenshots to identify mods
+- **Build Tracker**: storage and management of saved builds
+- **Prime Tracker**: prime parts checklist crossed with scanned inventory
+- **Inventory**: automated scan of mods, arcanes, and prime parts
+- **Rivens**: riven advisor with OCR analysis, roll evaluation, and Kuva/Tenet progenitor tutorial
+- **Foundry**: recurring crafting automation in the Foundry
+- **Arbitration Schedule**: arbitration rotation schedule
+- **Void Trader Inventory**: Baro Ki'Teer's current inventory
+- **Settings**: app configuration and utility actions
 
 ## Stack
 
@@ -24,131 +24,188 @@ App desktop macOS para utilitarios do Warframe. Combina frontend React com backe
 - React 18 + TypeScript + Vite
 - Tailwind CSS 4
 - Python 3 + Apple Vision Framework (pyobjc)
-- xcap (fork local em `xcap-patch/`)
+- xcap (local fork in `xcap-patch/`)
 - reqwest
 
-## Fluxos principais
+## Structure
+
+```text
+WFHub/
+├── src/                              # React frontend
+│   ├── App.tsx                       # collapsible sidebar + routing (MemoryRouter)
+│   ├── main.tsx
+│   ├── overlay.tsx                   # HUD window entry point
+│   ├── index.css
+│   ├── components/
+│   │   └── RewardOverlay.tsx         # reward HUD component
+│   ├── pages/
+│   │   ├── HubPage.tsx
+│   │   ├── QuickSearchPage.tsx
+│   │   ├── MarketPage.tsx
+│   │   ├── FarmAdvisorPage.tsx
+│   │   ├── BuildAnalyzerPage.tsx
+│   │   ├── BuildTrackerPage.tsx
+│   │   ├── PrimeTrackerPage.tsx
+│   │   ├── InventoryPage.tsx
+│   │   ├── RivenAdvisorPage.tsx
+│   │   ├── ForjaPage.tsx
+│   │   ├── ArbitrationSchedulePage.tsx
+│   │   ├── VoidTraderInventoryPage.tsx
+│   │   └── SettingsPage.tsx
+│   └── lib/
+│       ├── search.ts
+│       └── modSpecialSources.ts
+├── src-tauri/                        # Tauri/Rust backend
+│   └── src/
+│       ├── lib.rs                    # entry point: tray, hotkey, reward monitor, commands
+│       ├── ocr.rs                    # reward screen image preprocessing
+│       ├── inventory.rs              # inventory scan
+│       ├── forja.rs                  # crafting automation
+│       └── theme.rs                  # game visual theme detection
+├── scripts/
+│   ├── ocr/
+│   │   ├── ocr_vision.py             # reward screen OCR
+│   │   ├── ocr_vision_build.py       # build screenshot OCR
+│   │   ├── ocr_vision_riven.py       # riven OCR
+│   │   └── ocr_item_name.py          # item name OCR (hotkey)
+│   ├── automation/
+│   │   ├── inventory_ocr.py          # batch inventory OCR
+│   │   ├── inventory_scroll.py       # automated inventory scrolling
+│   │   └── forja_click.py            # automated Foundry clicks
+│   └── data/
+│       ├── build_enemy_locations.py  # generates enemyLocations.json
+│       ├── build_riven_weapon_rules.py # generates rivenWeaponRules.json
+│       ├── generate_prime_parts.py   # prime parts generation helper
+│       └── update_prime_parts.py     # updates prime_parts.json
+├── data/                             # game datasets (gitignored — see below)
+│   └── rivenWeaponRulesSource_*.csv  # riven CSV sources (versioned)
+├── xcap-patch/                       # local xcap fork with macOS patches
+├── update.sh                         # main dataset update script
+└── update_prices.sh
+```
+
+## Main pipelines
 
 ### Reward overlay
 
 ```
-EE.log → lib.rs (thread a cada 200ms)
-  → detecta trigger de recompensa
-  → captura janela "Warframe" via xcap
+EE.log → lib.rs (thread polling every 200ms)
+  → detects reward trigger
+  → captures "Warframe" window via xcap
   → ocr.rs: detect_theme() + extract_parts() → /tmp/wfinfo_prefilter.png
   → scripts/ocr/ocr_vision.py → /tmp/wfhub_reward.json
   → lib.rs: show_overlay()
-  → RewardOverlay.tsx: exibe HUD por 15s
+  → RewardOverlay.tsx: displays HUD for 15s
 ```
 
-### Inventario
+### Inventory scan
 
 ```
 InventoryPage → start_inventory_scan
-  → inventory.rs: captura frames + scroll automático
+  → inventory.rs: captures frames + auto-scroll
   → scripts/automation/inventory_ocr.py --batch
-  → merge em data/inventory.json
+  → merges into data/inventory.json
 ```
 
 ### Build Analyzer
 
 ```
-BuildAnalyzerPage → screenshot ou upload
+BuildAnalyzerPage → screenshot or upload
   → scripts/ocr/ocr_vision_build.py
-  → lista de mods identificados
-  → pode salvar em data/builds.json (Build Tracker)
+  → list of identified mods
+  → optionally saved to data/builds.json (Build Tracker)
 ```
 
-### Forja
+### Foundry automation
 
 ```
 ForjaPage → start_forja
-  → forja.rs: monitora EE.log
-  → detecta trigger "DFoundry"
+  → forja.rs: monitors EE.log
+  → detects "DFoundry" trigger
   → scripts/automation/forja_click.py <item_key>
-  → cooldown 55s → repete
+  → 55s cooldown → repeats
 ```
 
 ## Hotkeys
 
-| Hotkey | Ação                                                   |
-|---|--------------------------------------------------------|
-| `CmdOrCtrl+Shift+W` | Toggle janela principal                                |
-| `CmdOrCtrl+Shift+3` | OCR do nome do item na tela → navega para Busca Rápida |
+| Hotkey | Action |
+|---|---|
+| `CmdOrCtrl+Shift+W` | Toggle main window |
+| `CmdOrCtrl+Shift+3` | OCR item name from game screen → navigate to Quick Search |
 
-## Dados em `data/`
+## Data in `data/`
 
-Após clonar, rode `./update.sh` para popular os dados do jogo.
+The `data/` folder is gitignored (except the riven CSVs). After cloning, run `./update.sh` to populate it.
 
-**Datasets do jogo** (gerados por `update.sh`):
+**Game datasets** (generated by `update.sh`):
 
-| Arquivo | Origem |
+| File | Source |
 |---|---|
 | `prices.json` | warframestat.us |
 | `items_list.json` | warframe.market API v2 |
 | `mods_all.json`, `modLocations.json` | WFCD / drops.warframestat.us |
 | `enemyModTables.json`, `transientRewards.json` | drops.warframestat.us |
 | `missionRewards.json`, `cetusBountyRewards.json`, `solarisBountyRewards.json`, `zarimanRewards.json`, `relics.json` | drops.warframestat.us |
-| `prime_parts.json`, `enemyLocations.json` | gerados por scripts |
-| `rivenStats.json`, `rivenWeaponRules.json` | gerados por scripts |
+| `prime_parts.json`, `enemyLocations.json` | generated by scripts |
+| `rivenStats.json`, `rivenWeaponRules.json` | generated by scripts |
 | `Export*.json`, `dict.en.json` | browse.wf (public export) |
 
-**Dados do usuário** (nunca versionados):
+**User data** (never versioned):
 
-- `inventory.json` — resultado dos scans de inventário
-- `builds.json` + `build_images/` — builds salvas
-- `hub_state.json` — estado interno do hub
+- `inventory.json` — inventory scan results
+- `builds.json` + `build_images/` — saved builds
+- `hub_state.json` — internal hub state
 
-## Requisitos
+## Requirements
 
 - macOS
 - Node.js + npm
 - Rust + cargo
-- `/usr/bin/python3` com pyobjc:
+- `/usr/bin/python3` with pyobjc:
   ```bash
   /usr/bin/python3 -m pip install pyobjc-framework-Vision pyobjc-framework-Quartz
   ```
-- Permissões macOS: captura de tela e acessibilidade (para automacao de mouse)
+- macOS permissions: screen recording and accessibility (for mouse automation)
 
-## Setup inicial
+## Initial setup
 
 ```bash
-# 1. dependencias Node
+# 1. install Node dependencies
 npm install
 
-# 2. dependencias Python
+# 2. install Python dependencies
 /usr/bin/python3 -m pip install pyobjc-framework-Vision pyobjc-framework-Quartz
 
-# 3. datasets do jogo
+# 3. populate game datasets
 ./update.sh
 
-# 4. configurar o path do EE.log
+# 4. configure the EE.log path
 cp data/config.json.example data/config.json
-# editar data/config.json com o path correto do EE.log na sua maquina
+# edit data/config.json with the correct EE.log path for your machine
 ```
 
-## Desenvolvimento
+## Development
 
 ```bash
-# app completo (frontend + backend)
+# full app (frontend + backend)
 source ~/.cargo/env && npm run tauri dev
 
-# so o frontend
+# frontend only
 npm run dev
 
 # build frontend
 npm run build
 
-# build Rust
+# build Rust workspace
 source ~/.cargo/env && cargo build --workspace
 
-# debug com arquivos intermediarios em /tmp/
+# debug mode with intermediate files written to /tmp/
 WFHUB_DEBUG_FILES=1 npm run tauri dev
 ```
 
-## Notas
+## Notes
 
-- Todos os scripts Python usam `/usr/bin/python3` — nao altere
-- Nao atualize a crate `xcap` sem validar o fork em `xcap-patch/`
-- O app usa tray e `ActivationPolicy::Accessory` (sem icone no Dock); fechar a janela esconde, não encerra
-- O path do `EE.log` está acoplado ao ambiente local — ajuste em `lib.rs` apos clonar
+- All Python scripts use `/usr/bin/python3` — do not change this
+- Do not update the `xcap` crate without validating the fork in `xcap-patch/`
+- The app uses a tray icon with `ActivationPolicy::Accessory` (no Dock icon); closing the window hides it, does not quit
+- The `EE.log` path is coupled to the local environment — update it in `lib.rs` after cloning

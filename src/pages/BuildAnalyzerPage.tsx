@@ -38,8 +38,8 @@ function isLikelyModName(text: string): boolean {
     const alpha = text.replace(/[^a-zA-Z]/g, "").length;
     if (alpha / text.length < 0.5) return false;
     const uiWords = ["combos", "search", "new", "fusion", "transmute", "sell", "dissolve", "filter", "exit", "recent", "total", "duplicates"];
-    if (uiWords.includes(text.toLowerCase())) return false;
-    return true;
+    return !uiWords.includes(text.toLowerCase());
+
 }
 
 function buildDetections(texts: string[], itemIndex: NameSearchIndex<ItemEntry>): DetectionEntry[] {
@@ -101,13 +101,13 @@ function buildDetections(texts: string[], itemIndex: NameSearchIndex<ItemEntry>)
 function sourceLabel(source: FarmResult["source"]): string {
     switch (source) {
         case "enemy":
-            return "Inimigo";
+            return "Enemy";
         case "mission":
-            return "Missao";
+            return "Mission";
         case "bounty":
             return "Bounty";
         case "special":
-            return "Especial";
+            return "Special";
         case "relic":
             return "Relic";
     }
@@ -137,7 +137,7 @@ function DropZone({onClick, onDrop, isDragging, onDragOver, onDragLeave}: DropZo
         >
             <span className="text-2xl text-gray-600">+</span>
             <div>
-                <div className="text-sm text-gray-400">Arraste, cole ou clique</div>
+                <div className="text-sm text-gray-400">Drag, paste or click</div>
                 <div className="text-xs text-gray-600">PNG · JPG · Cmd+V</div>
             </div>
         </button>
@@ -258,7 +258,7 @@ export default function BuildAnalyzerPage() {
             const filteredTexts = texts.filter(isLikelyModName);
             setDetections(buildDetections(filteredTexts, itemIndex));
         } catch {
-            setError("Erro ao analisar a imagem da build.");
+            setError("Error analyzing the build image.");
         } finally {
             setLoading(false);
         }
@@ -334,7 +334,7 @@ export default function BuildAnalyzerPage() {
                     <div>
                         <h1 className="text-xl font-bold text-purple-400 text-center">Build Analyzer</h1>
                         <p className="text-sm text-gray-500 mt-1 text-center">
-                            Cole, arraste ou selecione um print da build para detectar os mods
+                            Paste, drag or select a build screenshot to detect mods
                         </p>
                     </div>
 
@@ -366,7 +366,7 @@ export default function BuildAnalyzerPage() {
                                 disabled={loading}
                                 className="rounded-lg bg-purple-500 px-6 py-2 text-sm font-semibold text-gray-950 hover:bg-purple-400 disabled:opacity-40"
                             >
-                                {loading ? "Analisando..." : "Analisar Build"}
+                                {loading ? "Analyzing..." : "Analyze Build"}
                             </button>
                         </div>
                     )}
@@ -383,7 +383,7 @@ export default function BuildAnalyzerPage() {
                         <div>
                             <h1 className="text-lg font-bold text-purple-400">Build Analyzer</h1>
                             <p className="text-xs text-gray-500 mt-0.5">
-                                Cole, arraste ou selecione um print da build para detectar os mods
+                                Paste, drag or select a build screenshot to detect mods
                             </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -395,14 +395,14 @@ export default function BuildAnalyzerPage() {
                                 }}
                                 className="rounded-lg border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-800 transition-colors"
                             >
-                                Salvar Build
+                                Save Build
                             </button>
                             <button
                                 onClick={analyzeBuild}
                                 disabled={loading || !imagePath}
                                 className="rounded-lg bg-purple-500 px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-purple-400 disabled:opacity-40"
                             >
-                                {loading ? "Analisando..." : "Analisar Build"}
+                                {loading ? "Analyzing..." : "Analyze Build"}
                             </button>
                         </div>
                     </div>
@@ -439,7 +439,7 @@ export default function BuildAnalyzerPage() {
                             ) : (
                                 <div
                                     className="flex-1 min-h-0 rounded-lg border border-gray-800/50 bg-gray-900/30 flex items-center justify-center">
-                                    <p className="text-xs text-gray-600">Sem imagem</p>
+                                    <p className="text-xs text-gray-600">No image</p>
                                 </div>
                             )}
                         </div>
@@ -452,13 +452,13 @@ export default function BuildAnalyzerPage() {
                                 <>
                                     <div className="flex items-center justify-between mb-3">
                                         <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                            Mods Detectados
+                                            Detected Mods
                                         </h2>
                                         <p className="text-xs text-gray-500">
-                                            {foundCount} encontrados · {detections.length - foundCount} nao reconhecidos
+                                            {foundCount} found · {detections.length - foundCount} unrecognized
                                         </p>
                                         <p className="text-xs text-emerald-400">
-                                            {ownedCount} itens da build já no inventario
+                                            {ownedCount} build items already in inventory
                                         </p>
                                     </div>
 
@@ -467,7 +467,7 @@ export default function BuildAnalyzerPage() {
                                             const isFound = !!entry.matchedName;
                                             const isExpanded = expanded[entry.id];
                                             const cachedFarm = entry.matchedName ? farmResults[entry.matchedName] ?? [] : [];
-                                            const isFarmLoading = entry.matchedName ? !!farmLoading[entry.matchedName] : false;
+                                            const isFarmLoading = entry.matchedName ? farmLoading[entry.matchedName] : false;
                                             const displayName = entry.matchedName ?? entry.rawText;
                                             const isOwned = !!entry.matchedName && ownedItems.has(entry.matchedName.toLowerCase());
 
@@ -500,9 +500,9 @@ export default function BuildAnalyzerPage() {
                                                                 {isOwned && (
                                                                     <span
                                                                         className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300 shrink-0"
-                                                                        title="Este item ja existe no inventario salvo"
+                                                                        title="This item already exists in the saved inventory"
                                                                     >
-                                ✓ Ja tem
+                                ✓ Already owned
                               </span>
                                                                 )}
                                                                 <button
@@ -511,7 +511,7 @@ export default function BuildAnalyzerPage() {
                                                                         open(wikiUrl(isFound ? entry.matchedName! : entry.rawText));
                                                                     }}
                                                                     className="text-gray-500 hover:text-purple-400 transition-colors shrink-0"
-                                                                    title="Ver na wiki"
+                                                                    title="View on wiki"
                                                                 >
                                                                     <svg width="12" height="12" viewBox="0 0 12 12"
                                                                          fill="none">
@@ -550,12 +550,10 @@ export default function BuildAnalyzerPage() {
                                                         <div
                                                             className="border-t border-gray-800 bg-gray-950/60 px-3 py-3">
                                                             {isFarmLoading && (
-                                                                <p className="text-xs text-gray-500">Carregando fontes
-                                                                    de farm...</p>
+                                                                <p className="text-xs text-gray-500">Loading farm sources...</p>
                                                             )}
                                                             {!isFarmLoading && cachedFarm.length === 0 && (
-                                                                <p className="text-xs text-gray-500">Nenhuma fonte de
-                                                                    farm encontrada.</p>
+                                                                <p className="text-xs text-gray-500">No farm sources found.</p>
                                                             )}
                                                             {!isFarmLoading && cachedFarm.length > 0 && (
                                                                 <div className="space-y-1.5">
@@ -572,7 +570,7 @@ export default function BuildAnalyzerPage() {
                                                                                 {farm.source === "enemy" && farm.dropTableChance !== undefined && farm.itemChance !== undefined && (
                                                                                     <p className="mt-0.5 text-[10px] text-gray-500 truncate">
                                                                                         {farm.dropTableChance.toFixed(2)}%
-                                                                                        tabela
+                                                                                        table
                                                                                         × {farm.itemChance.toFixed(2)}%
                                                                                         item
                                                                                     </p>
@@ -584,14 +582,14 @@ export default function BuildAnalyzerPage() {
                                                                             <div className="text-right shrink-0">
                                                                                 <p className="text-sm font-bold text-purple-400">{farm.chance.toFixed(2)}%</p>
                                                                                 <p className="text-[10px] text-gray-500">
-                                                                                    ~{Math.ceil(100 / Math.max(farm.chance, 0.01))} {farm.source === "enemy" ? "kills" : farm.source === "relic" ? "aberturas" : "runs"}
+                                                                                    ~{Math.ceil(100 / Math.max(farm.chance, 0.01))} {farm.source === "enemy" ? "kills" : farm.source === "relic" ? "runs" : "runs"}
                                                                                 </p>
                                                                             </div>
                                                                         </div>
                                                                     ))}
                                                                     {cachedFarm.length > 8 && (
                                                                         <p className="text-[11px] text-gray-600">
-                                                                            Mostrando as 8 melhores fontes.
+                                                                            Showing the 8 best sources.
                                                                         </p>
                                                                     )}
                                                                 </div>
@@ -622,13 +620,13 @@ export default function BuildAnalyzerPage() {
                     <div
                         className="w-80 bg-gray-950 border border-gray-700 rounded-xl shadow-2xl p-5 flex flex-col gap-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold text-gray-200">Salvar Build</span>
+                            <span className="text-sm font-semibold text-gray-200">Save Build</span>
                             <button onClick={() => setShowSaveModal(false)}
                                     className="text-gray-500 hover:text-gray-200">✕
                             </button>
                         </div>
                         {saveStatus === "saved" ? (
-                            <p className="text-sm text-green-400 text-center py-2">✓ Build salva!</p>
+                            <p className="text-sm text-green-400 text-center py-2">✓ Build saved!</p>
                         ) : (
                             <>
                                 <input
@@ -640,21 +638,21 @@ export default function BuildAnalyzerPage() {
                                         if (e.key === "Enter") handleSaveBuild();
                                         if (e.key === "Escape") setShowSaveModal(false);
                                     }}
-                                    placeholder="Nome da build (ex: Volt Prime — Endgame)"
+                                    placeholder="Build name (e.g. Volt Prime — Endgame)"
                                     className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500"
                                 />
                                 <p className="text-xs text-gray-500">
-                                    {detections.filter(d => d.matchedName).length} itens reconhecidos serão salvos.
+                                    {detections.filter(d => d.matchedName).length} recognized items will be saved.
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                    O print atual tambem sera anexado a build para tracking no Build Tracker.
+                                    The current screenshot will also be attached to the build for tracking in Build Tracker.
                                 </p>
                                 <button
                                     onClick={handleSaveBuild}
                                     disabled={!saveName.trim()}
                                     className="w-full rounded-lg bg-purple-500 hover:bg-purple-400 disabled:opacity-40 py-2 text-sm font-semibold text-gray-950 transition-colors"
                                 >
-                                    Salvar
+                                    Save
                                 </button>
                             </>
                         )}

@@ -15,11 +15,11 @@ interface ItemEntry {
 
 const GROUP_META = {
     enemy: {
-        title: "Inimigos",
+        title: "Enemies",
         icon: "🗡️",
     },
     mission: {
-        title: "Missões",
+        title: "Missions",
         icon: "🎯",
     },
     bounty: {
@@ -27,7 +27,7 @@ const GROUP_META = {
         icon: "🏆",
     },
     special: {
-        title: "Especial",
+        title: "Special",
         icon: "⭐",
     },
     relic: {
@@ -137,11 +137,11 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
     const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
     function isOpen(key: string) {
-        return collapsed[key] !== true;
+        return !collapsed[key];
     }
 
     function toggleGroup(key: string) {
-        setCollapsed((prev) => ({...prev, [key]: prev[key] !== true}));
+        setCollapsed((prev) => ({...prev, [key]: !prev[key]}));
     }
 
     async function search(overrideName?: string) {
@@ -170,7 +170,7 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
                 setSelectedName(null);
             }
         } catch {
-            setError("Erro ao buscar dados de drop.");
+            setError("Error fetching drop data.");
         } finally {
             setLoading(false);
         }
@@ -232,7 +232,7 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
                                         )}
                                         {isEnemy && entry.dropTableChance !== undefined && entry.itemChance !== undefined && (
                                             <p className="mt-0.5 text-[11px] text-gray-500">
-                                                {entry.dropTableChance.toFixed(2)}% tabela
+                                                {entry.dropTableChance.toFixed(2)}% table
                                                 × {entry.itemChance.toFixed(2)}% item
                                             </p>
                                         )}
@@ -269,7 +269,7 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
                                         </p>
                                         {estimatedRuns !== null && (
                                             <p className="text-[11px] text-gray-500">
-                                                ~{estimatedRuns} {isEnemy ? "kills" : isRelic ? "aberturas" : "runs"}
+                                                ~{estimatedRuns} {isEnemy ? "kills" : isRelic ? "runs" : "runs"}
                                             </p>
                                         )}
                                     </div>
@@ -290,7 +290,7 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
             <div className="space-y-2">
                 <h1 className="text-lg font-bold text-purple-400">Farm Advisor</h1>
                 <p className="text-sm text-gray-500">
-                    Lista de localização de farm de itens.
+                    Item farm location list.
                 </p>
             </div>
             <div className="relative" ref={dropdownRef}>
@@ -303,7 +303,7 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
                             setSelectedName(null);
                         }}
                         onKeyDown={(event) => event.key === "Enter" && search()}
-                        placeholder="Nome do item ou mod (ex: Creeping Bullseye)"
+                        placeholder="Item or mod name (e.g. Creeping Bullseye)"
                         className="flex-1 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-purple-500 focus:outline-none"
                     />
                     <button
@@ -311,7 +311,7 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
                         disabled={loading}
                         className="rounded-lg bg-purple-500 px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-purple-400 disabled:opacity-50"
                     >
-                        {loading ? "..." : "Buscar"}
+                        {loading ? "..." : "Search"}
                     </button>
                 </div>
 
@@ -333,19 +333,19 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
 
             {searchedName && (
                 <p className="text-xs text-gray-500 flex items-center gap-1 flex-wrap">
-                    Busca por
+                    Search for
                     <span className="text-gray-100 font-semibold">{searchedName}</span>
                     <button
                         onClick={() => open(wikiUrl(searchedName))}
                         className="text-gray-500 hover:text-purple-400 transition-colors"
-                        title="Ver na wiki"
+                        title="View on wiki"
                     >
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                             <path d="M7 1h4v4M11 1L5 7M3 2H1v9h9V9" stroke="currentColor" strokeWidth="1.5"
                                   strokeLinecap="round"/>
                         </svg>
                     </button>
-                    {totalResults > 0 && <span>· {totalResults} drops encontrados</span>}
+                    {totalResults > 0 && <span>· {totalResults} drops found</span>}
                 </p>
             )}
 
@@ -362,7 +362,7 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
             )}
 
             {!loading && searchedName && totalResults === 0 && !error && (
-                <p className="text-sm text-gray-500">Nenhum drop encontrado para esse item.</p>
+                <p className="text-sm text-gray-500">No drops found for this item.</p>
             )}
         </div>
     );

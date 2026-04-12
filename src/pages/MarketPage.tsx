@@ -58,7 +58,7 @@ function OrderRow({
                     onClick={() => onCopy(order.user.ingameName, order.platinum, order.rank)}
                     className="text-xs px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-gray-300"
                 >
-                    {copied === order.user.ingameName ? "✓ Copiado" : "📋 Whisper"}
+                    {copied === order.user.ingameName ? "✓ Copied" : "📋 Whisper"}
                 </button>
             </div>
         </div>
@@ -87,18 +87,18 @@ export default function MarketPage({autoSearch, onAutoSearchDone}: Props) {
     const deferredQuery = useDeferredValue(query);
 
     function isOpen(key: string) {
-        return collapsed[key] !== true;
+        return !collapsed[key];
     }
 
     function toggleGroup(key: string) {
-        setCollapsed((prev) => ({...prev, [key]: prev[key] !== true}));
+        setCollapsed((prev) => ({...prev, [key]: !prev[key]}));
     }
 
     useEffect(() => {
         invoke<string>("read_items_list")
             .then((raw) => setAllItems(JSON.parse(raw)))
             .catch(() => {
-            }); // sem items_list.json, autocomplete fica desabilitado silenciosamente
+            }); // without items_list.json, autocomplete is silently disabled
     }, []);
 
     useEffect(() => {
@@ -154,7 +154,7 @@ export default function MarketPage({autoSearch, onAutoSearchDone}: Props) {
                 const baseData = JSON.parse(baseRaw);
                 const rankedData = JSON.parse(rankedRaw);
                 if (baseData.error && rankedData.error) {
-                    setError("Item não encontrado");
+                    setError("Item not found");
                     return;
                 }
                 setBaseOrders(baseData.data ?? null);
@@ -163,13 +163,13 @@ export default function MarketPage({autoSearch, onAutoSearchDone}: Props) {
                 const raw = await invoke<string>("fetch_market_top", {slug, rank: null});
                 const data = JSON.parse(raw);
                 if (data.error) {
-                    setError("Item não encontrado");
+                    setError("Item not found");
                     return;
                 }
                 setBaseOrders(data.data);
             }
         } catch {
-            setError("Erro ao buscar ordens.");
+            setError("Error fetching orders.");
         } finally {
             setLoading(false);
         }
@@ -206,7 +206,7 @@ export default function MarketPage({autoSearch, onAutoSearchDone}: Props) {
             <div className="space-y-2">
                 <h1 className="text-lg font-bold text-purple-400">Warframe Market</h1>
                 <p className="text-sm text-gray-500">
-                    Consulta de preço de itens em tempo real.
+                    Real-time item price lookup.
                 </p>
             </div>
 
@@ -220,7 +220,7 @@ export default function MarketPage({autoSearch, onAutoSearchDone}: Props) {
                             setSelectedSlug(null);
                         }}
                         onKeyDown={(e) => e.key === "Enter" && search()}
-                        placeholder="Nome do item (ex: Soma Prime Barrel)"
+                        placeholder="Item name (e.g. Soma Prime Barrel)"
                         className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500"
                     />
                     <button
@@ -228,7 +228,7 @@ export default function MarketPage({autoSearch, onAutoSearchDone}: Props) {
                         disabled={loading}
                         className="px-4 py-2 bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-gray-950 font-semibold text-sm rounded-lg"
                     >
-                        {loading ? "..." : "Buscar"}
+                        {loading ? "..." : "Search"}
                     </button>
                 </div>
 
@@ -255,10 +255,10 @@ export default function MarketPage({autoSearch, onAutoSearchDone}: Props) {
                     {(() => {
                         const groups: Array<{ id: string; title: string; orders: typeof baseOrders }> = rankedOrders
                             ? [
-                                {id: "base", title: "Mais barato (qualquer rank)", orders: baseOrders},
+                                {id: "base", title: "Cheapest (any rank)", orders: baseOrders},
                                 {id: "full", title: `Full rank (r${maxRank})`, orders: rankedOrders},
                             ]
-                            : [{id: "base", title: "Vendendo (online)", orders: baseOrders}];
+                            : [{id: "base", title: "Selling (online)", orders: baseOrders}];
 
                         return groups.map(({id, title, orders}) => {
                             const expanded = isOpen(id);

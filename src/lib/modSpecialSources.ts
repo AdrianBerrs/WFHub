@@ -17,37 +17,37 @@ const MOD_SPECIAL_RULES = [
     key: "primed",
     location: "Baro Ki'Teer",
     extra:
-      "Vendidos pelo Baro Ki'Teer (vendedor itinerante) que aparece a cada 15 dias em um Relay. Exige Ducats, obtidos vendendo itens Prime, e Créditos.",
+      "Sold by Baro Ki'Teer (the Void Trader) who appears every two weeks at a Relay. Requires Ducats, obtained by selling Prime items, and Credits.",
   },
   {
     key: "galvanized",
     location: "Arbiters of Hexis",
     extra:
-      "Comprados no terminal dos Arbiters of Hexis em qualquer Relay. Exige Vitus Essence, que cai apenas em missões de Arbitration, desbloqueadas após completar o Mapa Estelar.",
+      "Purchased from the Arbiters of Hexis terminal at any Relay. Requires Vitus Essence, which only drops in Arbitration missions, unlocked after completing the Star Chart.",
   },
   {
     key: "archon",
     location: "Chipper",
     extra:
-      "Comprados com o NPC Chipper no Acampamento do Drifter. Exige Stock, moeda obtida ao completar as missões semanais do Kahl-175.",
+      "Purchased from the NPC Chipper at the Drifter's Camp. Requires Stock, a currency earned by completing Kahl-175's weekly missions.",
   },
   {
     key: "amalgam",
     location: "Thermia Fractures / Ropalolyst",
     extra:
-      "Recompensas de marcos de pontuação no evento Thermia Fractures, em Orbis Vallis, ou drops raros ao derrotar o chefe Ropalolyst em Júpiter.",
+      "Rewards from score milestones in the Thermia Fractures event on Orb Vallis, or rare drops from defeating the Ropalolyst boss on Jupiter.",
   },
   {
     key: "umbral",
-    location: "Jornada O Sacrifício",
+    location: "The Sacrifice Quest",
     extra:
-      'Ganhos automaticamente como recompensa ao completar a jornada principal "O Sacrifício". Não podem ser farmados repetidamente; cópias extras são compradas com o Cephalon Simaris.',
+      'Automatically earned as rewards by completing the main quest "The Sacrifice". Cannot be farmed repeatedly; extra copies are purchased from Cephalon Simaris.',
   },
   {
     key: "sacrificial",
-    location: "Jornada O Sacrifício",
+    location: "The Sacrifice Quest",
     extra:
-      'Também são recompensas exclusivas da jornada "O Sacrifício". São os equivalentes aos Umbral, mas instalados em armas brancas.',
+      'Also exclusive rewards from the quest "The Sacrifice". These are the Umbral equivalents, but installed on melee weapons.',
   },
 ] as const;
 
@@ -61,7 +61,7 @@ export function getSpecialModSources(name: string): FarmResult[] {
     itemName: name,
     location: rule.location,
     chance: 100,
-    rarity: "Especial",
+    rarity: "Special",
     extra: rule.extra,
   }));
 }

@@ -247,7 +247,7 @@ function valuateAuctions(riven: ParsedRiven, exactAuctions: AuctionEntry[], broa
 }
 
 function formatPriceBand(prices: number[]): string {
-    if (prices.length === 0) return "Sem comps";
+    if (prices.length === 0) return "No comps";
     if (prices.length === 1) return `${prices[0]}p`;
     const floor = prices[0];
     const median = prices[Math.floor(prices.length / 2)];
@@ -356,37 +356,37 @@ const PROGENITOR_WARFRAMES: TutorialElement[] = [
     {
         element: "Heat 🔥",
         colorClass: "text-orange-300",
-        summary: "Melhor para dano sustentado. Escala bem em alvo único, acumula fácil e ainda ajuda com partial strip.",
+        summary: "Best for sustained damage. Scales well on single targets, stacks easily and still helps with partial strip.",
         frames: ["Chroma", "Ember", "Inaros", "Jade", "Kullervo", "Nezha", "Protea", "Temple", "Uriel", "Vauban", "Wisp"],
     },
     {
         element: "Cold ❄️",
         colorClass: "text-cyan-300",
-        summary: "Focado em dano bruto e crit puro, normalmente em setups raw damage ou junto de Corrosive.",
+        summary: "Focused on raw damage and pure crit, usually in raw damage setups or alongside Corrosive.",
         frames: ["Frost", "Gara", "Hildryn", "Koumei", "Revenant", "Styanax", "Titania", "Trinity"],
     },
     {
         element: "Electricity ⚡️",
         colorClass: "text-violet-300",
-        summary: "Melhor para burst DPS, grouping e setups onde dano imediato e headshots têm muito peso.",
+        summary: "Best for burst DPS, grouping and setups where immediate damage and headshots carry heavy weight.",
         frames: ["Banshee", "Caliban", "Excalibur", "Gyre", "Limbo", "Nova", "Valkyr", "Volt"],
     },
     {
         element: "Toxin 🦠",
         colorClass: "text-lime-300",
-        summary: "Ótimo contra Corpus e muito valioso para economizar slot em builds Viral ou crit/slash tradicionais.",
+        summary: "Great against Corpus and very valuable for saving a slot in Viral builds or traditional crit/slash builds.",
         frames: ["Atlas", "Dagath", "Ivara", "Khora", "Nekros", "Nidus", "Nokko", "Oberon", "Oraxia", "Saryn"],
     },
     {
         element: "Magnetic 🧲",
         colorClass: "text-blue-300",
-        summary: "Melhor elemento coringa. Normalmente não atrapalha a ordem dos status e é muito útil contra shields e overguard.",
+        summary: "Best wildcard element. Normally doesn't interfere with status order and is very useful against shields and overguard.",
         frames: ["Citrine", "Cyte-09", "Harrow", "Hydroid", "Lavos", "Mag", "Mesa", "Xaku", "Yareli"],
     },
     {
         element: "Radiation ☢️",
         colorClass: "text-yellow-300",
-        summary: "Hoje é mais situacional. No texto-base, Magnetic substitui boa parte do papel que antes Radiation ocupava.",
+        summary: "More situational today. In the current meta, Magnetic replaces much of the role that Radiation previously held.",
         frames: ["Ash", "Equinox", "Garuda", "Loki", "Mirage", "Nyx", "Octavia", "Qorvex", "Voruna"],
     },
 ];
@@ -402,49 +402,49 @@ const TUTORIAL_SYSTEMS: TutorialSystem[] = [
                         weapon: "Kuva Bramma",
                         best: "Toxin",
                         alternatives: "Magnetic",
-                        notes: ["Toxin é o melhor para builds clássicas de Viral/Hunter Munitions.", "Magnetic é a alternativa para dano bruto sem mexer na ordem dos status."]
+                        notes: ["Toxin is the best for classic Viral/Hunter Munitions builds.", "Magnetic is the alternative for raw damage without altering status order."]
                     },
                     {
                         weapon: "Kuva Chakkhurr",
                         best: "Toxin",
                         alternatives: "Magnetic, Electric",
-                        notes: ["Toxin ajuda setups com Internal Bleeding e economiza slot.", "Magnetic é a escolha geral para builds elementais puras.", "Electric é mais situacional para maximizar peso de Electric."]
+                        notes: ["Toxin helps Internal Bleeding setups and saves a slot.", "Magnetic is the general choice for pure elemental builds.", "Electric is more situational to maximize Electric weight."]
                     },
                     {
                         weapon: "Kuva Ogris",
                         best: "Magnetic",
                         alternatives: "Electric, Cold",
-                        notes: ["Magnetic é o melhor default por ajudar contra overguard e shield.", "Electric é forte em grouping e tesla-chain dots.", "Cold fica como opção de nicho para tech específica, como Saryn."]
+                        notes: ["Magnetic is the best default for helping against overguard and shields.", "Electric is strong in grouping and tesla-chain DoTs.", "Cold works as a niche option for specific tech, like Saryn."]
                     },
                     {
                         weapon: "Kuva Tonkor",
                         best: "Toxin",
                         alternatives: "Magnetic",
-                        notes: ["Toxin é o pick ideal para Viral/HM.", "Magnetic entra em builds de raw damage."]
+                        notes: ["Toxin is the ideal pick for Viral/HM.", "Magnetic fits in raw damage builds."]
                     },
                     {
                         weapon: "Kuva Zarr",
                         best: "Toxin",
                         alternatives: "Magnetic",
-                        notes: ["Toxin segue como escolha principal em slash/viral tradicional.", "Magnetic é a saída para builds mais neutras e flexíveis."]
+                        notes: ["Toxin remains the main choice in traditional slash/viral.", "Magnetic is the option for more neutral and flexible builds."]
                     },
                     {
                         weapon: "Kuva Hind",
                         best: "Magnetic",
                         alternatives: "Heat, Toxin",
-                        notes: ["Magnetic é a recomendação geral.", "Heat funciona muito bem em pure heat/precision.", "Toxin ajuda a fechar Viral com um mod só."]
+                        notes: ["Magnetic is the general recommendation.", "Heat works very well in pure heat/precision.", "Toxin helps close Viral with a single mod."]
                     },
                     {
                         weapon: "Kuva Karak",
                         best: "Magnetic",
                         alternatives: "Toxin",
-                        notes: ["Magnetic é o melhor default.", "Toxin é útil se a build girar em volta de Viral/HM."]
+                        notes: ["Magnetic is the best default.", "Toxin is useful if the build revolves around Viral/HM."]
                     },
                     {
                         weapon: "Kuva Quartakk",
                         best: "Magnetic",
                         alternatives: "Toxin",
-                        notes: ["Magnetic para flexibilidade geral.", "Toxin é a escolha para slash/viral clássico."]
+                        notes: ["Magnetic for general flexibility.", "Toxin is the choice for classic slash/viral."]
                     },
                 ],
             },
@@ -455,25 +455,25 @@ const TUTORIAL_SYSTEMS: TutorialSystem[] = [
                         weapon: "Kuva Drakgoon",
                         best: "Magnetic",
                         alternatives: "Toxin",
-                        notes: ["Magnetic é a recomendação geral por não interferir na ordem dos status.", "Toxin vale se a ideia for economizar slot para Viral."]
+                        notes: ["Magnetic is the general recommendation for not interfering with status order.", "Toxin is worth it if the goal is saving a slot for Viral."]
                     },
                     {
                         weapon: "Kuva Hek",
                         best: "Cold",
                         alternatives: "Toxin",
-                        notes: ["Cold permite Corrosive + Cold com poucos slots e é o melhor para raw damage.", "Toxin é a segunda opção por flexibilidade."]
+                        notes: ["Cold enables Corrosive + Cold with few slots and is the best for raw damage.", "Toxin is the second option for flexibility."]
                     },
                     {
                         weapon: "Kuva Kohm",
                         best: "Magnetic",
                         alternatives: "Toxin",
-                        notes: ["Magnetic é o melhor pick geral e conversa bem com pure electric.", "Toxin continua forte para slash/viral."]
+                        notes: ["Magnetic is the best general pick and works well with pure electric.", "Toxin remains strong for slash/viral."]
                     },
                     {
                         weapon: "Kuva Sobek",
                         best: "Magnetic",
                         alternatives: "Electric, Heat",
-                        notes: ["Magnetic é o melhor pick universal.", "Electric sobe muito em builds com grouping.", "Heat continua excelente para sustain e scaling em alvo único."]
+                        notes: ["Magnetic is the best universal pick.", "Electric rises significantly in grouping builds.", "Heat remains excellent for sustain and single-target scaling."]
                     },
                 ],
             },
@@ -484,29 +484,29 @@ const TUTORIAL_SYSTEMS: TutorialSystem[] = [
                         weapon: "Kuva Brakk",
                         best: "Magnetic",
                         alternatives: "Electric, Heat",
-                        notes: ["Magnetic é o default mais seguro.", "Electric e Heat são caminhos mais especializados para dano puro."]
+                        notes: ["Magnetic is the safest default.", "Electric and Heat are more specialized paths for pure damage."]
                     },
                     {
                         weapon: "Kuva Kraken",
                         best: "Toxin",
                         alternatives: "Magnetic",
-                        notes: ["Toxin ajuda muito em builds com Hemorrhage e setups gerais.", "Magnetic é a opção neutra."]
+                        notes: ["Toxin helps a lot in Hemorrhage builds and general setups.", "Magnetic is the neutral option."]
                     },
                     {
                         weapon: "Kuva Nukor",
                         best: "Magnetic",
-                        notes: ["Melhor escolha geral para Encumber, Enervate e primer/utility."]
+                        notes: ["Best general choice for Encumber, Enervate and primer/utility."]
                     },
                     {
                         weapon: "Kuva Seer",
                         best: "Magnetic",
-                        notes: ["O texto-base trata Magnetic como a melhor opção atual para debuffs amplos e uso geral."]
+                        notes: ["The current meta treats Magnetic as the best option for broad debuffs and general use."]
                     },
                     {
                         weapon: "Kuva Twin Stubbas",
                         best: "Magnetic",
                         alternatives: "Electric, Heat",
-                        notes: ["Magnetic é o pick padrão.", "Electric e Heat funcionam melhor em builds dedicadas ao elemento."]
+                        notes: ["Magnetic is the standard pick.", "Electric and Heat work better in builds dedicated to the element."]
                     },
                 ],
             },
@@ -517,24 +517,24 @@ const TUTORIAL_SYSTEMS: TutorialSystem[] = [
                         weapon: "Kuva Ghoulsaw",
                         best: "Electric",
                         alternatives: "Magnetic",
-                        notes: ["Electric é o melhor para Melee Influence.", "Magnetic vale quando a build quer explorar grouping/vortex."]
+                        notes: ["Electric is the best for Melee Influence.", "Magnetic is worth it when the build wants to explore grouping/vortex."]
                     },
                     {
                         weapon: "Kuva Shildeg",
                         best: "Electric",
                         alternatives: "Magnetic",
-                        notes: ["Electric é entrada zero-cost para Influence.", "Magnetic fica para tox/afflictions."]
+                        notes: ["Electric is the zero-cost entry for Influence.", "Magnetic is for tox/afflictions."]
                     },
                 ],
             },
             {
                 title: "Archgun",
                 weapons: [
-                    {weapon: "Kuva Ayanga", best: "Magnetic", notes: ["Magnetic é o pick geral recomendado."]},
+                    {weapon: "Kuva Ayanga", best: "Magnetic", notes: ["Magnetic is the recommended general pick."]},
                     {
                         weapon: "Kuva Grattler",
                         best: "Magnetic",
-                        notes: ["Mesma lógica da Ayanga: escolha estável e universal."]
+                        notes: ["Same logic as Ayanga: stable and universal choice."]
                     },
                 ],
             },
@@ -549,37 +549,37 @@ const TUTORIAL_SYSTEMS: TutorialSystem[] = [
                     {
                         weapon: "Tenet Envoy",
                         best: "Toxin",
-                        notes: ["É a escolha natural porque a arma já tem Cold e isso fecha Viral sem custo."]
+                        notes: ["It is the natural choice because the weapon already has Cold, closing Viral at no cost."]
                     },
                     {
                         weapon: "Tenet Ferrox",
                         best: "Electric",
                         alternatives: "Toxin",
-                        notes: ["Electric é o melhor pela sinergia com o alt fire elétrico e o pull.", "Toxin entra se você quiser abrir outras combinações, como corrosive."]
+                        notes: ["Electric is the best due to synergy with the electric alt fire and the pull.", "Toxin comes in if you want to open other combinations, like Corrosive."]
                     },
                     {
                         weapon: "Tenet Flux Rifle",
                         best: "Magnetic",
                         alternatives: "Toxin",
-                        notes: ["Magnetic é o melhor default para builds elementais.", "Toxin vale em Viral/HM por causa do slash."]
+                        notes: ["Magnetic is the best default for elemental builds.", "Toxin is worth it in Viral/HM because of slash."]
                     },
                     {
                         weapon: "Tenet Glaxion",
                         best: "Magnetic",
                         alternatives: "Heat, Toxin, Impact",
-                        notes: ["Magnetic é o melhor uso geral e brilha em setups com Debilitate.", "Heat é muito forte para blast puro.", "Toxin funciona para Viral mais clássico.", "Impact é nichado para energia."]
+                        notes: ["Magnetic is the best general use and shines in Debilitate setups.", "Heat is very strong for pure blast.", "Toxin works for more classic Viral.", "Impact is niche for energy-focused builds."]
                     },
                     {
                         weapon: "Tenet Quanta",
                         best: "Magnetic",
                         alternatives: "Toxin",
-                        notes: ["Magnetic é a escolha padrão para uso geral.", "Toxin é interessante para corrosive sem mod ou Precision Acuity."]
+                        notes: ["Magnetic is the standard choice for general use.", "Toxin is interesting for modless Corrosive or Precision Acuity."]
                     },
                     {
                         weapon: "Tenet Tetra",
                         best: "Electric",
                         alternatives: "Magnetic, Toxin",
-                        notes: ["Electric é o melhor para Kinetic Ricochet e agrupamento.", "Magnetic é a alternativa flexível.", "Toxin continua útil em viral/slash."]
+                        notes: ["Electric is the best for Kinetic Ricochet and grouping.", "Magnetic is the flexible alternative.", "Toxin remains useful in viral/slash."]
                     },
                 ],
             },
@@ -590,7 +590,7 @@ const TUTORIAL_SYSTEMS: TutorialSystem[] = [
                         weapon: "Tenet Arca Plasmor",
                         best: "Electric",
                         alternatives: "Magnetic, Toxin",
-                        notes: ["Electric é o melhor para peso de Electric e setups de grouping.", "Magnetic é um ótimo pick geral.", "Toxin ainda funciona, mas a linha está menos meta segundo o texto-base."]
+                        notes: ["Electric is the best for Electric weight and grouping setups.", "Magnetic is a great general pick.", "Toxin still works, but is considered less meta in the current tier list."]
                     },
                 ],
             },
@@ -601,31 +601,31 @@ const TUTORIAL_SYSTEMS: TutorialSystem[] = [
                         weapon: "Tenet Cycron",
                         best: "Heat",
                         alternatives: "Cold, Magnetic",
-                        notes: ["Heat é o melhor para DPS puro hoje.", "Cold ganha muito valor por criar Blast sem custo com o Heat inato.", "Magnetic continua ideal para uso como primer."]
+                        notes: ["Heat is the best for pure DPS today.", "Cold gains a lot of value by creating Blast at no cost with the innate Heat.", "Magnetic remains ideal for use as a primer."]
                     },
                     {
                         weapon: "Tenet Detron",
                         best: "Magnetic",
                         alternatives: "Electric, Heat",
-                        notes: ["Magnetic é a recomendação geral.", "Electric e Heat brilham em builds completamente dedicadas ao elemento."]
+                        notes: ["Magnetic is the general recommendation.", "Electric and Heat shine in builds fully dedicated to the element."]
                     },
                     {
                         weapon: "Tenet Diplos",
                         best: "Magnetic",
                         alternatives: "Toxin",
-                        notes: ["Magnetic é o melhor para raw DPS geral.", "Toxin fica para Viral/Slash."]
+                        notes: ["Magnetic is the best for general raw DPS.", "Toxin is for Viral/Slash."]
                     },
                     {
                         weapon: "Tenet Plinx",
                         best: "Magnetic",
                         alternatives: "Electric",
-                        notes: ["Magnetic é a melhor escolha geral nos dois modos de tiro.", "Electric sobe para o topo quando o foco é alt fire puro."]
+                        notes: ["Magnetic is the best general choice in both fire modes.", "Electric rises to the top when the focus is pure alt fire."]
                     },
                     {
                         weapon: "Tenet Spirex",
                         best: "Magnetic",
                         alternatives: "Toxin",
-                        notes: ["Magnetic é o melhor pick geral no estado atual.", "Toxin ainda existe para Hemorrhage, mas o texto considera setups elementais superiores."]
+                        notes: ["Magnetic is the best general pick in the current state.", "Toxin still exists for Hemorrhage, but elemental setups are considered superior."]
                     },
                 ],
             },
@@ -635,25 +635,25 @@ const TUTORIAL_SYSTEMS: TutorialSystem[] = [
                     {
                         weapon: "Tenet Agendus",
                         best: "Electric",
-                        notes: ["Electric é o pick direto para Melee Influence."]
+                        notes: ["Electric is the direct pick for Melee Influence."]
                     },
                     {
                         weapon: "Tenet Exec",
                         best: "Electric",
                         alternatives: "Toxin",
-                        notes: ["Electric domina para Influence e clear geral.", "Toxin entra para viral/afflictions em builds específicas."]
+                        notes: ["Electric dominates for Influence and general clear.", "Toxin fits in for viral/afflictions in specific builds."]
                     },
                     {
                         weapon: "Tenet Grigori",
                         best: "Electric",
                         alternatives: "Toxin",
-                        notes: ["Electric tem ótima sinergia com os discos e Influence.", "Toxin é a opção para viral ou afflictions."]
+                        notes: ["Electric has great synergy with the discs and Influence.", "Toxin is the option for viral or afflictions."]
                     },
                     {
                         weapon: "Tenet Livia",
                         best: "Electric",
                         alternatives: "Toxin",
-                        notes: ["Electric é o padrão para Influence.", "Toxin serve para viral, pure tox ou afflictions em heavy/slam builds."]
+                        notes: ["Electric is the standard for Influence.", "Toxin works for viral, pure tox or afflictions in heavy/slam builds."]
                     },
                 ],
             },
@@ -766,19 +766,19 @@ function evaluateRiven(riven: ParsedRiven, rules: RivenRules): RivenEval | null 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const CLASS_LABELS: Record<string, string> = {
-    primary: "Primária",
-    secondary: "Secundária",
-    melee: "Corpo a Corpo",
+    primary: "Primary",
+    secondary: "Secondary",
+    melee: "Melee",
     archgun: "Archgun",
-    robotic: "Robótico",
+    robotic: "Robotic",
 };
 
 const VERDICT_CONFIG: Record<Verdict, { label: string; color: string }> = {
     god_roll: {label: "God Roll", color: "bg-purple-500/20 text-purple-400 border-purple-500/30"},
-    good: {label: "Bom", color: "bg-green-500/20 text-green-300 border-green-500/30"},
-    decent: {label: "Decente", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"},
-    bad: {label: "Ruim", color: "bg-red-500/20 text-red-300 border-red-500/30"},
-    unknown: {label: "Arma desconhecida", color: "bg-gray-500/20 text-gray-400 border-gray-500/30"},
+    good: {label: "Good", color: "bg-green-500/20 text-green-300 border-green-500/30"},
+    decent: {label: "Decent", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"},
+    bad: {label: "Bad", color: "bg-red-500/20 text-red-300 border-red-500/30"},
+    unknown: {label: "Unknown weapon", color: "bg-gray-500/20 text-gray-400 border-gray-500/30"},
 };
 
 function RivenCombinedCard({
@@ -806,7 +806,7 @@ function RivenCombinedCard({
                     <img
                         src={preview}
                         className="h-full w-full object-contain"
-                    />
+                        alt={"Preview"}/>
                 </div>
             )}
 
@@ -892,7 +892,7 @@ function RivenCard({
                 <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
             <span className="text-base text-gray-400">
-              {riven.modName ?? "Nome do mod não detectado"}
+              {riven.modName ?? "Mod name not detected"}
             </span>
                     </div>
                 </div>
@@ -916,7 +916,7 @@ function RivenCard({
                                 <span className="ml-auto text-gray-400">{s.value.toFixed(1)}%</span>
                                 <span
                                     className={`text-xs ${s.rating === "must" ? "text-purple-400" : s.rating === "preferred" ? "text-sky-500" : "text-yellow-500"}`}>
-                  {s.rating === "must" ? "Must Have" : s.rating === "preferred" ? "Preferido" : "Ok"}
+                  {s.rating === "must" ? "Must Have" : s.rating === "preferred" ? "Preferred" : "Ok"}
                 </span>
                             </div>
                         ))
@@ -953,7 +953,7 @@ function RivenCard({
                     ) : (
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                             <span className="text-gray-500">−</span>
-                            <span>Sem negativo</span>
+                            <span>No negative</span>
                         </div>
                     )}
                 </div>
@@ -978,7 +978,7 @@ function RivenCard({
                         disabled={!activeWeapon || valuationState.phase === "loading"}
                         className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {valuationState.phase === "loading" ? "Buscando..." : "Evaluate Cost"}
+                        {valuationState.phase === "loading" ? "Searching..." : "Evaluate Cost"}
                     </button>
                 </div>
 
@@ -996,7 +996,7 @@ function RivenCard({
                                         <p className="text-xs font-semibold uppercase tracking-wide">{bucket.label}</p>
                                         <p className="mt-2 text-lg font-bold">{formatPriceBand(bucket.prices)}</p>
                                         <p className="mt-1 text-[11px] text-gray-400">
-                                            {bucket.auctions.length > 0 ? `${bucket.auctions.length} comps` : "Sem comps"}
+                                            {bucket.auctions.length > 0 ? `${bucket.auctions.length} comps` : "No comps"}
                                         </p>
                                         {bucket.auctions[0] && (
                                             <p className="mt-2 text-[11px] text-gray-400 truncate">
@@ -1021,7 +1021,7 @@ function RivenCard({
                                             rel="noreferrer"
                                             className="inline-flex items-center rounded-lg border border-gray-700 bg-gray-800/70 px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-700/70 hover:text-gray-100"
                                         >
-                                            Ver {bucket.label.toLowerCase()}
+                                            View {bucket.label.toLowerCase()}
                                         </a>
                                     );
                                 })}
@@ -1117,7 +1117,7 @@ function RivenAnalyzer() {
 
             const blob = imageItem.getAsFile();
             if (!blob) {
-                setState({phase: "error", message: "Não foi possível ler a imagem do clipboard."});
+                setState({phase: "error", message: "Could not read the image from clipboard."});
                 loadingRef.current = false;
                 return;
             }
@@ -1160,7 +1160,7 @@ function RivenAnalyzer() {
                 }
 
                 if (!hasDetectedRivens(ocr)) {
-                    setState({phase: "error", message: "Nenhum riven detectado na imagem."});
+                    setState({phase: "error", message: "No riven detected in the image."});
                     return;
                 }
 
@@ -1197,9 +1197,9 @@ function RivenAnalyzer() {
                     className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-gray-700 bg-gray-900/30 p-12 text-center">
                     <p className="text-4xl">⚔️</p>
                     <div className="space-y-1">
-                        <p className="text-base font-semibold text-gray-200">Cole o print do riven aqui</p>
-                        <p className="text-sm text-gray-500">Cmd+V com o screenshot do riven</p>
-                        <p className="text-xs text-gray-600">Aceita 1 ou 2 rivens na mesma imagem</p>
+                        <p className="text-base font-semibold text-gray-200">Paste your riven screenshot here</p>
+                        <p className="text-sm text-gray-500">Cmd+V with the riven screenshot</p>
+                        <p className="text-xs text-gray-600">Accepts 1 or 2 rivens in the same image</p>
                     </div>
                 </div>
             </div>
@@ -1211,7 +1211,7 @@ function RivenAnalyzer() {
             <div className="flex h-full items-center justify-center">
                 <div className="flex flex-col items-center gap-3 text-center">
                     <div className="h-8 w-8 animate-spin rounded-full border-2 border-purple-500 border-t-transparent"/>
-                    <p className="text-sm text-gray-400">Analisando riven...</p>
+                    <p className="text-sm text-gray-400">Analyzing riven...</p>
                 </div>
             </div>
         );
@@ -1222,13 +1222,13 @@ function RivenAnalyzer() {
             <div className="flex h-full items-center justify-center">
                 <div
                     className="flex flex-col items-center gap-4 rounded-2xl border border-red-900/40 bg-red-950/20 p-8 text-center max-w-md">
-                    <p className="text-sm font-semibold text-red-400">Erro ao analisar imagem</p>
+                    <p className="text-sm font-semibold text-red-400">Error analyzing image</p>
                     <p className="text-xs text-red-500/80 break-all">{state.message}</p>
                     <button
                         onClick={handleReset}
                         className="rounded-lg border border-gray-700 px-4 py-2 text-xs text-gray-400 hover:text-gray-200 transition-colors"
                     >
-                        Tentar novamente
+                        Try again
                     </button>
                 </div>
             </div>
@@ -1252,7 +1252,7 @@ function RivenAnalyzer() {
                     <p className="text-sm text-red-400">{ocr.error}</p>
                     <button onClick={handleReset}
                             className="text-xs text-gray-500 hover:text-gray-300 transition-colors">
-                        Limpar
+                        Clear
                     </button>
                 </div>
             </div>
@@ -1282,11 +1282,10 @@ function RivenAnalyzer() {
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <p className="text-xs text-gray-600">
-                    {ocr.mode === "compare" ? "2 rivens detectados" : "1 riven detectado"} — cole outro print para
-                    substituir
+                    {ocr.mode === "compare" ? "2 rivens detected" : "1 riven detected"} — paste another screenshot to replace
                 </p>
                 <button onClick={handleReset} className="text-xs text-gray-500 hover:text-gray-300 transition-colors">
-                    Limpar
+                    Clear
                 </button>
             </div>
 
@@ -1298,7 +1297,7 @@ function RivenAnalyzer() {
               {titleCaseWeapon(sharedWeapon)} - {CLASS_LABELS[sharedWeaponClass?.toLowerCase() ?? ""] || sharedWeaponClass}
             </span>
                     ) : (
-                        <span className="text-sm text-gray-500">Arma não detectada</span>
+                        <span className="text-sm text-gray-500">Weapon not detected</span>
                     )}
                 </div>
 
@@ -1309,7 +1308,7 @@ function RivenAnalyzer() {
                             onChange={(e) => setWeaponInput(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && applySharedWeapon()}
                             list={weaponListId}
-                            placeholder={sharedWeapon ? "Trocar arma" : "Buscar arma para aplicar ao riven"}
+                            placeholder={sharedWeapon ? "Change weapon" : "Search weapon to apply to the riven"}
                             className="flex-1 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 placeholder-gray-600 focus:border-purple-500/50 focus:outline-none"
                         />
                         <datalist id={weaponListId}>
@@ -1321,7 +1320,7 @@ function RivenAnalyzer() {
                             onClick={applySharedWeapon}
                             className="rounded-lg bg-purple-500/20 border border-purple-500/30 px-3 py-2 text-xs font-medium text-purple-300 hover:bg-purple-500/30 transition-colors"
                         >
-                            Aplicar
+                            Apply
                         </button>
                     </div>
                 )}
@@ -1350,11 +1349,11 @@ function RivenAnalyzer() {
                                 </div>
                             )}
 
-                            {/* ALTERNATIVAS */}
+                            {/* ALTERNATIVES */}
                             {hasAlternatives && (
                                 <div className="flex flex-col gap-2">
                                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
-                                        Alternativas
+                                        Alternatives
                                     </p>
                                     <div className="flex flex-wrap gap-2">
                                         {alternativeGroups.map((group, index) => (
@@ -1375,7 +1374,7 @@ function RivenAnalyzer() {
                             {hasFreeNegatives && (
                                 <div className="flex flex-col gap-2">
                                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
-                                        Negativos Livres
+                                        Free Negatives
                                     </p>
 
                                     <div className="flex flex-wrap gap-2">
@@ -1397,8 +1396,8 @@ function RivenAnalyzer() {
                     ) : (
                         <p className="text-sm text-gray-500">
                             {sharedWeapon
-                                ? "Sem dados de prioridade para a pattern atual."
-                                : "Selecione uma arma para ver as prioridades."}
+                                ? "No priority data for the current pattern."
+                                : "Select a weapon to see priorities."}
                         </p>
                     )}
                 </div>
@@ -1470,11 +1469,11 @@ function TutorialPanel() {
     const currentSystem = TUTORIAL_SYSTEMS.find((item) => item.name === systemTab)!;
 
     function isOpen(key: string) {
-        return collapsed[key] !== true;
+        return !collapsed[key];
     }
 
     function toggleGroup(key: string) {
-        setCollapsed((prev) => ({...prev, [key]: prev[key] !== true}));
+        setCollapsed((prev) => ({...prev, [key]: !prev[key]}));
     }
 
     return (
@@ -1482,12 +1481,10 @@ function TutorialPanel() {
             <div className="rounded-2xl border border-gray-800 bg-gray-900/40 p-4">
                 <h2 className="text-lg font-semibold text-purple-300">Progenitor Tutorial</h2>
                 <p className="mt-2 text-sm text-gray-400">
-                    Guia rápido para escolher o elemento progenitor de armas Kuva e Tenet.
+                    Quick guide for choosing the progenitor element for Kuva and Tenet weapons.
                 </p>
                 <p className="mt-2 text-sm text-gray-400">
-                    A lógica principal é simples: use o elemento que melhora a build dominante da arma sem atrapalhar a
-                    ordem
-                    dos status.
+                    The main logic is simple: use the element that improves the weapon's dominant build without disrupting the status order.
                 </p>
             </div>
 
@@ -1540,10 +1537,10 @@ function TutorialPanel() {
                                                         <div>
                                                             <h4 className="text-sm font-semibold text-gray-100">{entry.weapon}</h4>
                                                             <p className="mt-1 text-xs text-gray-400">
-                                                                Melhor: <span
+                                                                Best: <span
                                                                 className="font-semibold text-purple-300">{entry.best}</span>
                                                                 {entry.alternatives && (
-                                                                    <> • Alternativas: <span
+                                                                    <> • Alternatives: <span
                                                                         className="text-gray-300">{entry.alternatives}</span></>
                                                                 )}
                                                             </p>
@@ -1579,7 +1576,7 @@ export default function RivenAdvisorPage() {
             <div className="space-y-2">
                 <h1 className="text-lg font-bold text-purple-400">Rivens</h1>
                 <p className="text-sm text-gray-500">
-                    Avalie rivens colando um print (Cmd+V) ou consulte o guia de progenitors.
+                    Evaluate rivens by pasting a screenshot (Cmd+V) or consult the progenitor guide.
                 </p>
             </div>
 

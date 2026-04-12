@@ -36,13 +36,13 @@ interface ScreenshotPreviewState {
 function sourceLabel(source: FarmResult["source"]): string {
     switch (source) {
         case "enemy":
-            return "Inimigo";
+            return "Enemy";
         case "mission":
-            return "Missão";
+            return "Mission";
         case "bounty":
             return "Bounty";
         case "special":
-            return "Especial";
+            return "Special";
         case "relic":
             return "Relic";
     }
@@ -209,13 +209,13 @@ export default function BuildTrackerPage() {
             <div className="space-y-2">
                 <h1 className="text-lg font-bold text-purple-400">Build Tracker</h1>
                 <p className="mt-1 text-sm text-gray-500">
-                    Acompanhamento de builds salvas e indicação de farm.
+                    Track saved builds and farm indicators.
                 </p>
             </div>
 
             {builds.length === 0 ? (
                 <p className="text-gray-500 text-sm">
-                    Nenhuma build salva. Analise uma build no Build Analyzer e clique em "Salvar Build".
+                    No saved builds. Analyze a build in Build Analyzer and click "Save Build".
                 </p>
             ) : (
                 <div className="flex-1 overflow-auto space-y-2">
@@ -241,7 +241,7 @@ export default function BuildTrackerPage() {
                                             {build.screenshot_rel_path && (
                                                 <span
                                                     className="shrink-0 rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-300">
-                                                Print salvo
+                                                Screenshot saved
                                               </span>
                                             )}
                                         </span>
@@ -259,14 +259,14 @@ export default function BuildTrackerPage() {
                                                 </>
                                             )}
                                           {!detail?.loaded && (
-                                              <span className="text-xs text-gray-500">{total} itens</span>)}
+                                              <span className="text-xs text-gray-500">{total} items</span>)}
                                             <span className="text-xs text-gray-500">{isOpen ? "▲" : "▼"}</span>
                                         </span>
                                     </button>
                                     <button
                                         onClick={() => deleteBuild(build.id)}
                                         className="text-gray-600 hover:text-red-400 text-sm transition-colors shrink-0"
-                                        title="Deletar build">
+                                        title="Delete build">
                                         ✕
                                     </button>
                                 </div>
@@ -280,24 +280,21 @@ export default function BuildTrackerPage() {
                                             {build.screenshot_rel_path && (
                                                 <div
                                                     className="border-b border-gray-800 bg-gray-900/50 p-4 xl:border-b-0 xl:border-r">
-                                                    <p className="text-xs text-gray-500 mb-3 text-center">Preview do
-                                                        print.</p>
+                                                    <p className="text-xs text-gray-500 mb-3 text-center">Screenshot preview.</p>
                                                     {previewByBuildId[build.id]?.loading && (
-                                                        <p className="text-xs text-gray-500">Carregando preview do
-                                                            print...</p>
+                                                        <p className="text-xs text-gray-500">Loading screenshot preview...</p>
                                                     )}
                                                     {!previewByBuildId[build.id]?.loading && previewByBuildId[build.id]?.error && (
-                                                        <p className="text-xs text-gray-500">Preview do print
-                                                            indisponivel no momento.</p>
+                                                        <p className="text-xs text-gray-500">Screenshot preview unavailable.</p>
                                                     )}
                                                     {!previewByBuildId[build.id]?.loading && previewByBuildId[build.id]?.src && (
                                                         <button
                                                             onClick={() => openBuildScreenshot(build.screenshot_rel_path!)}
                                                             className="block w-full overflow-hidden rounded-lg border border-gray-800 bg-gray-950/70 hover:border-gray-700 transition-colors"
-                                                            title="Abrir print salvo">
+                                                            title="Open saved screenshot">
                                                             <img
                                                                 src={previewByBuildId[build.id].src}
-                                                                alt={`Preview da build ${build.name}`}
+                                                                alt={`Preview of build ${build.name}`}
                                                                 className="w-full max-h-56 sm:max-h-64 object-contain"
                                                             />
                                                         </button>
@@ -308,10 +305,9 @@ export default function BuildTrackerPage() {
                                             {/* ITENS */}
                                             <div className="divide-y divide-gray-800/50 min-w-0">
                                                 {!detail?.loaded ? (
-                                                    <p className="px-4 py-3 text-xs text-gray-500">Carregando...</p>
+                                                    <p className="px-4 py-3 text-xs text-gray-500">Loading...</p>
                                                 ) : build.items.length === 0 ? (
-                                                    <p className="px-4 py-3 text-xs text-gray-500">Nenhum item
-                                                        reconhecido nessa build.</p>
+                                                    <p className="px-4 py-3 text-xs text-gray-500">No items recognized in this build.</p>
                                                 ) : (
                                                     build.items.map((item) => {
                                                         const d = items[item];
@@ -333,7 +329,7 @@ export default function BuildTrackerPage() {
                                                                       </span>
                                                                     {!d.owned && (
                                                                         <span className="text-xs text-gray-600">
-                                                                          {d.farmLoading ? "..." : d.farmExpanded ? "▲" : "▼"}
+                                                                            {d.farmLoading ? "..." : d.farmExpanded ? "▲" : "▼"}
                                                                         </span>
                                                                     )}
                                                                 </div>
@@ -342,12 +338,9 @@ export default function BuildTrackerPage() {
                                                                 {!d.owned && d.farmExpanded && (
                                                                     <div className="mt-1 px-4 pb-3 space-y-1.5">
                                                                         {d.farmLoading && (
-                                                                            <p className="text-xs text-gray-500">Carregando
-                                                                                fontes de farm...</p>)}
+                                                                            <p className="text-xs text-gray-500">Loading farm sources...</p>)}
                                                                         {!d.farmLoading && d.farm.length === 0 && (
-                                                                            <p className="text-xs text-gray-500">Nenhuma
-                                                                                fonte
-                                                                                encontrada.</p>)}
+                                                                            <p className="text-xs text-gray-500">No sources found.</p>)}
                                                                         {!d.farmLoading && d.farm.slice(0, 8).map((farm, idx) => (
                                                                             <div
                                                                                 key={idx}
@@ -368,7 +361,7 @@ export default function BuildTrackerPage() {
                                                                                     {farm.source === "enemy" && farm.dropTableChance !== undefined && farm.itemChance !== undefined && (
                                                                                         <p className="mt-0.5 text-[10px] text-gray-500">
                                                                                             {farm.dropTableChance.toFixed(2)}%
-                                                                                            tabela
+                                                                                            table
                                                                                             × {farm.itemChance.toFixed(2)}%
                                                                                             item
                                                                                         </p>
@@ -399,7 +392,7 @@ export default function BuildTrackerPage() {
                                                                                 <div className="text-right shrink-0">
                                                                                     <p className="text-sm font-bold text-purple-400">{farm.chance.toFixed(2)}%</p>
                                                                                     <p className="text-[10px] text-gray-500">
-                                                                                        ~{Math.ceil(100 / Math.max(farm.chance, 0.01))} {farm.source === "enemy" ? "kills" : farm.source === "relic" ? "aberturas" : "runs"}
+                                                                                        ~{Math.ceil(100 / Math.max(farm.chance, 0.01))} {farm.source === "enemy" ? "kills" : farm.source === "relic" ? "runs" : "runs"}
                                                                                     </p>
                                                                                 </div>
                                                                             </div>

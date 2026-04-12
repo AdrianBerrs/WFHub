@@ -88,7 +88,7 @@ function classifyItem(name: string): ItemCategory {
 }
 
 function formatNumber(value: number): string {
-    return new Intl.NumberFormat("pt-BR").format(value);
+    return new Intl.NumberFormat("en-US").format(value);
 }
 
 function formatCountdown(targetMs: number, nowMs: number): string {
@@ -194,14 +194,14 @@ export default function VoidTraderInventoryPage() {
                     onClick={() => navigate("/hub")}
                     className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-xs font-medium text-gray-200 hover:border-purple-500/40 hover:text-purple-300"
                 >
-                    Voltar ao Hub
+                    Back to Hub
                 </button>
             </div>
 
             {payload?.stale && payload.message && (
                 <div
                     className="rounded-lg border border-yellow-700/40 bg-yellow-900/10 px-3 py-2 text-xs text-yellow-300">
-                    Exibindo fallback: {payload.message}
+                    Showing fallback: {payload.message}
                 </div>
             )}
 
@@ -212,33 +212,33 @@ export default function VoidTraderInventoryPage() {
             )}
 
             {loading ? (
-                <p className="text-sm text-gray-500">Carregando inventario do Void Trader...</p>
+                <p className="text-sm text-gray-500">Loading Void Trader inventory...</p>
             ) : !payload ? (
-                <p className="text-sm text-gray-500">Sem dados do Void Trader no momento.</p>
+                <p className="text-sm text-gray-500">No Void Trader data at the moment.</p>
             ) : (
                 <>
                     <div>
                         <p className="text-sm text-gray-200">
                             {payload.active
-                                ? `Baro Ki'Teer ativo em ${locationLabel}`
-                                : `Baro Ki'Teer fora — ${locationLabel}`}
+                                ? `Baro Ki'Teer active at ${locationLabel}`
+                                : `Baro Ki'Teer away — ${locationLabel}`}
                         </p>
                         <p className="mt-1 text-xs text-gray-400">
                             {payload.active
-                                ? `Sai em ${formatCountdown(payload.ends_at_ms, nowMs)}`
+                                ? `Leaves in ${formatCountdown(payload.ends_at_ms, nowMs)}`
                                 : payload.starts_at_ms > nowMs
-                                    ? `Chega em ${formatCountdown(payload.starts_at_ms, nowMs)}`
-                                    : "Horario do proximo ciclo indisponivel"}
+                                    ? `Arrives in ${formatCountdown(payload.starts_at_ms, nowMs)}`
+                                    : "Next cycle time unavailable"}
                         </p>
                         {!payload.active && activeCategories.length > 0 && (
                             <p className="mt-2 text-xs text-yellow-500/80">
-                                Exibindo inventario do ultimo ciclo.
+                                Showing inventory from last cycle.
                             </p>
                         )}
                     </div>
 
                     {activeCategories.length === 0 ? (
-                        <p className="text-sm text-gray-500">Sem itens listados para este ciclo.</p>
+                        <p className="text-sm text-gray-500">No items listed for this cycle.</p>
                     ) : (
                         <div className="space-y-4">
                             {activeCategories.map((cat) => {

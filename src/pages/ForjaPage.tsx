@@ -20,9 +20,9 @@ interface ForjaItem {
 const FORJA_ITEMS: ForjaItem[] = [
     {
         key: "decodificador_1x",
-        label: "Decodificador (1×)",
+        label: "Decipher (1×)",
         cooldownSecs: 55,
-        description: "Fabricação contínua de Decodificadores. Coleta e reinicia automaticamente ao terminar.",
+        description: "Continuous crafting of Deciphers. Automatically collects and restarts when done.",
     },
 ];
 
@@ -112,8 +112,8 @@ export default function ForjaPage() {
         <div className="flex flex-col h-full p-4 gap-4">
 
             <div className="space-y-2">
-                <h1 className="text-lg font-bold text-purple-400">Forja</h1>
-                <p className="text-sm text-gray-500">Itens para craft automático</p>
+                <h1 className="text-lg font-bold text-purple-400">Foundry</h1>
+                <p className="text-sm text-gray-500">Items for automatic crafting</p>
             </div>
 
             {/* Item selector */}
@@ -143,27 +143,27 @@ export default function ForjaPage() {
                         onClick={handleStart}
                         className="px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-400 text-gray-950 text-sm font-semibold transition-colors"
                     >
-                        Iniciar Monitor
+                        Start Monitor
                     </button>
                 ) : (
                     <button
                         onClick={handleStop}
                         className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-colors"
                     >
-                        Parar Monitor
+                        Stop Monitor
                     </button>
                 )}
 
                 {phase === "waiting" && (
                     <span className="text-sm text-gray-300 flex items-center gap-1.5">
             <span className="text-purple-400">●</span>
-            Aguardando item pronto...
+            Waiting for item to be ready...
           </span>
                 )}
                 {phase === "acting" && (
                     <span className="text-sm text-gray-300 flex items-center gap-1.5">
             <span className="text-blue-400">⟳</span>
-            Executando automação...
+            Running automation...
           </span>
                 )}
             </div>
@@ -176,14 +176,14 @@ export default function ForjaPage() {
             {running && (
                 <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 flex flex-col gap-3">
                     <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-400">Fabricações concluídas</span>
+                        <span className="text-sm text-gray-400">Completed crafts</span>
                         <span className="text-2xl font-bold text-purple-400">{count}</span>
                     </div>
 
                     {phase === "waiting" && countdown > 0 && (
                         <div className="flex flex-col gap-1.5">
                             <div className="flex justify-between text-xs text-gray-500">
-                                <span>Próximo em</span>
+                                <span>Next in</span>
                                 <span>{countdown}s</span>
                             </div>
                             <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
@@ -196,7 +196,7 @@ export default function ForjaPage() {
                     )}
 
                     {phase === "acting" && (
-                        <p className="text-xs text-blue-400">Coletando e reiniciando fabricação...</p>
+                        <p className="text-xs text-blue-400">Collecting and restarting crafting...</p>
                     )}
                 </div>
             )}

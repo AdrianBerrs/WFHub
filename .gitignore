@@ -46,7 +46,6 @@ data/build_images/
 # Instruções de agentes/AI e docs locais
 CLAUDE.md
 AGENTS.md
-README-en_US.md
 
 # macOS
 .DS_Store

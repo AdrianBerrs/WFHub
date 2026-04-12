@@ -62,10 +62,10 @@ function AddPrimeModal({
             }}
         >
             <div
-                className="flex flex-col w-[480px] max-h-[70vh] bg-gray-950 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                className="flex flex-col w-120 max-h-[70vh] bg-gray-950 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-                    <span className="text-sm font-semibold text-gray-200">Adicionar prime part</span>
+                    <span className="text-sm font-semibold text-gray-200">Add prime part</span>
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-200 text-lg leading-none">✕
                     </button>
                 </div>
@@ -77,7 +77,7 @@ function AddPrimeModal({
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Buscar..."
+                        placeholder="Search..."
                         className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500"
                     />
                 </div>
@@ -100,12 +100,12 @@ function AddPrimeModal({
                                 }`}
                             >
                                 <span>{name}</span>
-                                {isOwned && <span className="text-green-600 text-xs">✓ já tenho</span>}
+                                {isOwned && <span className="text-green-600 text-xs">✓ already owned</span>}
                             </button>
                         );
                     })}
                     {suggestions.length === 0 && (
-                        <p className="px-4 py-3 text-sm text-gray-500">Nenhum resultado.</p>
+                        <p className="px-4 py-3 text-sm text-gray-500">No results.</p>
                     )}
                 </div>
             </div>
@@ -125,7 +125,7 @@ export default function InventoryPage() {
     const [showModal, setShowModal] = useState(false);
     const tabLabels: Record<ScanType, string> = {
         mods: "Mods",
-        arcanes: "Arcanos",
+        arcanes: "Arcanes",
         prime_parts: "Primes",
     };
 
@@ -229,8 +229,8 @@ export default function InventoryPage() {
         : rawList;
 
     const statusText = () => {
-        if (phase === "capturing") return `Capturando frames... ${liveCount} telas`;
-        if (phase === "processing") return `Processando OCR... ${liveCount} itens encontrados`;
+        if (phase === "capturing") return `Capturing frames... ${liveCount} screens`;
+        if (phase === "processing") return `Processing OCR... ${liveCount} items found`;
         return null;
     };
 
@@ -240,9 +240,9 @@ export default function InventoryPage() {
         <div className="flex flex-col h-full p-4 gap-4">
 
             <div className="space-y-2">
-                <h1 className="text-lg font-bold text-purple-400">Inventário</h1>
+                <h1 className="text-lg font-bold text-purple-400">Inventory</h1>
                 <p className="mt-1 text-sm text-gray-500">
-                    Inventário de mods, arcanos e prime parts.
+                    Inventory of mods, arcanes and prime parts.
                 </p>
             </div>
 
@@ -276,21 +276,21 @@ export default function InventoryPage() {
                             onClick={handleStart}
                             className="px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-400 text-gray-950 text-sm font-semibold transition-colors"
                         >
-                            Iniciar Scan
+                            Start Scan
                         </button>
                     ) : scanning ? (
                         <button
                             onClick={handleStop}
                             className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-colors"
                         >
-                            Parar Captura
+                            Stop Capture
                         </button>
                     ) : (
                         <button
                             disabled
                             className="px-4 py-2 rounded-lg bg-gray-700 text-gray-400 text-sm font-semibold cursor-not-allowed"
                         >
-                            Processando...
+                            Processing...
                         </button>
                     )}
                     {statusText() && (
@@ -309,7 +309,7 @@ export default function InventoryPage() {
                     onClick={() => setShowModal(true)}
                     className="self-start px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-400 text-gray-950 text-sm font-semibold transition-colors"
                 >
-                    + Adicionar
+                    + Add
                 </button>
             )}
 
@@ -323,7 +323,7 @@ export default function InventoryPage() {
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder={activeTab === "prime_parts" ? "Filtrar itens adicionados..." : `Buscar ${tabLabels[activeTab].toLowerCase()}...`}
+                    placeholder={activeTab === "prime_parts" ? "Filter added items..." : `Search ${tabLabels[activeTab].toLowerCase()}...`}
                     className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500"
                 />
             )}
@@ -332,13 +332,13 @@ export default function InventoryPage() {
             <div className="flex-1 overflow-auto">
                 {activeTab === "prime_parts" ? (
                     inventory.prime_parts.length === 0 ? (
-                        <p className="text-gray-500 text-sm">Nenhuma prime part adicionada.</p>
+                        <p className="text-gray-500 text-sm">No prime parts added.</p>
                     ) : currentList.length === 0 && search.trim() ? (
-                        <p className="text-gray-500 text-sm">Nenhum resultado.</p>
+                        <p className="text-gray-500 text-sm">No results.</p>
                     ) : (
                         <>
                             <p className="text-xs text-gray-500 mb-2">
-                                {currentList.length}{search.trim() ? ` de ${inventory.prime_parts.length}` : ""} itens
+                                {currentList.length}{search.trim() ? ` of ${inventory.prime_parts.length}` : ""} items
                             </p>
                             <div className="grid grid-cols-2 gap-1">
                                 {currentList.map((name) => (
@@ -350,7 +350,7 @@ export default function InventoryPage() {
                                         <button
                                             onClick={() => removePrimePart(name)}
                                             className="ml-2 shrink-0 text-gray-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            title="Remover"
+                                            title="Remove"
                                         >
                                             ✕
                                         </button>
@@ -363,17 +363,17 @@ export default function InventoryPage() {
                     <>
                         {inventory.scanned_at && (
                             <p className="text-xs text-gray-500 mb-2">
-                                Último scan: {new Date(inventory.scanned_at).toLocaleString()}
+                                Last scan: {new Date(inventory.scanned_at).toLocaleString()}
                             </p>
                         )}
                         {currentList.length === 0 ? (
                             <p className="text-gray-500 text-sm">
-                                {activeTab === "mods" ? "Nenhuma mod escaneada ainda." : "Nenhum arcano escaneado ainda."}
+                                {activeTab === "mods" ? "No mods scanned yet." : "No arcanes scanned yet."}
                             </p>
                         ) : (
                             <>
                                 <p className="text-xs text-gray-500 mb-2">
-                                    {currentList.length}{search.trim() ? ` de ${rawList.length}` : ""} itens
+                                    {currentList.length}{search.trim() ? ` of ${rawList.length}` : ""} items
                                 </p>
                                 <div className="grid grid-cols-2 gap-1">
                                     {currentList.map((name) => {

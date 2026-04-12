@@ -17,16 +17,16 @@ import VoidTraderInventoryPage from "./pages/VoidTraderInventoryPage";
 
 const NAV_ITEMS = [
   { to: "/hub", icon: "🛰️", label: "Hub" },
-  { to: "/quick-search", icon: "⚡", label: "Busca Rápida" },
+  { to: "/quick-search", icon: "⚡", label: "Quick Search" },
   { to: "/market", icon: "💰", label: "Market" },
   { to: "/farm", icon: "🌿", label: "Farm Advisor" },
   { to: "/build-analyzer", icon: "🔍", label: "Build Analyzer" },
   { to: "/build-tracker", icon: "🗂️", label: "Build Tracker" },
   { to: "/prime-tracker", icon: "👑", label: "Prime Tracker" },
-  { to: "/inventory", icon: "📦", label: "Inventário" },
+  { to: "/inventory", icon: "📦", label: "Inventory" },
   { to: "/riven", icon: "⚔️", label: "Rivens" },
-  { to: "/forja", icon: "⚗️", label: "Forja" },
-  { to: "/settings", icon: "⚙️", label: "Configurações" },
+  { to: "/forja", icon: "⚗️", label: "Foundry" },
+  { to: "/settings", icon: "⚙️", label: "Settings" },
 ];
 
 function AppContent() {
@@ -60,7 +60,7 @@ function AppContent() {
             <button
               onClick={() => setSidebarOpen((o) => !o)}
               className="rounded-md p-1 text-gray-400 hover:text-gray-100 hover:bg-gray-800 text-sm leading-none"
-              title={sidebarOpen ? "Recolher" : "Expandir"}
+              title={sidebarOpen ? "Collapse" : "Expand"}
             >
               {sidebarOpen ? "‹" : "›"}
             </button>

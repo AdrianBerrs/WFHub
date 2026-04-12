@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
 
-type ShellAction = "run_update_script" | "reset_warframe_disk" | "update_prices";
+type ShellAction = "run_update_script" | "update_prices";
 
 interface ShellCommandResult {
     success: boolean;
@@ -27,30 +27,21 @@ interface HubStateFile {
 const ACTIONS: ActionCard[] = [
     {
         key: "run_update_script",
-        title: "Atualizar datasets",
-        description: "Executa o update.sh na raiz do projeto para baixar e regenerar os dados.",
-        buttonLabel: "Rodar update.sh",
+        title: "Update datasets",
+        description: "Runs update.sh at the project root to download and regenerate data.",
+        buttonLabel: "Run update.sh",
         variant: "primary",
-        confirmTitle: "Confirmar atualização",
-        confirmMessage: "Isso vai executar o update.sh e sobrescrever os arquivos de dados locais. Deseja continuar?",
+        confirmTitle: "Confirm update",
+        confirmMessage: "This will run update.sh and overwrite local data files. Do you want to continue?",
     },
     {
         key: "update_prices",
-        title: "Atualizar preços",
-        description: "Baixa os preços mais recentes do warframe.market via warframestat.us. O overlay vai usar os novos preços imediatamente na próxima detecção.",
-        buttonLabel: "Atualizar prices.json",
+        title: "Update prices",
+        description: "Downloads the latest prices from warframe.market via warframestat.us. The overlay will use the new prices immediately on the next detection.",
+        buttonLabel: "Update prices.json",
         variant: "primary",
-        confirmTitle: "Confirmar atualização de preços",
-        confirmMessage: "Isso vai baixar e sobrescrever o prices.json com os preços atuais do warframe.market. Deseja continuar?",
-    },
-    {
-        key: "reset_warframe_disk",
-        title: "Resetar SSD do Warframe",
-        description: "Desmonta /Volumes/SSD EXT e monta novamente disk5s1 quando o disco buga.",
-        buttonLabel: "Resetar disco",
-        variant: "secondary",
-        confirmTitle: "Confirmar reset do disco",
-        confirmMessage: "Isso vai desmontar /Volumes/SSD EXT e montar novamente disk5s1. Deseja continuar?",
+        confirmTitle: "Confirm price update",
+        confirmMessage: "This will download and overwrite prices.json with current warframe.market prices. Do you want to continue?",
     },
 ];
 
@@ -110,18 +101,18 @@ export default function SettingsPage() {
         <div className="flex flex-col h-full p-4 gap-4">
 
             <div className="space-y-2">
-                <h1 className="text-lg font-bold text-purple-400">Configurações</h1>
+                <h1 className="text-lg font-bold text-purple-400">Settings</h1>
                 <p className="mt-1 text-sm text-gray-500">
-                    Configurações de refresh do hub e scripts de manutenção do app.
+                    Hub refresh settings and app maintenance scripts.
                 </p>
             </div>
 
             <div className="grid gap-4">
                 <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 flex flex-col gap-3">
                     <div className="flex flex-col gap-1">
-                        <h2 className="text-sm font-semibold text-gray-100">Hub: intervalo de atualização</h2>
+                        <h2 className="text-sm font-semibold text-gray-100">Hub: refresh interval</h2>
                         <p className="text-sm text-gray-400">
-                            Define com que frequência o Hub busca novos dados de worldstate (15s a 600s).
+                            Sets how often the Hub fetches new worldstate data (15s to 600s).
                         </p>
                     </div>
 
@@ -134,13 +125,13 @@ export default function SettingsPage() {
                             onChange={(e) => setHubRefresh(Number(e.target.value || 60))}
                             className="w-28 rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-100 focus:border-purple-500 focus:outline-none"
                         />
-                        <span className="text-sm text-gray-400">segundos</span>
+                        <span className="text-sm text-gray-400">seconds</span>
                         <button
                             onClick={saveHubRefresh}
                             disabled={hubSaving}
                             className="ml-auto px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-gray-950 text-sm font-semibold transition-colors"
                         >
-                            {hubSaving ? "Salvando..." : "Salvar"}
+                            {hubSaving ? "Saving..." : "Save"}
                         </button>
                     </div>
                 </div>
@@ -168,11 +159,11 @@ export default function SettingsPage() {
                                     disabled={running !== null}
                                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${buttonClass}`}
                                 >
-                                    {isRunning ? "Executando..." : action.buttonLabel}
+                                    {isRunning ? "Running..." : action.buttonLabel}
                                 </button>
 
                                 {isRunning && (
-                                    <span className="text-sm text-purple-300">Comando em execução...</span>
+                                    <span className="text-sm text-purple-300">Command running...</span>
                                 )}
                             </div>
                         </div>
@@ -207,7 +198,7 @@ export default function SettingsPage() {
                                 onClick={() => setPendingAction(null)}
                                 className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-100 text-sm font-medium transition-colors"
                             >
-                                Cancelar
+                                Cancel
                             </button>
                             <button
                                 onClick={async () => {
@@ -217,7 +208,7 @@ export default function SettingsPage() {
                                 }}
                                 className="px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-400 text-gray-950 text-sm font-semibold transition-colors"
                             >
-                                Confirmar
+                                Confirm
                             </button>
                         </div>
                     </div>
@@ -228,7 +219,7 @@ export default function SettingsPage() {
                 <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 flex flex-col gap-3">
                     <div className="flex items-center justify-between gap-3">
                         <h2 className="text-sm font-semibold text-gray-100">
-                            Último resultado: {ACTIONS.find((item) => item.key === lastResult.action)?.title}
+                            Last result: {ACTIONS.find((item) => item.key === lastResult.action)?.title}
                         </h2>
                         <span
                             className={`text-xs font-medium px-2 py-1 rounded ${
@@ -237,12 +228,12 @@ export default function SettingsPage() {
                                     : "bg-red-500/15 text-red-300"
                             }`}
                         >
-              {lastResult.result.success ? "Sucesso" : "Falhou"}
+              {lastResult.result.success ? "Success" : "Failed"}
             </span>
                     </div>
 
                     <p className="text-xs text-gray-500">
-                        Exit code: {lastResult.result.code ?? "nenhum"}
+                        Exit code: {lastResult.result.code ?? "none"}
                     </p>
 
                     {lastResult.result.stdout.trim() && (

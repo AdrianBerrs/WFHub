@@ -94,9 +94,9 @@ function formatSince(timestampMs: number, nowMs: number): string {
     const days = Math.floor(totalSeconds / 86400);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
-    if (days > 0) return `${days}d ${hours % 24}h atras`;
-    if (hours > 0) return `${hours}h ${minutes}m atras`;
-    return `${minutes}m atras`;
+    if (days > 0) return `${days}d ${hours % 24}h ago`;
+    if (hours > 0) return `${hours}h ${minutes}m ago`;
+    return `${minutes}m ago`;
 }
 
 function newsBadge(title: string): "Hotfix" | "Patch" | null {
@@ -259,7 +259,7 @@ export default function HubPage() {
             const parsed: HubFetchResponse = JSON.parse(raw);
             setSnapshot(parsed.snapshot);
             setRefreshSeconds(parsed.refresh_seconds);
-            setStaleMessage(parsed.stale ? (parsed.message ?? "Dados em cache.") : null);
+            setStaleMessage(parsed.stale ? (parsed.message ?? "Cached data.") : null);
         } catch (e) {
             setError(String(e));
         } finally {
@@ -326,19 +326,19 @@ export default function HubPage() {
                 <div className="space-y-2">
                     <h1 className="text-lg font-bold text-purple-400">Hub</h1>
                     <p className="mt-1 text-sm text-gray-500">
-                        Monitoramento das atividades do warframe em tempo real.
+                        Real-time monitoring of warframe activities.
                     </p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    {snapshot && <SmallBadge label={`Fonte: ${snapshot.source}`}/>}
+                    {snapshot && <SmallBadge label={`Source: ${snapshot.source}`}/>}
                     <SmallBadge label={`Refresh: ${refreshSeconds}s`}/>
                     <button
                         onClick={() => refreshData()}
                         disabled={refreshing}
                         className="rounded-lg border bg-purple-500/20 text-purple-400 border-purple-500/40 px-3 py-2 text-xs font-medium hover:bg-purple-500/20 disabled:opacity-50"
                     >
-                        {refreshing ? "Atualizando..." : "Atualizar agora"}
+                        {refreshing ? "Updating..." : "Refresh now"}
                     </button>
                 </div>
             </div>
@@ -346,7 +346,7 @@ export default function HubPage() {
             {staleMessage && (
                 <div
                     className="rounded-lg border border-yellow-700/40 bg-yellow-900/10 px-3 py-2 text-xs text-yellow-300">
-                    Exibindo ultimo snapshot salvo ({staleMessage}).
+                    Showing last saved snapshot ({staleMessage}).
                 </div>
             )}
 
@@ -358,7 +358,7 @@ export default function HubPage() {
 
             {loading && !snapshot && (
                 <div className="rounded-lg border border-gray-800 bg-gray-900 px-3 py-2 text-sm text-gray-400">
-                    Carregando worldstate...
+                    Loading worldstate...
                 </div>
             )}
 
@@ -376,10 +376,10 @@ export default function HubPage() {
                                     <p className="text-xs text-gray-300">{worldLabel(world)}</p>
                                     <p className="mt-1 text-3xl leading-none">{worldVisual(world)}</p>
                                     <p className="mt-1 text-sm font-medium text-gray-100">{world.state}</p>
-                                    <p className="mt-1 text-[11px] text-gray-400">Tempo restante</p>
+                                    <p className="mt-1 text-[11px] text-gray-400">Time remaining</p>
                                     <span
                                         className="mt-1 inline-flex rounded-md border border-purple-500/40 bg-purple-500/10 text-purple-300 px-2 py-0.5 text-[11px] font-semibold">
-                                        Expira: {formatCountdown(world.expires_at_ms, nowMs)}
+                                        Expires: {formatCountdown(world.expires_at_ms, nowMs)}
                                     </span>
                                 </div>
                             ))}
@@ -401,7 +401,7 @@ export default function HubPage() {
                                         type="button"
                                         onClick={() => navigate("/hub/void-trader")}
                                         disabled={!snapshot.void_trader.active}
-                                        title={snapshot.void_trader.active ? "Ver itens do Void Trader" : "Disponivel quando Baro estiver ativo"}
+                                        title={snapshot.void_trader.active ? "View Void Trader items" : "Available when Baro is active"}
                                         className="flex items-center justify-center rounded-lg p-2 text-gray-400 transition hover:bg-gray-800 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
                                     >
                                         <ChevronRight size={16}/>
@@ -409,13 +409,13 @@ export default function HubPage() {
                                 </div>
                                 <p className="mt-2 text-sm text-gray-300">
                                     {snapshot.void_trader.active
-                                        ? `Ativo em ${snapshot.void_trader.location}`
-                                        : `Chega em ${snapshot.void_trader.location}`}
+                                        ? `Active at ${snapshot.void_trader.location}`
+                                        : `Arriving at ${snapshot.void_trader.location}`}
                                 </p>
                                 <p className="mt-1 text-xs text-gray-400">
                                     {snapshot.void_trader.active
-                                        ? `Sai em ${formatCountdown(snapshot.void_trader.ends_at_ms, nowMs)}`
-                                        : `Chega em ${formatCountdown(snapshot.void_trader.starts_at_ms, nowMs)}`}
+                                        ? `Leaves in ${formatCountdown(snapshot.void_trader.ends_at_ms, nowMs)}`
+                                        : `Arrives in ${formatCountdown(snapshot.void_trader.starts_at_ms, nowMs)}`}
                                 </p>
                             </section>
 
@@ -427,7 +427,7 @@ export default function HubPage() {
                                     <button
                                         type="button"
                                         onClick={() => navigate("/hub/arbitrations")}
-                                        title="Ver próximas arbitrations"
+                                        title="View upcoming arbitrations"
                                         className="flex items-center justify-center rounded-lg p-2 text-gray-400 transition hover:bg-gray-800 hover:text-white disabled:opacity-30">
                                         <ChevronRight size={16}/>
                                     </button>
@@ -451,11 +451,11 @@ export default function HubPage() {
                                             )}
                                         </p>
                                         <p className="mt-1 text-xs text-gray-400">
-                                            Atualiza em {formatCountdown(snapshot.arbitration.expires_at_ms, nowMs)}
+                                            Updates in {formatCountdown(snapshot.arbitration.expires_at_ms, nowMs)}
                                         </p>
                                     </>
                                 ) : (
-                                    <p className="mt-2 text-sm text-gray-500">Sem dados de arbitration no momento.</p>
+                                    <p className="mt-2 text-sm text-gray-500">No arbitration data at the moment.</p>
                                 )}
                             </section>
 
@@ -474,7 +474,7 @@ export default function HubPage() {
                                                 <h2 className="text-sm font-semibold text-gray-100">🎯 Archon Hunt</h2>
                                                 <span
                                                     className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold ${theme.status}`}>
-                                                    Ativa
+                                                    Active
                                                 </span>
                                             </div>
 
@@ -484,7 +484,7 @@ export default function HubPage() {
                                             <div className="mt-3">
                                                 <span
                                                     className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium ${theme.timer}`}>
-                                                    Expira em {formatCountdown(snapshot.archon_hunt.expires_at_ms, nowMs)}
+                                                    Expires in {formatCountdown(snapshot.archon_hunt.expires_at_ms, nowMs)}
                                                 </span>
                                             </div>
 
@@ -502,8 +502,7 @@ export default function HubPage() {
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <p className="text-xs text-gray-400">Sem etapas detalhadas no
-                                                        momento.</p>
+                                                    <p className="text-xs text-gray-400">No detailed stages at the moment.</p>
                                                 )}
                                             </div>
                                         </>
@@ -512,7 +511,7 @@ export default function HubPage() {
                             ) : (
                                 <>
                                     <h2 className="text-sm font-semibold text-gray-100">🎯 Archon Hunt</h2>
-                                    <p className="mt-2 text-sm text-gray-500">Sem archon hunt ativa no momento.</p>
+                                    <p className="mt-2 text-sm text-gray-500">No active archon hunt at the moment.</p>
                                 </>
                             )}
                         </section>
@@ -524,9 +523,9 @@ export default function HubPage() {
 
                         {/*INVASOES*/}
                         <section className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-                            <h2 className="text-sm font-semibold text-gray-100">💥 Invasoes</h2>
+                            <h2 className="text-sm font-semibold text-gray-100">💥 Invasions</h2>
                             {snapshot.invasions.length === 0 ? (
-                                <p className="mt-2 text-sm text-gray-500">Sem invasoes ativas.</p>
+                                <p className="mt-2 text-sm text-gray-500">No active invasions.</p>
                             ) : (
                                 <div className="mt-3 max-h-140 space-y-2 overflow-auto pr-1">
                                     {snapshot.invasions.map((invasion) => (
@@ -535,10 +534,10 @@ export default function HubPage() {
                                             <p className="text-sm text-gray-200">{invasion.location}</p>
                                             <p className="mt-0.5 text-xs text-gray-400">
                                                 {invasion.attacker} vs {invasion.defender} -
-                                                recompensa: {invasion.reward}
+                                                reward: {invasion.reward}
                                             </p>
                                             <p className="mt-0.5 text-[11px] text-gray-500">
-                                                Atualiza em {formatCountdown(invasion.expires_at_ms, nowMs)}
+                                                Updates in {formatCountdown(invasion.expires_at_ms, nowMs)}
                                             </p>
                                         </div>
                                     ))}
@@ -550,7 +549,7 @@ export default function HubPage() {
                         <section className="rounded-xl border border-gray-800 bg-gray-900 p-4">
                             <h2 className="text-sm font-semibold text-gray-100">📰 News</h2>
                             {newsItems.length === 0 ? (
-                                <p className="mt-2 text-sm text-gray-500">Sem noticias no momento.</p>
+                                <p className="mt-2 text-sm text-gray-500">No news at the moment.</p>
                             ) : (
                                 <div className="mt-3 max-h-140 space-y-2 overflow-auto pr-1">
                                     {newsItems.map((item) => (
@@ -579,9 +578,9 @@ export default function HubPage() {
 
                     {/*ALERTAS*/}
                     <section className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-                        <h2 className="text-sm font-semibold text-gray-100">📢 Alertas</h2>
+                        <h2 className="text-sm font-semibold text-gray-100">📢 Alerts</h2>
                         {snapshot.alerts.length === 0 ? (
-                            <p className="mt-2 text-sm text-gray-500">Sem alertas ativos.</p>
+                            <p className="mt-2 text-sm text-gray-500">No active alerts.</p>
                         ) : (
                             <div className="mt-3 max-h-44 space-y-2 overflow-auto pr-1">
                                 {snapshot.alerts.map((alert) => (
@@ -589,7 +588,7 @@ export default function HubPage() {
                                          className="rounded-lg border border-gray-800 bg-gray-950/70 px-3 py-2">
                                         <p className="text-sm text-gray-200">{alert.title}</p>
                                         <p className="mt-0.5 text-[11px] text-gray-500">
-                                            Expira em {formatCountdown(alert.expires_at_ms, nowMs)}
+                                            Expires in {formatCountdown(alert.expires_at_ms, nowMs)}
                                         </p>
                                     </div>
                                 ))}

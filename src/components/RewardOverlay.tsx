@@ -49,7 +49,7 @@ export default function RewardOverlay() {
     }, []);
 
     async function handlePick(name: string) {
-        if (selectedItem !== null) return; // já selecionou
+        if (selectedItem !== null) return; // already picked
         setSelectedItem(name);
         if (primeParts.has(name) && !ownedParts.includes(name)) {
             const updated = [...ownedParts, name].sort();
@@ -82,7 +82,7 @@ export default function RewardOverlay() {
 
                 {/* Hint */}
                 <p className={`text-[10px] mb-3 transition-opacity duration-300 ${hasPicked ? "opacity-0" : "text-gray-600"}`}>
-                    Clique no item que você pegou
+                    Click on the item you picked
                 </p>
 
                 {/* Items */}
@@ -126,7 +126,7 @@ export default function RewardOverlay() {
                                 </div>
                                 <div className="flex items-center gap-2 flex-shrink-0 ml-3">
                                     {isPicked && isPrime && !wasOwned && (
-                                        <span className="text-[10px] text-green-400">adicionado</span>
+                                        <span className="text-[10px] text-green-400">added</span>
                                     )}
                                     <span
                                         className={`text-sm font-bold ${

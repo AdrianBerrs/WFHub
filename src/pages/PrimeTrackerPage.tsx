@@ -35,7 +35,7 @@ function isWarframeItem(item: PrimeItem): boolean {
     return item.parts.some((p) => WARFRAME_SUB_BP.test(p));
 }
 
-// Para warframes: mostra peças craftadas + main Blueprint; oculta sub-blueprints
+// For warframes: shows crafted parts + main Blueprint; hides sub-blueprints
 function getDisplayParts(item: PrimeItem): string[] {
     if (!isWarframeItem(item)) return item.parts;
     return item.parts.filter(
@@ -119,7 +119,7 @@ export default function PrimeTrackerPage() {
             <div className="space-y-2">
                 <h1 className="text-lg font-bold text-purple-400">Prime Tracker</h1>
                 <p className="mt-1 text-sm text-gray-500">
-                    Acompanhamento de conjuntos prime do inventário, analisando conjuntos completos e incompletos.
+                    Track prime sets from inventory, showing complete and incomplete sets.
                 </p>
             </div>
 
@@ -128,18 +128,18 @@ export default function PrimeTrackerPage() {
                 {allParts.length > 0 && (
                     <div className="flex gap-4 text-sm text-gray-400">
                         <span><span className="text-purple-400 font-semibold">{totalItems}</span> primes</span>
-                        <span><span className="text-green-400 font-semibold">{completeItems}</span> completos</span>
-                        <span><span className="text-red-400 font-semibold">{incompleteItems}</span> incompletos</span>
+                        <span><span className="text-green-400 font-semibold">{completeItems}</span> complete</span>
+                        <span><span className="text-red-400 font-semibold">{incompleteItems}</span> incomplete</span>
                     </div>
                 )}
                 {scannedAt && (
                     <span className="text-xs text-gray-600 ml-auto">
-            Último scan: {new Date(scannedAt).toLocaleString()}
+            Last scan: {new Date(scannedAt).toLocaleString()}
           </span>
                 )}
             </div>
             {scanned.size === 0 && allParts.length > 0 && (
-                <p className="text-xs text-gray-500">Escaneie o inventário na aba Inventário → Primes.</p>
+                <p className="text-xs text-gray-500">Scan your inventory in the Inventory tab → Primes.</p>
             )}
 
             {/* Filters + search */}
@@ -155,7 +155,7 @@ export default function PrimeTrackerPage() {
                                     : "text-gray-400 hover:text-gray-100 hover:bg-gray-800"
                             }`}
                         >
-                            {f === "all" ? "Todos" : f === "incomplete" ? "Incompletos" : "Completos"}
+                            {f === "all" ? "All" : f === "incomplete" ? "Incomplete" : "Complete"}
                         </button>
                     ))}
                 </div>
@@ -165,17 +165,17 @@ export default function PrimeTrackerPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar prime..."
+                placeholder="Search prime..."
                 className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500"
             />
 
             {/* Item list */}
             <div className="flex-1 overflow-auto space-y-1">
                 {filtered.length === 0 && allParts.length > 0 && (
-                    <p className="text-gray-500 text-sm">Nenhum resultado.</p>
+                    <p className="text-gray-500 text-sm">No results.</p>
                 )}
                 {allParts.length === 0 && (
-                    <p className="text-gray-500 text-sm">Carregando lista de prime parts...</p>
+                    <p className="text-gray-500 text-sm">Loading prime parts list...</p>
                 )}
 
                 {filtered.map((item) => {

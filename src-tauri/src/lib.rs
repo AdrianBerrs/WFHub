@@ -822,42 +822,6 @@ fn run_shell_action(action: String) -> Result<ShellCommandResult, String> {
                 .map_err(|e| format!("falha ao executar update.sh: {e}"))?;
             Ok(command_result(output))
         }
-        "reset_warframe_disk" => {
-            let unmount = Command::new("diskutil")
-                .args(["unmount", "/Volumes/SSD EXT"])
-                .output()
-                .map_err(|e| format!("falha ao desmontar SSD: {e}"))?;
-            let unmount_result = command_result(unmount);
-
-            if !unmount_result.success {
-                return Ok(unmount_result);
-            }
-
-            let mount = Command::new("diskutil")
-                .args(["mount", "disk5s1"])
-                .output()
-                .map_err(|e| format!("falha ao montar SSD: {e}"))?;
-            let mount_result = command_result(mount);
-
-            Ok(ShellCommandResult {
-                success: mount_result.success,
-                code: mount_result.code,
-                stdout: if unmount_result.stdout.is_empty() {
-                    mount_result.stdout
-                } else if mount_result.stdout.is_empty() {
-                    unmount_result.stdout
-                } else {
-                    format!("{}\n{}", unmount_result.stdout, mount_result.stdout)
-                },
-                stderr: if unmount_result.stderr.is_empty() {
-                    mount_result.stderr
-                } else if mount_result.stderr.is_empty() {
-                    unmount_result.stderr
-                } else {
-                    format!("{}\n{}", unmount_result.stderr, mount_result.stderr)
-                },
-            })
-        }
         "update_prices" => {
             let script = project_root().join("update_prices.sh");
             if !script.exists() {

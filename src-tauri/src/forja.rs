@@ -1,7 +1,6 @@
 use std::{
     fs::{self, File},
     io::{BufRead, BufReader, Seek, SeekFrom},
-    path::PathBuf,
     process::Command,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -110,7 +109,7 @@ pub fn start_forja(
             }
         };
 
-        let log_path    = PathBuf::from(crate::DEFAULT_LOG_PATH);
+        let log_path    = crate::get_log_path();
         let click_script = project_root().join("scripts/automation/forja_click.py");
 
         log_to_file(&format!(
