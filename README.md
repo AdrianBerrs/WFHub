@@ -203,6 +203,13 @@ source ~/.cargo/env && cargo build --workspace
 WFHUB_DEBUG_FILES=1 npm run tauri dev
 ```
 
+## Credits
+
+- [warframe.market](https://warframe.market) — market price data
+- [WFCD / warframestat.us](https://warframestat.us) — drop tables and item data
+- [browse.wf](https://browse.wf) — Warframe public export data
+- [Warframe](https://warframe.com) — game data © Digital Extremes
+
 ## Notes
 
 - All Python scripts use `/usr/bin/python3` — do not change this
