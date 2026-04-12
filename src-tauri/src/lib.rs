@@ -29,7 +29,19 @@ use xcap::Window as CaptureWindow;
 const REWARD_FILE: &str = "/tmp/wfhub_reward.json";
 const ITEM_SEARCH_FILE: &str = "/tmp/wfhub_item_search.json";
 const ITEM_SCREEN_PATH: &str = "/tmp/wfhub_item_screen.png";
-const DEFAULT_LOG_PATH: &str = "/Volumes/SSD EXT/Games/Warframe.app/Contents/SharedSupport/prefix/drive_c/users/Sikarugir/AppData/Local/Warframe/EE.log";
+fn get_log_path() -> PathBuf {
+    let config_path = project_root().join("data").join("config.json");
+    if let Ok(content) = fs::read_to_string(&config_path) {
+        if let Ok(v) = serde_json::from_str::<serde_json::Value>(&content) {
+            if let Some(p) = v["log_path"].as_str() {
+                if !p.is_empty() {
+                    return PathBuf::from(p);
+                }
+            }
+        }
+    }
+    PathBuf::new()
+}
 const WARFRAME_WINDOW_NAME: &str = "Warframe";
 const BUILD_IMAGE_PATH: &str = "/tmp/wfhub_build_input.png";
 const RIVEN_IMAGE_PATH: &str = "/tmp/wfhub_riven_input.png";
@@ -2733,7 +2745,7 @@ fn is_reward_trigger(line: &str) -> bool {
 fn start_reward_monitor(app: tauri::AppHandle) {
     thread::spawn(move || {
         log_to_file("[startup] start_reward_monitor iniciado");
-        let log_path = PathBuf::from(DEFAULT_LOG_PATH);
+        let log_path = get_log_path();
         let mut position: Option<u64> = None;
         let mut last_trigger = Instant::now()
             .checked_sub(Duration::from_secs(60))

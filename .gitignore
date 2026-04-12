@@ -34,6 +34,7 @@ data/dict.en.json
 data/Export*.json
 
 # Dados do usuário (nunca versionar)
+data/config.json
 data/inventory.json
 data/builds.json
 data/hub_state.json

@@ -4,19 +4,19 @@ App desktop macOS para utilitarios do Warframe. Combina frontend React com backe
 
 ## Funcionalidades
 
-- **Hub**: painel rapido com acoes e atalhos
+- **Hub**: painel rápido com ações e atalhos
 - **Busca Rapida**: busca unificada por itens, builds e telas
 - **Market**: preços e top orders do `warframe.market`
 - **Farm Advisor**: fontes de drop agrupadas por tipo, com chance e estimativa de runs
 - **Build Analyzer**: OCR de screenshot de build para identificar mods
 - **Build Tracker**: armazenamento e gerenciamento de builds salvas
-- **Prime Tracker**: checklist de partes prime cruzado com inventario escaneado
-- **Inventario**: scan automatizado de mods, arcanes e partes prime
-- **Rivens**: tutorial local de progenitors Kuva/Tenet + launcher do advisor externo
-- **Forja**: automacao de crafting recorrente na Foundry
+- **Prime Tracker**: checklist de partes prime cruzado com inventário escaneado
+- **Inventário**: scan automatizado de mods, arcanes e partes prime
+- **Rivens**: advisor de rivens com análise por OCR, avaliação de roll e tutorial de progenitors Kuva/Tenet
+- **Forja**: automação de crafting recorrente na Foundry
 - **Arbitration Schedule**: agenda de arbitrations
-- **Void Trader Inventory**: inventario do Baro Ki'Teer
-- **Configuracoes**: ajustes e acoes utilitarias
+- **Void Trader Inventory**: inventário do Baro Ki'Teer
+- **Configurações**: ajustes e ações utilitárias
 
 ## Stack
 
@@ -26,63 +26,6 @@ App desktop macOS para utilitarios do Warframe. Combina frontend React com backe
 - Python 3 + Apple Vision Framework (pyobjc)
 - xcap (fork local em `xcap-patch/`)
 - reqwest
-
-## Estrutura
-
-```text
-WFHub/
-├── src/                              # frontend React
-│   ├── App.tsx                       # sidebar + roteamento (MemoryRouter)
-│   ├── main.tsx
-│   ├── overlay.tsx                   # entry point da janela HUD
-│   ├── index.css
-│   ├── components/
-│   │   └── RewardOverlay.tsx         # HUD de recompensa
-│   ├── pages/
-│   │   ├── HubPage.tsx
-│   │   ├── QuickSearchPage.tsx
-│   │   ├── MarketPage.tsx
-│   │   ├── FarmAdvisorPage.tsx
-│   │   ├── BuildAnalyzerPage.tsx
-│   │   ├── BuildTrackerPage.tsx
-│   │   ├── PrimeTrackerPage.tsx
-│   │   ├── InventoryPage.tsx
-│   │   ├── RivenAdvisorPage.tsx
-│   │   ├── ForjaPage.tsx
-│   │   ├── ArbitrationSchedulePage.tsx
-│   │   ├── VoidTraderInventoryPage.tsx
-│   │   └── SettingsPage.tsx
-│   └── lib/
-│       ├── search.ts
-│       └── modSpecialSources.ts
-├── src-tauri/                        # backend Tauri/Rust
-│   └── src/
-│       ├── lib.rs                    # entry point: tray, hotkey, reward monitor, comandos
-│       ├── ocr.rs                    # preprocessamento da reward screen
-│       ├── inventory.rs              # scan de inventario
-│       ├── forja.rs                  # automacao de crafting
-│       └── theme.rs                  # deteccao de tema visual
-├── scripts/
-│   ├── ocr/
-│   │   ├── ocr_vision.py             # OCR da reward screen
-│   │   ├── ocr_vision_build.py       # OCR de screenshots de build
-│   │   ├── ocr_vision_riven.py       # OCR de rivens
-│   │   └── ocr_item_name.py          # OCR auxiliar de nomes (hotkey)
-│   ├── automation/
-│   │   ├── inventory_ocr.py          # OCR batch do inventario
-│   │   ├── inventory_scroll.py       # scroll automatizado no inventario
-│   │   └── forja_click.py            # cliques automatizados na Foundry
-│   └── data/
-│       ├── build_enemy_locations.py  # gera enemyLocations.json
-│       ├── build_riven_weapon_rules.py # gera rivenWeaponRules.json
-│       ├── generate_prime_parts.py   # geracao auxiliar de prime parts
-│       └── update_prime_parts.py     # atualiza prime_parts.json
-├── data/                             # datasets do jogo (gitignore — ver abaixo)
-│   └── rivenWeaponRulesSource_*.csv  # fontes CSV dos rivens (versionadas)
-├── xcap-patch/                       # fork local da crate xcap com patches macOS
-├── update.sh                         # atualizacao principal dos datasets
-└── update_prices.sh
-```
 
 ## Fluxos principais
 
@@ -102,7 +45,7 @@ EE.log → lib.rs (thread a cada 200ms)
 
 ```
 InventoryPage → start_inventory_scan
-  → inventory.rs: captura frames + scroll automatico
+  → inventory.rs: captura frames + scroll automático
   → scripts/automation/inventory_ocr.py --batch
   → merge em data/inventory.json
 ```
@@ -128,14 +71,14 @@ ForjaPage → start_forja
 
 ## Hotkeys
 
-| Hotkey | Acao |
-|---|---|
-| `CmdOrCtrl+Shift+W` | Toggle janela principal |
-| `CmdOrCtrl+Shift+3` | OCR do nome do item na tela → navega para Busca Rapida |
+| Hotkey | Ação                                                   |
+|---|--------------------------------------------------------|
+| `CmdOrCtrl+Shift+W` | Toggle janela principal                                |
+| `CmdOrCtrl+Shift+3` | OCR do nome do item na tela → navega para Busca Rápida |
 
 ## Dados em `data/`
 
-A pasta `data/` esta no `.gitignore` (exceto os CSVs de riven). Apos clonar, rode `./update.sh` para popular.
+Após clonar, rode `./update.sh` para popular os dados do jogo.
 
 **Datasets do jogo** (gerados por `update.sh`):
 
@@ -150,9 +93,9 @@ A pasta `data/` esta no `.gitignore` (exceto os CSVs de riven). Apos clonar, rod
 | `rivenStats.json`, `rivenWeaponRules.json` | gerados por scripts |
 | `Export*.json`, `dict.en.json` | browse.wf (public export) |
 
-**Dados do usuario** (nunca versionados):
+**Dados do usuário** (nunca versionados):
 
-- `inventory.json` — resultado dos scans de inventario
+- `inventory.json` — resultado dos scans de inventário
 - `builds.json` + `build_images/` — builds salvas
 - `hub_state.json` — estado interno do hub
 
@@ -165,7 +108,7 @@ A pasta `data/` esta no `.gitignore` (exceto os CSVs de riven). Apos clonar, rod
   ```bash
   /usr/bin/python3 -m pip install pyobjc-framework-Vision pyobjc-framework-Quartz
   ```
-- Permissoes macOS: captura de tela e acessibilidade (para automacao de mouse)
+- Permissões macOS: captura de tela e acessibilidade (para automacao de mouse)
 
 ## Setup inicial
 
@@ -179,7 +122,9 @@ npm install
 # 3. datasets do jogo
 ./update.sh
 
-# 4. ajustar o path do EE.log em src-tauri/src/lib.rs
+# 4. configurar o path do EE.log
+cp data/config.json.example data/config.json
+# editar data/config.json com o path correto do EE.log na sua maquina
 ```
 
 ## Desenvolvimento
@@ -205,5 +150,5 @@ WFHUB_DEBUG_FILES=1 npm run tauri dev
 
 - Todos os scripts Python usam `/usr/bin/python3` — nao altere
 - Nao atualize a crate `xcap` sem validar o fork em `xcap-patch/`
-- O app usa tray e `ActivationPolicy::Accessory` (sem icone no Dock); fechar a janela esconde, nao encerra
-- O path do `EE.log` esta acoplado ao ambiente local — ajuste em `lib.rs` apos clonar
+- O app usa tray e `ActivationPolicy::Accessory` (sem icone no Dock); fechar a janela esconde, não encerra
+- O path do `EE.log` está acoplado ao ambiente local — ajuste em `lib.rs` apos clonar
