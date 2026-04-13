@@ -33,4 +33,4 @@ Follow the [initial setup in the README](README.md#initial-setup). The key steps
 ## Scope
 
 This is a personal project built for a specific setup (macOS + Warframe via Wine/CrossOver).
-Features that only make sense for a specific local environment are generally out of scope for PRs. Bug fixes, UI improvements, and new game data integrations are welcome.
+Bug fixes, UI improvements, and new game data integrations are welcome.
