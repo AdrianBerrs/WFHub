@@ -13,6 +13,7 @@ import json
 import os
 import subprocess
 import sys
+from pathlib import Path
 from typing import Optional
 
 
@@ -125,10 +126,32 @@ def _find_file(*candidates: str) -> Optional[str]:
     return None
 
 
+def _resolve_prices_path(script_path: Path) -> Optional[str]:
+    env_path = os.environ.get("WFHUB_PRICES_PATH")
+    candidates: list[Path] = []
+
+    if env_path:
+        candidates.append(Path(env_path).expanduser())
+
+    # Current repo layout: WFHub/scripts/ocr/ocr_vision.py -> WFHub/data/prices.json
+    candidates.append(script_path.parents[2] / "data" / "prices.json")
+    # Additional local fallbacks around scripts/
+    candidates.append(script_path.parents[1] / "data" / "prices.json")
+    candidates.append(script_path.parent / "data" / "prices.json")
+    candidates.append(script_path.parent / "prices.json")
+    candidates.append(script_path.parent / "wfinfo-ng" / "prices.json")
+    candidates.append(Path.home() / "prices.json")
+
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+    return None
+
+
 def main():
-    project = os.path.dirname(os.path.abspath(__file__))
+    script_path = Path(__file__).resolve()
+    project = str(script_path.parent)
     legacy_project = os.path.join(project, "wfinfo-ng")
-    data_project = os.path.join(project, "data")
     home = os.path.expanduser("~")
 
     if len(sys.argv) > 1:
@@ -147,15 +170,10 @@ def main():
                 "prefilter.png not found. Run the WFHub reward detection first or pass the path as an argument."
             )
 
-    prices_path = _find_file(
-        os.path.join(data_project, "prices.json"),
-        os.path.join(project, "prices.json"),
-        os.path.join(legacy_project, "prices.json"),
-        os.path.join(home, "prices.json"),
-    )
+    prices_path = _resolve_prices_path(script_path)
     if prices_path is None:
         sys.exit(
-            "prices.json not found. Generate it in data/prices.json or keep the existing wfinfo-ng/prices.json."
+            "prices.json not found. Expected WFHub/data/prices.json (or set WFHUB_PRICES_PATH)."
         )
 
     print(f"Image : {image_path}")

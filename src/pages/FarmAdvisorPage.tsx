@@ -3,48 +3,12 @@ import {invoke} from "@tauri-apps/api/core";
 import {open} from "@tauri-apps/plugin-shell";
 import {findFuzzyMatches} from "../lib/search";
 import {getSpecialModSources, type FarmResult} from "../lib/modSpecialSources";
-
-function wikiUrl(name: string): string {
-    return `https://wiki.warframe.com/w/${name.replace(/\s+/g, "_")}`;
-}
+import {wikiUrl} from "../lib/wikiUrl";
+import {FarmResults} from "../components/FarmResults";
 
 interface ItemEntry {
     slug: string;
     name: string;
-}
-
-const GROUP_META = {
-    enemy: {
-        title: "Enemies",
-        icon: "🗡️",
-    },
-    mission: {
-        title: "Missions",
-        icon: "🎯",
-    },
-    bounty: {
-        title: "Bounties",
-        icon: "🏆",
-    },
-    special: {
-        title: "Special",
-        icon: "⭐",
-    },
-    relic: {
-        title: "Relics",
-        icon: "💠",
-    },
-} as const;
-
-const RARITY_BADGE: Record<string, string> = {
-    common: "bg-zinc-500/20 text-zinc-300 border-zinc-400/20",
-    uncommon: "bg-sky-500/20 text-sky-300 border-sky-400/20",
-    rare: "bg-purple-500/20 text-purple-300 border-purple-400/20",
-    legendary: "bg-violet-500/20 text-violet-300 border-violet-400/20",
-};
-
-function rarityBadgeClass(rarity: string): string {
-    return RARITY_BADGE[rarity.toLowerCase()] ?? "bg-gray-500/20 text-gray-300 border-gray-400/20";
 }
 
 function groupResults(results: FarmResult[]) {
@@ -134,15 +98,6 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
     }, []);
 
     const grouped = useMemo(() => groupResults(results), [results]);
-    const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-
-    function isOpen(key: string) {
-        return !collapsed[key];
-    }
-
-    function toggleGroup(key: string) {
-        setCollapsed((prev) => ({...prev, [key]: !prev[key]}));
-    }
 
     async function search(overrideName?: string) {
         const matched = findFuzzyMatches(searchableItems, query, 1)[0];
@@ -180,106 +135,6 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
         setQuery(item.name);
         setSelectedName(item.name);
         search(item.name);
-    }
-
-    function renderGroup(source: keyof typeof GROUP_META, entries: FarmResult[]) {
-        if (entries.length === 0) return null;
-        const meta = GROUP_META[source];
-        const key = source;
-        const expanded = isOpen(key);
-        const isEnemy = source === "enemy";
-        const isRelic = source === "relic";
-
-        return (
-            <div key={source}>
-                <button
-                    onClick={() => toggleGroup(key)}
-                    className={`flex w-full items-center justify-between border border-gray-800 bg-gray-900/60 px-3 py-2 text-left hover:bg-gray-800/60 transition-colors ${expanded ? "rounded-t-lg" : "rounded-lg"}`}
-                >
-          <span className="flex items-center gap-2 text-sm font-semibold text-gray-200">
-            <span>{meta.icon}</span>
-              {meta.title}
-          </span>
-                    <span className="flex items-center gap-2">
-            <span className="text-xs text-gray-500">{entries.length}</span>
-            <span className="text-xs text-gray-400">{expanded ? "▲" : "▼"}</span>
-          </span>
-                </button>
-
-                {expanded && (
-                    <div
-                        className="overflow-hidden rounded-b-lg border-x border-b border-gray-800 bg-gray-900 divide-y divide-gray-800/70">
-                        {entries.map((entry, index) => {
-                            const estimatedRuns = entry.chance > 0 ? Math.ceil(100 / entry.chance) : null;
-                            return (
-                                <div
-                                    key={`${source}-${entry.itemName}-${entry.location}-${index}`}
-                                    className="flex items-start justify-between gap-3 px-4 py-3"
-                                >
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-medium text-gray-100">{entry.itemName}</p>
-                                        {isEnemy ? (
-                                            <button
-                                                onClick={() => open(wikiUrl(entry.location))}
-                                                className="mt-0.5 flex items-center gap-1 text-xs text-purple-300/90 hover:text-purple-300 hover:underline"
-                                            >
-                                                {entry.location}
-                                                <span
-                                                    className="mt-0.5 flex items-center gap-1 text-xs text-purple-300/90 hover:text-purple-300 hover:underline truncate">↗</span>
-                                            </button>
-                                        ) : (
-                                            <p className="mt-0.5 text-xs text-purple-300/90">{entry.location}</p>
-                                        )}
-                                        {isEnemy && entry.dropTableChance !== undefined && entry.itemChance !== undefined && (
-                                            <p className="mt-0.5 text-[11px] text-gray-500">
-                                                {entry.dropTableChance.toFixed(2)}% table
-                                                × {entry.itemChance.toFixed(2)}% item
-                                            </p>
-                                        )}
-                                        {isEnemy && (() => {
-                                            const nodes = entry.missionNodes;
-                                            const planets = entry.planets ?? [];
-                                            if (nodes && nodes.length > 0) {
-                                                return (
-                                                    <p className="mt-0.5 text-[10px] text-gray-500">
-                                                        {nodes.slice(0, 2).map(n => `${n.node} — ${n.planet}`).join(", ")}
-                                                    </p>
-                                                );
-                                            }
-                                            if (planets.length === 0) return null;
-                                            const shown = planets.slice(0, 3);
-                                            const extra = planets.length > 3 ? " ..." : "";
-                                            return (
-                                                <p className="mt-0.5 text-[10px] text-gray-500">
-                                                    {shown.join(" · ")}{extra}
-                                                </p>
-                                            );
-                                        })()}
-                                        {!isEnemy && entry.extra && (
-                                            <p className="mt-0.5 text-xs text-gray-500">{entry.extra}</p>
-                                        )}
-                                    </div>
-                                    <div className="shrink-0 text-right">
-                    <span
-                        className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${rarityBadgeClass(entry.rarity)}`}>
-                      {entry.rarity || "Unknown"}
-                    </span>
-                                        <p className="mt-1.5 text-sm font-bold text-purple-400">
-                                            {entry.chance.toFixed(2)}%
-                                        </p>
-                                        {estimatedRuns !== null && (
-                                            <p className="text-[11px] text-gray-500">
-                                                ~{estimatedRuns} {isEnemy ? "kills" : isRelic ? "runs" : "runs"}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
-        );
     }
 
     const totalResults = results.length;
@@ -353,11 +208,11 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
 
             {totalResults > 0 && (
                 <div className="space-y-6 pb-6">
-                    {renderGroup("enemy", grouped.enemy)}
-                    {renderGroup("mission", grouped.mission)}
-                    {renderGroup("bounty", grouped.bounty)}
-                    {renderGroup("relic", grouped.relic)}
-                    {renderGroup("special", grouped.special)}
+                    <FarmResults source="enemy" entries={grouped.enemy} showHeader showMissionNodes />
+                    <FarmResults source="mission" entries={grouped.mission} showHeader />
+                    <FarmResults source="bounty" entries={grouped.bounty} showHeader />
+                    <FarmResults source="relic" entries={grouped.relic} showHeader />
+                    <FarmResults source="special" entries={grouped.special} showHeader />
                 </div>
             )}
 

@@ -9,6 +9,8 @@ import {
     type NameSearchIndex,
 } from "../lib/search";
 import {getSpecialModSources, type FarmResult} from "../lib/modSpecialSources";
+import {wikiUrl} from "../lib/wikiUrl";
+import {sourceLabel} from "../lib/sourceLabel";
 
 interface ItemEntry {
     slug: string;
@@ -26,10 +28,6 @@ interface Inventory {
     mods: string[];
     arcanes: string[];
     scanned_at?: string;
-}
-
-function wikiUrl(name: string): string {
-    return `https://wiki.warframe.com/w/${name.replace(/\s+/g, "_")}`;
 }
 
 function isLikelyModName(text: string): boolean {
@@ -96,21 +94,6 @@ function buildDetections(texts: string[], itemIndex: NameSearchIndex<ItemEntry>)
         }
         return right.score - left.score;
     });
-}
-
-function sourceLabel(source: FarmResult["source"]): string {
-    switch (source) {
-        case "enemy":
-            return "Enemy";
-        case "mission":
-            return "Mission";
-        case "bounty":
-            return "Bounty";
-        case "special":
-            return "Special";
-        case "relic":
-            return "Relic";
-    }
 }
 
 interface DropZoneProps {

@@ -2,10 +2,8 @@ import {useEffect, useState, useCallback} from "react";
 import {invoke} from "@tauri-apps/api/core";
 import {open} from "@tauri-apps/plugin-shell";
 import {getSpecialModSources, type FarmResult} from "../lib/modSpecialSources";
-
-function wikiUrl(name: string): string {
-    return `https://wiki.warframe.com/w/${name.replace(/\s+/g, "_")}`;
-}
+import {wikiUrl} from "../lib/wikiUrl";
+import {sourceLabel} from "../lib/sourceLabel";
 
 interface Build {
     id: string;
@@ -31,21 +29,6 @@ interface ScreenshotPreviewState {
     loading: boolean;
     src?: string;
     error?: boolean;
-}
-
-function sourceLabel(source: FarmResult["source"]): string {
-    switch (source) {
-        case "enemy":
-            return "Enemy";
-        case "mission":
-            return "Mission";
-        case "bounty":
-            return "Bounty";
-        case "special":
-            return "Special";
-        case "relic":
-            return "Relic";
-    }
 }
 
 export default function BuildTrackerPage() {

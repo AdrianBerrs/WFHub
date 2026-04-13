@@ -900,7 +900,7 @@ fn daily_reset_cycle(now_ms: i64) -> HubCycle {
     HubCycle {
         key: "daily-reset".to_string(),
         label: "Daily Reset".to_string(),
-        state: "Reputacao/Faccoes".to_string(),
+        state: "Standing".to_string(),
         expires_at_ms: next_daily_reset_ms(now_ms),
     }
 }

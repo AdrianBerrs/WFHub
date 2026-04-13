@@ -1,68 +1,18 @@
 import {useDeferredValue, useEffect, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
 import {findFuzzyMatches} from "../lib/search";
+import {MarketResults, type MarketGroup} from "../components/MarketResults";
+import type {TopOrders} from "../components/OrderRow";
 
 interface ItemEntry {
     slug: string;
     name: string;
 }
 
-interface OrderUser {
-    ingameName: string;
-    reputation: number;
-    status: string;
-}
-
-interface Order {
-    platinum: number;
-    quantity: number;
-    rank?: number;
-    user: OrderUser;
-}
-
-interface TopOrders {
-    sell: Order[];
-    buy: Order[];
-}
-
 function toSlug(name: string): string {
     return name.trim().toLowerCase()
         .replace(/[^a-z0-9]+/g, "_")
         .replace(/^_|_$/g, "");
-}
-
-function OrderRow({
-                      order,
-                      copied,
-                      onCopy,
-                  }: {
-    order: Order;
-    copied: string | null;
-    onCopy: (name: string, plat: number, rank?: number) => void;
-}) {
-    return (
-        <div className="flex items-center justify-between px-4 py-2.5">
-            <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-200">{order.user.ingameName}</span>
-                <span className="text-xs text-gray-500">rep: {order.user.reputation}</span>
-                {order.rank !== undefined && (
-                    <span className="text-xs px-1.5 py-0.5 bg-indigo-900/60 text-indigo-300 rounded">
-            r{order.rank}
-          </span>
-                )}
-            </div>
-            <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-500">x{order.quantity}</span>
-                <span className="font-bold text-purple-400 text-sm">{order.platinum}p</span>
-                <button
-                    onClick={() => onCopy(order.user.ingameName, order.platinum, order.rank)}
-                    className="text-xs px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-gray-300"
-                >
-                    {copied === order.user.ingameName ? "✓ Copied" : "📋 Whisper"}
-                </button>
-            </div>
-        </div>
-    );
 }
 
 interface Props {
@@ -81,18 +31,8 @@ export default function MarketPage({autoSearch, onAutoSearchDone}: Props) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [itemName, setItemName] = useState("");
-    const [copied, setCopied] = useState<string | null>(null);
-    const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
     const dropdownRef = useRef<HTMLDivElement>(null);
     const deferredQuery = useDeferredValue(query);
-
-    function isOpen(key: string) {
-        return !collapsed[key];
-    }
-
-    function toggleGroup(key: string) {
-        setCollapsed((prev) => ({...prev, [key]: !prev[key]}));
-    }
 
     useEffect(() => {
         invoke<string>("read_items_list")
@@ -190,14 +130,6 @@ export default function MarketPage({autoSearch, onAutoSearchDone}: Props) {
         setSelectedSlug(null);
     }
 
-    function copyWhisper(ingameName: string, platinum: number, rank?: number) {
-        const itemDesc = rank !== undefined ? `${itemName} (rank ${rank})` : itemName;
-        const msg = `/w ${ingameName} Hi! I want to buy: ${itemDesc} for ${platinum} platinum. (warframe.market)`;
-        navigator.clipboard.writeText(msg);
-        setCopied(ingameName);
-        setTimeout(() => setCopied(null), 2000);
-    }
-
     const hasResults = baseOrders || rankedOrders;
 
     return (
@@ -251,43 +183,18 @@ export default function MarketPage({autoSearch, onAutoSearchDone}: Props) {
             {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
 
             {hasResults && (
-                <div className={`grid gap-3 ${rankedOrders ? "md:grid-cols-2" : "grid-cols-1"}`}>
-                    {(() => {
-                        const groups: Array<{ id: string; title: string; orders: typeof baseOrders }> = rankedOrders
+                <MarketResults
+                    groups={
+                        rankedOrders
                             ? [
                                 {id: "base", title: "Cheapest (any rank)", orders: baseOrders},
                                 {id: "full", title: `Full rank (r${maxRank})`, orders: rankedOrders},
-                            ]
-                            : [{id: "base", title: "Selling (online)", orders: baseOrders}];
-
-                        return groups.map(({id, title, orders}) => {
-                            const expanded = isOpen(id);
-                            const rows = orders?.sell ?? [];
-                            return (
-                                <div key={id}>
-                                    <button
-                                        onClick={() => toggleGroup(id)}
-                                        className={`flex w-full items-center justify-between border border-gray-800 bg-gray-900/60 px-3 py-2 text-left hover:bg-gray-800/60 transition-colors ${expanded ? "rounded-t-lg" : "rounded-lg"}`}
-                                    >
-                                        <span className="text-sm font-semibold text-gray-200">{title}</span>
-                                        <span className="flex items-center gap-2">
-                                            <span className="text-xs text-gray-500">{rows.length}</span>
-                                            <span className="text-xs text-gray-400">{expanded ? "▲" : "▼"}</span>
-                                        </span>
-                                    </button>
-                                    {expanded && (
-                                        <div
-                                            className="overflow-hidden rounded-b-lg border-x border-b border-gray-800 bg-gray-900 divide-y divide-gray-800/70">
-                                            {rows.map((o, i) => (
-                                                <OrderRow key={i} order={o} copied={copied} onCopy={copyWhisper}/>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        });
-                    })()}
-                </div>
+                            ] as MarketGroup[]
+                            : [{id: "base", title: "Selling (online)", orders: baseOrders}] as MarketGroup[]
+                    }
+                    itemName={itemName}
+                    containerClass={`grid gap-3 ${rankedOrders ? "md:grid-cols-2" : "grid-cols-1"}`}
+                />
             )}
         </div>
     );
