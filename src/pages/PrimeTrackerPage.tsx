@@ -43,6 +43,17 @@ function getDisplayParts(item: PrimeItem): string[] {
     );
 }
 
+const RARITY_DUCATS: Record<string, number> = {
+    Common: 15,
+    Uncommon: 45,
+    Rare: 100,
+};
+
+function getDucats(rarities: Record<string, string>, partName: string): number | null {
+    const rarity = rarities[partName];
+    return rarity ? (RARITY_DUCATS[rarity] ?? null) : null;
+}
+
 export default function PrimeTrackerPage() {
     const [allParts, setAllParts] = useState<string[]>([]);
     const [scanned, setScanned] = useState<Set<string>>(new Set());
@@ -50,6 +61,7 @@ export default function PrimeTrackerPage() {
     const [filter, setFilter] = useState<Filter>("all");
     const [search, setSearch] = useState("");
     const [expanded, setExpanded] = useState<Set<string>>(new Set());
+    const [rarities, setRarities] = useState<Record<string, string>>({});
     const loadInventory = useCallback(async () => {
         try {
             const raw = await invoke<string>("read_inventory");
@@ -63,8 +75,10 @@ export default function PrimeTrackerPage() {
     useEffect(() => {
         invoke<string>("read_prime_parts")
             .then((raw) => setAllParts(JSON.parse(raw)))
-            .catch(() => {
-            });
+            .catch(() => {});
+        invoke<string>("read_item_rarities")
+            .then((raw) => setRarities(JSON.parse(raw)))
+            .catch(() => {});
         loadInventory();
     }, [loadInventory]);
 
@@ -215,6 +229,7 @@ export default function PrimeTrackerPage() {
                                         const owned = scanned.has(part);
                                         const hasBP = !owned && isWarframeItem(item) && scanned.has(part + " Blueprint");
                                         const label = part.replace(`${item.name} `, "");
+                                        const ducats = getDucats(rarities, part);
                                         return (
                                             <div
                                                 key={part}
@@ -232,7 +247,10 @@ export default function PrimeTrackerPage() {
                                                 ) : (
                                                     <span className="text-red-500/60">✗</span>
                                                 )}
-                                                <span>{label}</span>
+                                                <span className="flex-1">{label}</span>
+                                                {ducats !== null && (
+                                                    <span className="text-xs text-yellow-500/70 font-medium">{ducats} ⬡</span>
+                                                )}
                                             </div>
                                         );
                                     })}

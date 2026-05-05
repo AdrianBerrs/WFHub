@@ -10,6 +10,8 @@ interface Build {
     name: string;
     items: string[];
     created_at: string;
+    related_entity?: string | null;
+    related_entity_kind?: "Warframe" | "Weapon" | null;
     screenshot_rel_path?: string | null;
 }
 
@@ -219,8 +221,14 @@ export default function BuildTrackerPage() {
                                         onClick={() => expandBuild(build)}
                                         className="flex-1 flex items-center justify-between text-left hover:opacity-80 transition-opacity">
                                         <span className="flex items-center gap-2 min-w-0">
-                                          <span
-                                              className="text-sm font-medium text-gray-200 truncate">{build.name}</span>
+                                            <span className="min-w-0">
+                                                <span className="text-sm font-medium text-gray-200 truncate block">{build.name}</span>
+                                                {build.related_entity && (
+                                                    <span className="text-[11px] text-gray-500 truncate block">
+                                                        {build.related_entity_kind ? `${build.related_entity_kind}: ` : "Related: "}{build.related_entity}
+                                                    </span>
+                                                )}
+                                            </span>
                                             {build.screenshot_rel_path && (
                                                 <span
                                                     className="shrink-0 rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-300">

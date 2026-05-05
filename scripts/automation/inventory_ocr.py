@@ -161,7 +161,7 @@ def main():
     if len(sys.argv) < 3:
         sys.exit("Usage: inventory_ocr.py <path> <scan_type>  |  --batch <count> <scan_type>")
 
-    project_root = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     if sys.argv[1] == "--batch":
         frame_count = int(sys.argv[2])

@@ -232,6 +232,28 @@ fn toggle_main_window(window: &WebviewWindow) {
     }
 }
 
+/// Eleva o overlay acima de jogos em borderless/fullscreen no macOS.
+/// - NSPopUpMenuWindowLevel (101): acima de qualquer janela de app
+/// - NSWindowCollectionBehaviorCanJoinAllSpaces (1): aparece no Space do jogo em fullscreen nativo
+/// DEVE ser chamado via run_on_main_thread (AppKit requer main thread).
+#[cfg(target_os = "macos")]
+fn set_overlay_window_level(window: &WebviewWindow) {
+    use objc::{msg_send, sel, sel_impl, runtime::Object};
+    use raw_window_handle::{HasWindowHandle, RawWindowHandle};
+    let Ok(handle) = window.window_handle() else { return };
+    let RawWindowHandle::AppKit(h) = handle.as_ref() else { return };
+    unsafe {
+        let ns_view = h.ns_view.as_ptr() as *mut Object;
+        let ns_window: *mut Object = msg_send![ns_view, window];
+        if ns_window.is_null() { return; }
+        // NSScreenSaverWindowLevel = 1000, acima de qualquer janela de app
+        let _: () = msg_send![ns_window, setLevel: 1000i64];
+        // Preserva comportamentos existentes e adiciona CanJoinAllSpaces (bit 0)
+        let current: u64 = msg_send![ns_window, collectionBehavior];
+        let _: () = msg_send![ns_window, setCollectionBehavior: current | 1u64];
+    }
+}
+
 fn show_overlay(app: &tauri::AppHandle, payload: RewardPayload) {
     let overlay = match app.get_webview_window("overlay") {
         Some(w) => w,
@@ -241,17 +263,38 @@ fn show_overlay(app: &tauri::AppHandle, payload: RewardPayload) {
         }
     };
 
-    if let Ok(Some(monitor)) = overlay.primary_monitor() {
-        let size = monitor.size();
+    // Usa o monitor mais largo (onde o jogo provavelmente está rodando)
+    let target_monitor = overlay
+        .available_monitors()
+        .ok()
+        .and_then(|monitors| monitors.into_iter().max_by_key(|m| m.size().width));
+
+    if let Some(monitor) = target_monitor {
         let scale = monitor.scale_factor();
-        let logical_width = size.width as f64 / scale;
-        let x = logical_width - 450.0;
-        let _ = overlay.set_position(tauri::LogicalPosition::new(x, 60.0));
+        let phys_size = monitor.size();
+        let phys_pos = monitor.position();
+        let logical_width = phys_size.width as f64 / scale;
+        let logical_x = phys_pos.x as f64 / scale;
+        let logical_y = phys_pos.y as f64 / scale;
+        let x = logical_x + logical_width - 450.0;
+        let _ = overlay.set_position(tauri::LogicalPosition::new(x, logical_y + 60.0));
     }
+
+    // Altura dinâmica: base (header + hint + padding) + por item
+    let height = 110.0 + payload.items.len() as f64 * 46.0;
+    let _ = overlay.set_size(tauri::LogicalSize::new(420.0, height));
 
     let _ = overlay.emit("reward-detected", &payload);
     let _ = overlay.show();
-    let _ = overlay.set_always_on_top(true);
+    // Não chama set_always_on_top aqui — ele usa NSRunLoop e pode sobrescrever
+    // o setLevel:1000 do ObjC que roda via GCD (run_on_main_thread)
+    #[cfg(target_os = "macos")]
+    {
+        let overlay_main = overlay.clone();
+        let _ = overlay.run_on_main_thread(move || {
+            set_overlay_window_level(&overlay_main);
+        });
+    }
 
     // Auto-hide after 15 seconds
     let overlay_clone = overlay.clone();
@@ -704,7 +747,13 @@ fn collect_screenshot_paths(builds: &[serde_json::Value]) -> Vec<PathBuf> {
 }
 
 #[tauri::command]
-fn save_build(name: String, items: Vec<String>, image_path: Option<String>) -> Result<(), String> {
+fn save_build(
+    name: String,
+    items: Vec<String>,
+    image_path: Option<String>,
+    related_entity: Option<String>,
+    related_entity_kind: Option<String>,
+) -> Result<(), String> {
     let path = project_root().join("data").join("builds.json");
     let mut builds: Vec<serde_json::Value> = if path.exists() {
         let content = fs::read_to_string(&path).unwrap_or_default();
@@ -723,6 +772,8 @@ fn save_build(name: String, items: Vec<String>, image_path: Option<String>) -> R
         "id": id,
         "name": name,
         "items": items,
+        "related_entity": related_entity,
+        "related_entity_kind": related_entity_kind,
         "screenshot_rel_path": screenshot_rel_path,
         "created_at": inventory::utc_iso_now_pub()
     }));
@@ -2893,9 +2944,10 @@ pub fn run() {
             let app_handle = app.handle().clone();
 
             // --- Tray icon ---
-            let icon = Image::from_bytes(include_bytes!("../icons/32x32.png"))?;
+            let icon = Image::from_bytes(include_bytes!("../icons/tray-icon.png"))?;
             TrayIconBuilder::new()
                 .icon(icon)
+                .icon_as_template(true)
                 .tooltip("WFHub")
                 .on_tray_icon_event(move |_tray, event| {
                     if let TrayIconEvent::Click {
