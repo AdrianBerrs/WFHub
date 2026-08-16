@@ -7042,6 +7042,16 @@
     "planets": [],
     "tilesets": []
   },
+  "oraxia (descendia)": {
+    "canonicalName": "Oraxia (Descendia)",
+    "faction": "Duviri",
+    "mission_nodes": [],
+    "missions": [
+      "Descendia"
+    ],
+    "planets": [],
+    "tilesets": []
+  },
   "orbital strike drone": {
     "canonicalName": "Orbital Strike Drone",
     "faction": "Grineer",
@@ -7435,6 +7445,16 @@
     "tilesets": [
       "Corpus Ship (Archwing)"
     ]
+  },
+  "persecutor liminus": {
+    "canonicalName": "Persecutor Liminus",
+    "faction": "?",
+    "mission_nodes": [],
+    "missions": [],
+    "planets": [
+      "Duviri"
+    ],
+    "tilesets": []
   },
   "pharaoh predasite": {
     "canonicalName": "Pharaoh Predasite",
@@ -9359,6 +9379,18 @@
   },
   "terra overtaker": {
     "canonicalName": "Terra Overtaker",
+    "faction": "Corpus",
+    "mission_nodes": [],
+    "missions": [],
+    "planets": [
+      "Venus"
+    ],
+    "tilesets": [
+      "Orb Vallis"
+    ]
+  },
+  "terra oxium osprey": {
+    "canonicalName": "Terra Oxium Osprey",
     "faction": "Corpus",
     "mission_nodes": [],
     "missions": [],

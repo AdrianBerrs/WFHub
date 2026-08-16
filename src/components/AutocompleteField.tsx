@@ -105,14 +105,14 @@ export default function AutocompleteField<T extends AutocompleteOption>({
                     }}
                     placeholder={placeholder}
                     disabled={disabled}
-                    className="flex-1 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-purple-500 focus:outline-none disabled:opacity-40"
+                    className="flex-1 rounded-lg border border-slate-800 bg-slate-950/80 px-3 py-2 text-xs font-medium text-slate-100 placeholder-slate-500 transition-all focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/30 disabled:opacity-40"
                 />
                 {buttonLabel && onButtonClick && (
                     <button
                         type="button"
                         onClick={onButtonClick}
                         disabled={disabled}
-                        className="rounded-lg border border-gray-700 px-3 py-2 text-sm font-semibold text-gray-200 transition-colors hover:bg-gray-800 disabled:opacity-40"
+                        className="rounded-lg border border-cyan-500/20 bg-cyan-950/20 px-3 py-2 text-xs font-semibold text-cyan-300 transition-colors hover:bg-cyan-950/35 disabled:opacity-40"
                     >
                         {buttonLabel}
                     </button>
@@ -120,17 +120,17 @@ export default function AutocompleteField<T extends AutocompleteOption>({
             </div>
 
             {isOpen && suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-lg border border-gray-700 bg-gray-800 shadow-xl">
+                <div className="custom-scrollbar absolute left-0 right-0 top-full z-20 mt-2 max-h-64 overflow-y-auto rounded-lg border border-slate-800 bg-[#12121a] shadow-2xl">
                     {suggestions.map((item) => (
                         <button
                             key={`${item.kind ?? "item"}:${item.name}`}
                             type="button"
                             onMouseDown={() => handleSelect(item)}
-                            className="flex w-full items-center justify-between gap-3 border-b border-gray-700/50 px-4 py-2 text-left text-sm text-gray-200 hover:bg-gray-700 last:border-0"
+                            className="flex w-full items-center justify-between gap-3 border-b border-slate-900/70 px-4 py-2.5 text-left text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-900/50 hover:text-cyan-300 last:border-0"
                         >
                             <span className="truncate">{item.name}</span>
                             {item.kind && (
-                                <span className="shrink-0 rounded-full border border-gray-600 px-2 py-0.5 text-[10px] uppercase tracking-wide text-gray-400">
+                                <span className="shrink-0 rounded-full border border-slate-700 bg-slate-950/70 px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-400">
                                     {item.kind}
                                 </span>
                             )}
@@ -140,7 +140,7 @@ export default function AutocompleteField<T extends AutocompleteOption>({
             )}
 
             {showEmptyState && (
-                <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-gray-400 shadow-xl">
+                <div className="absolute left-0 right-0 top-full z-20 mt-2 rounded-lg border border-slate-800 bg-[#12121a] px-4 py-2 text-sm text-slate-400 shadow-xl">
                     {emptyText}
                 </div>
             )}

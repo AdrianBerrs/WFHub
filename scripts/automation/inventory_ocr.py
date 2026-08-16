@@ -5,7 +5,7 @@ Apple Vision OCR for Warframe inventory (mods or arcanes).
 Usage: /usr/bin/python3 inventory_ocr.py <screenshot_path> <scan_type>
   scan_type: "mods" | "arcanes"
 
-Output (stdout): {"items": ["Serration", "Vitality", ...]}
+Output (stdout): {"items": ["Serration", ...]}
 """
 
 import importlib
@@ -114,7 +114,14 @@ def fuzzy_match(needle: str, reference: list[str]) -> Optional[str]:
         return None
 
     threshold = len(_normalize(best_name)) // 3
-    return best_name if best_dist <= threshold else None
+    if best_dist > threshold:
+        return None
+    # Reject when the candidate is significantly shorter than the matched
+    # name — otherwise partial single-line OCR like "Akbolto Prime" matches
+    # the longer "Akbolto Prime Link" variant by adding the missing suffix.
+    if len(needle_norm) < len(_normalize(best_name)) - 3:
+        return None
+    return best_name
 
 
 def load_reference(scan_type: str, project_root: str) -> list[str]:
@@ -126,6 +133,11 @@ def load_reference(scan_type: str, project_root: str) -> list[str]:
         if isinstance(data, list):
             return [str(x) for x in data if x]
         return [x["name"] for x in data if isinstance(x, dict) and "name" in x]
+    elif scan_type == "prime_parts":
+        path = os.path.join(data_root, "prime_parts.json")
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        return [str(x) for x in data if x]
     else:
         # arcanes
         ARCANE_PREFIXES = (
@@ -171,29 +183,83 @@ def main():
         paths     = [sys.argv[1]]
         scan_type = sys.argv[2]
 
+    # ── Apple Vision path ─────────────────────────────────────────────────────
     reference = load_reference(scan_type, project_root)
     if not reference:
         sys.exit(f"Reference list is empty for scan_type={scan_type}")
 
     matched: set[str] = set()
+    is_primes = scan_type == "prime_parts"
+    # Dedupe candidates across frames — same text shows up in adjacent scroll
+    # frames, no point re-fuzzy-matching it. For 1700-item reference, repeat
+    # work was the bottleneck.
+    tested: dict[str, str | None] = {}
+    unmatched_prime: list[str] = []
+
+    # Suffix words that appear as the LAST line of a prime-part card. A
+    # multi-line candidate starting with one of these is almost certainly a
+    # cross-card merge (the previous card's tail leaked into this one's head).
+    CARD_SUFFIXES = {
+        "barrel", "receiver", "stock", "grip", "handle", "blade", "hilt",
+        "chain", "pouch", "link", "boot", "band", "ornament", "limb",
+        "string", "blueprint", "neuroptics", "chassis", "systems",
+        "harness", "wings",
+    }
+
+    def _is_cross_card(text: str) -> bool:
+        toks = text.strip().split()
+        if len(toks) < 2:
+            return False
+        # 2+ "Prime" tokens means the candidate spans two card names
+        if sum(1 for t in toks if t.lower() == "prime") >= 2:
+            return True
+        # Starts with a card-suffix word: this is the tail of the previous
+        # card spilling into the current candidate
+        if toks[0].lower() in CARD_SUFFIXES:
+            return True
+        return False
+
     for path in paths:
         if not os.path.exists(path):
             continue
         image = Image.open(path)
         ocr_lines = vision_ocr(image)
-        print(f"[ocr] {os.path.basename(path)}: {len(ocr_lines)} linhas lidas", file=sys.stderr)
+        print(f"[ocr] {os.path.basename(path)}: {len(ocr_lines)} linhas lidas", file=sys.stderr, flush=True)
+        if is_primes:
+            print(f"[ocr]   raw_lines: {ocr_lines}", file=sys.stderr, flush=True)
 
-        # Build candidates: single lines + consecutive pairs
+        # Build candidates: single lines + consecutive pairs (+ trios for prime_parts)
         candidates = list(ocr_lines)
         for a, b in zip(ocr_lines, ocr_lines[1:]):
             candidates.append(f"{a.strip()} {b.strip()}")
+        if is_primes:
+            for a, b, c in zip(ocr_lines, ocr_lines[1:], ocr_lines[2:]):
+                candidates.append(f"{a.strip()} {b.strip()} {c.strip()}")
 
         for line in candidates:
-            name = fuzzy_match(line, reference)
-            if name:
-                matched.add(name)
+            key = line.strip()
+            # Drop cross-card merges before they hit fuzzy match — they
+            # produce confident-looking false positives.
+            if is_primes and _is_cross_card(key):
+                continue
+            if key in tested:
+                name = tested[key]
+            else:
+                name = fuzzy_match(line, reference)
+                tested[key] = name
+                if is_primes and name is None and "Prime" in key and len(unmatched_prime) < 20:
+                    unmatched_prime.append(key)
+            if name is None:
+                continue
+            if is_primes and name not in matched:
+                print(f"[ocr]   match: {line!r:50s} -> {name}", file=sys.stderr, flush=True)
+            matched.add(name)
 
-    print(f"[ocr] total matched: {sorted(matched)}", file=sys.stderr)
+    if is_primes:
+        print(f"[ocr] unmatched 'Prime' candidates ({len(unmatched_prime)}): {unmatched_prime}", file=sys.stderr, flush=True)
+        print(f"[ocr] candidates testados (dedupe): {len(tested)}", file=sys.stderr, flush=True)
+
+    print(f"[ocr] total matched: {sorted(matched)}", file=sys.stderr, flush=True)
     print(json.dumps({"items": sorted(matched)}))
 
 

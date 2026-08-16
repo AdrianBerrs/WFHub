@@ -9,10 +9,16 @@ Rodar sempre que um novo warframe prime for adicionado ao jogo:
     /usr/bin/python3 update_prime_parts.py
 """
 import json
+import os
 import re
 import pathlib
 
-data_dir = pathlib.Path(__file__).parent / "data"
+data_dir = pathlib.Path(
+    os.environ.get(
+        "WFHUB_DATA_DIR",
+        str(pathlib.Path(__file__).resolve().parent.parent.parent / "data"),
+    )
+)
 parts_file = data_dir / "prime_parts.json"
 
 parts: list[str] = json.loads(parts_file.read_text())

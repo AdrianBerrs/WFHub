@@ -1,0 +1,646 @@
+{
+  "Ash Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Atlas Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Banshee Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Baruuk Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Caliban Prime": {
+    "category": "Warframe",
+    "vaulted": false
+  },
+  "Chroma Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Ember Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Equinox Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Excalibur Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Frost Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Gara Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Garuda Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Gauss Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Grendel Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Gyre Prime": {
+    "category": "Warframe",
+    "vaulted": false
+  },
+  "Harrow Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Hildryn Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Hydroid Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Inaros Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Ivara Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Khora Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Lavos Prime": {
+    "category": "Warframe",
+    "vaulted": false
+  },
+  "Limbo Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Loki Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Mag Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Mesa Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Mirage Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Nekros Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Nezha Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Nidus Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Nova Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Nyx Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Oberon Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Octavia Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Protea Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Revenant Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Rhino Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Saryn Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Sevagoth Prime": {
+    "category": "Warframe",
+    "vaulted": false
+  },
+  "Titania Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Trinity Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Valkyr Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Vauban Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Volt Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Voruna Prime": {
+    "category": "Warframe",
+    "vaulted": false
+  },
+  "Wisp Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Wukong Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Xaku Prime": {
+    "category": "Warframe",
+    "vaulted": false
+  },
+  "Yareli Prime": {
+    "category": "Warframe",
+    "vaulted": false
+  },
+  "Zephyr Prime": {
+    "category": "Warframe",
+    "vaulted": true
+  },
+  "Acceltra Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Alternox Prime": {
+    "category": "Primary",
+    "vaulted": false
+  },
+  "Astilla Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Baza Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Boar Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Boltor Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Braton Prime": {
+    "category": "Primary",
+    "vaulted": false
+  },
+  "Burston Prime": {
+    "category": "Primary",
+    "vaulted": false
+  },
+  "Cedo Prime": {
+    "category": "Primary",
+    "vaulted": false
+  },
+  "Cernos Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Corinth Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Daikyu Prime": {
+    "category": "Primary",
+    "vaulted": false
+  },
+  "Fulmin Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Gotva Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Latron Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Nagantaka Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Panthera Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Paris Prime": {
+    "category": "Primary",
+    "vaulted": false
+  },
+  "Perigale Prime": {
+    "category": "Primary",
+    "vaulted": false
+  },
+  "Phantasma Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Rubico Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Scourge Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Soma Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Stradavar Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Strun Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Sybaris Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Tenora Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Tiberon Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Tigris Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Trumna Prime": {
+    "category": "Primary",
+    "vaulted": false
+  },
+  "Vadarya Prime": {
+    "category": "Primary",
+    "vaulted": false
+  },
+  "Vectis Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Zhuge Prime": {
+    "category": "Primary",
+    "vaulted": true
+  },
+  "Afuris Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Akarius Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Akbolto Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Akbronco Prime": {
+    "category": "Secondary",
+    "vaulted": false
+  },
+  "Akjagara Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Aklex Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Akmagnus Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Aksomati Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Akstiletto Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Akvasto Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Ballistica Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Bronco Prime": {
+    "category": "Secondary",
+    "vaulted": false
+  },
+  "Epitaph Prime": {
+    "category": "Secondary",
+    "vaulted": false
+  },
+  "Euphona Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Hikou Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Hystrix Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Knell Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Kompressa Prime": {
+    "category": "Secondary",
+    "vaulted": false
+  },
+  "Lato Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Lex Prime": {
+    "category": "Secondary",
+    "vaulted": false
+  },
+  "Magnus Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Pandero Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Pyrana Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Sagek Prime": {
+    "category": "Secondary",
+    "vaulted": false
+  },
+  "Sicarus Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Spira Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Vasto Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Velox Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Zakti Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Zylok Prime": {
+    "category": "Secondary",
+    "vaulted": true
+  },
+  "Ankyros Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Bo Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Cobra & Crane Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Dakra Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Destreza Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Dual Kamas Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Dual Keres Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Dual Zoren Prime": {
+    "category": "Melee",
+    "vaulted": false
+  },
+  "Fang Prime": {
+    "category": "Melee",
+    "vaulted": false
+  },
+  "Fragor Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Galariak Prime": {
+    "category": "Melee",
+    "vaulted": false
+  },
+  "Galatine Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Glaive Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Gram Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Guandao Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Gunsen Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Karyst Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Kestrel Prime": {
+    "category": "Melee",
+    "vaulted": false
+  },
+  "Kogake Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Kronen Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Masseter Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Nami Skyla Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Nikana Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Ninkondi Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Okina Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Orthos Prime": {
+    "category": "Melee",
+    "vaulted": false
+  },
+  "Pangolin Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Quassus Prime": {
+    "category": "Melee",
+    "vaulted": false
+  },
+  "Reaper Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Redeemer Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Sarofang Prime": {
+    "category": "Melee",
+    "vaulted": false
+  },
+  "Scindo Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Silva & Aegis Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Skana Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Tatsu Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Tekko Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Tipedo Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Venato Prime": {
+    "category": "Melee",
+    "vaulted": false
+  },
+  "Venka Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Volnus Prime": {
+    "category": "Melee",
+    "vaulted": true
+  },
+  "Odonata Prime": {
+    "category": "Archwing",
+    "vaulted": true
+  },
+  "Carrier Prime": {
+    "category": "Sentinel",
+    "vaulted": true
+  },
+  "Dethcube Prime": {
+    "category": "Sentinel",
+    "vaulted": true
+  },
+  "Helios Prime": {
+    "category": "Sentinel",
+    "vaulted": true
+  },
+  "Nautilus Prime": {
+    "category": "Sentinel",
+    "vaulted": false
+  },
+  "Shade Prime": {
+    "category": "Sentinel",
+    "vaulted": true
+  },
+  "Wyrm Prime": {
+    "category": "Sentinel",
+    "vaulted": true
+  },
+  "Venari Prime": {
+    "category": "Companion",
+    "vaulted": false
+  }
+}

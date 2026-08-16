@@ -35,8 +35,11 @@ interface FarmResultsProps {
     /**
      * "list": FarmAdvisor/QuickSearch layout — divide-y rows, px-4 py-3
      * "cards": Build pages layout — space-y-1.5 with bordered cards, px-3 py-2
+     * "grid": FarmAdvisor 3-column card grid — always fills width
      */
-    variant?: "list" | "cards";
+    variant?: "list" | "cards" | "grid";
+    /** Max columns in grid variant. Entries fill the row proportionally up to this. Defaults to 5. */
+    maxColumns?: number;
 }
 
 export function FarmResults({
@@ -50,6 +53,7 @@ export function FarmResults({
     maxEntries = 0,
     compactDetails = false,
     variant = "list",
+    maxColumns = 5,
 }: FarmResultsProps) {
     const [collapsed, setCollapsed] = useState(false);
 
@@ -64,8 +68,8 @@ export function FarmResults({
     function renderEntry(entry: FarmResult, index: number) {
         const estimatedRuns = entry.chance > 0 ? Math.ceil(100 / entry.chance) : null;
         const rowClass = variant === "cards"
-            ? "flex items-start justify-between gap-3 rounded-lg border border-gray-800 bg-gray-900 px-3 py-2"
-            : "flex items-start justify-between gap-3 px-4 py-3";
+            ? "flex items-start justify-between gap-3 rounded-lg border border-slate-900 bg-slate-950/60 px-3 py-2 transition-colors hover:border-slate-800"
+            : "flex items-start justify-between gap-3 px-4 py-3 transition-colors hover:bg-slate-950/30";
         return (
             <div
                 key={`${source}-${entry.itemName}-${entry.location}-${index}`}
@@ -73,27 +77,27 @@ export function FarmResults({
             >
                 <div className="min-w-0">
                     {showItemName && (
-                        <p className="text-sm font-medium text-gray-100">{entry.itemName}</p>
+                        <p className="text-sm font-bold text-slate-100">{entry.itemName}</p>
                     )}
                     {!showRarityBadge && (
-                        <span className="rounded-full bg-gray-800 px-2 py-0.5 text-[10px] text-gray-400">
+                        <span className="rounded-full border border-slate-800 bg-slate-950/70 px-2 py-0.5 text-[10px] text-slate-400">
                             {sourceLabel(entry.source)}
                         </span>
                     )}
                     {isEnemy && showWikiLink ? (
                         <button
                             onClick={() => open(wikiUrl(entry.location))}
-                            className={`${showItemName ? "mt-0.5" : "mt-1.5"} flex items-center gap-1 text-xs text-purple-300/90 hover:text-purple-300 hover:underline truncate`}
+                            className={`${showItemName ? "mt-0.5" : "mt-1.5"} flex items-center gap-1 truncate text-xs font-semibold text-accents-350/90 hover:text-primary-300 hover:underline`}
                         >
                             {entry.location} ↗
                         </button>
                     ) : (
-                        <p className={`${showItemName ? "mt-0.5" : "mt-1.5"} text-xs ${showRarityBadge ? "text-purple-300/90" : "text-gray-200"} truncate`}>
+                        <p className={`${showItemName ? "mt-0.5" : "mt-1.5"} truncate text-xs ${showRarityBadge ? "text-primary-300/90" : "text-slate-200"}`}>
                             {entry.location}
                         </p>
                     )}
                     {isEnemy && entry.dropTableChance !== undefined && entry.itemChance !== undefined && (
-                        <p className={`mt-0.5 ${compactDetails ? "text-[10px]" : "text-[11px]"} text-gray-500${compactDetails ? " truncate" : ""}`}>
+                        <p className={`mt-0.5 ${compactDetails ? "text-[10px]" : "text-[11px]"} text-slate-500${compactDetails ? " truncate" : ""}`}>
                             {entry.dropTableChance.toFixed(2)}% table × {entry.itemChance.toFixed(2)}% item
                         </p>
                     )}
@@ -102,7 +106,7 @@ export function FarmResults({
                         const planets = entry.planets ?? [];
                         if (nodes && nodes.length > 0) {
                             return (
-                                <p className="mt-0.5 text-[10px] text-gray-500">
+                                <p className="mt-0.5 text-[10px] text-slate-500">
                                     {nodes.slice(0, 2).map(n => `${n.node} — ${n.planet}`).join(", ")}
                                 </p>
                             );
@@ -111,13 +115,13 @@ export function FarmResults({
                         const shown = planets.slice(0, 3);
                         const extra = planets.length > 3 ? " ..." : "";
                         return (
-                            <p className="mt-0.5 text-[10px] text-gray-500">
+                            <p className="mt-0.5 text-[10px] text-slate-500">
                                 {shown.join(" · ")}{extra}
                             </p>
                         );
                     })()}
                     {!isEnemy && entry.extra && (
-                        <p className={`mt-0.5 ${showRarityBadge ? "text-xs" : "text-[11px]"} text-gray-500`}>{entry.extra}</p>
+                        <p className={`mt-0.5 ${showRarityBadge ? "text-xs" : "text-[11px]"} text-slate-500`}>{entry.extra}</p>
                     )}
                 </div>
                 <div className="shrink-0 text-right">
@@ -126,11 +130,11 @@ export function FarmResults({
                             {entry.rarity || "Unknown"}
                         </span>
                     )}
-                    <p className={`${showRarityBadge ? "mt-1.5" : ""} text-sm font-bold text-purple-400`}>
+                    <p className={`${showRarityBadge ? "mt-1.5" : ""} font-mono text-sm font-black text-primary-400`}>
                         {entry.chance.toFixed(2)}%
                     </p>
                     {estimatedRuns !== null && (
-                        <p className={`${compactDetails ? "text-[10px]" : "text-[11px]"} text-gray-500`}>
+                        <p className={`${compactDetails ? "text-[10px]" : "text-[11px]"} text-slate-500`}>
                             ~{estimatedRuns} {isEnemy ? "kills" : isRelic ? "runs" : "runs"}
                         </p>
                     )}
@@ -145,13 +149,85 @@ export function FarmResults({
                 {visibleEntries.map((entry, index) => renderEntry(entry, index))}
             </div>
             {maxEntries > 0 && entries.length > maxEntries && (
-                <p className="text-[11px] text-gray-600">
+                <p className="text-[11px] text-slate-600">
+                    Showing the {maxEntries} best sources.
+                </p>
+            )}
+        </>
+    ) : variant === "grid" ? (
+        <>
+            <div className="rounded-b-xl border-x border-b border-[#1e1e2d] bg-[#111119] p-4">
+                <div className="grid gap-2.5" style={{gridTemplateColumns: `repeat(${Math.min(visibleEntries.length, maxColumns)}, minmax(0, 1fr))`}}>
+                {visibleEntries.map((entry, index) => {
+                    const estimatedRuns = entry.chance > 0 ? Math.ceil(100 / entry.chance) : null;
+                    return (
+                    <div key={`${source}-${entry.itemName}-${entry.location}-${index}`}
+                         className="flex flex-col gap-2 rounded-lg border border-slate-900 bg-slate-950/60 px-3 py-2.5 transition-colors hover:border-slate-800">
+                        {showItemName && (
+                            <p className="text-xs font-bold text-slate-100">{entry.itemName}</p>
+                        )}
+                        {!showRarityBadge && (
+                            <span className="self-start rounded-full border border-slate-800 bg-slate-950/70 px-2 py-0.5 text-[10px] text-slate-400">
+                                {sourceLabel(entry.source)}
+                            </span>
+                        )}
+                        {isEnemy && showWikiLink ? (
+                            <button onClick={() => open(wikiUrl(entry.location))}
+                                    className="flex items-center gap-1 truncate text-[11px] font-semibold text-accents-350/90 hover:text-primary-300 hover:underline">
+                                {entry.location} ↗
+                            </button>
+                        ) : (
+                            <p className="truncate text-[11px] text-primary-300/90">{entry.location}</p>
+                        )}
+                        {isEnemy && entry.dropTableChance !== undefined && entry.itemChance !== undefined && (
+                            <p className="text-[10px] text-slate-500">
+                                {entry.dropTableChance.toFixed(2)}% table × {entry.itemChance.toFixed(2)}% item
+                            </p>
+                        )}
+                        {isEnemy && showMissionNodes && (() => {
+                            const nodes = entry.missionNodes;
+                            const planets = entry.planets ?? [];
+                            if (nodes && nodes.length > 0) {
+                                return <p className="text-[10px] text-slate-500">{nodes.slice(0, 2).map(n => `${n.node} — ${n.planet}`).join(", ")}</p>;
+                            }
+                            if (planets.length === 0) return null;
+                            const shown = planets.slice(0, 3);
+                            const extra = planets.length > 3 ? " ..." : "";
+                            return <p className="text-[10px] text-slate-500">{shown.join(" · ")}{extra}</p>;
+                        })()}
+                        {!isEnemy && entry.extra && (
+                            <p className="text-[11px] text-slate-500">{entry.extra}</p>
+                        )}
+                        <div className="mt-auto flex items-center justify-between gap-2 pt-1">
+                            {showRarityBadge && (
+                                <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${rarityBadgeClass(entry.rarity)}`}>
+                                    {entry.rarity || "Unknown"}
+                                </span>
+                            )}
+                            <div className="text-right">
+                                <p className="font-mono text-xs font-black text-primary-400">
+                                    {entry.chance.toFixed(2)}%
+                                </p>
+                                {estimatedRuns !== null && (
+                                    <p className="text-[10px] text-slate-500">
+                                        ~{estimatedRuns} {isEnemy ? "kills" : isRelic ? "runs" : "runs"}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    );
+                })}
+            </div>
+            </div>
+            {maxEntries > 0 && entries.length > maxEntries && (
+                <p className="text-[11px] text-slate-600">
                     Showing the {maxEntries} best sources.
                 </p>
             )}
         </>
     ) : (
-        <div className="overflow-hidden rounded-b-lg border-x border-b border-gray-800 bg-gray-900 divide-y divide-gray-800/70">
+        <div className="overflow-hidden rounded-b-xl border-x border-b border-[#1e1e2d] bg-[#111119] divide-y divide-slate-900/80">
             {visibleEntries.map((entry, index) => renderEntry(entry, index))}
         </div>
     );
@@ -164,15 +240,17 @@ export function FarmResults({
         <div key={source}>
             <button
                 onClick={() => setCollapsed((prev) => !prev)}
-                className={`flex w-full items-center justify-between border border-gray-800 bg-gray-900/60 px-3 py-2 text-left hover:bg-gray-800/60 transition-colors ${expanded ? "rounded-t-lg" : "rounded-lg"}`}
+                className={`flex w-full items-center justify-between border border-[#1e1e2d] bg-[#14141e]/40 px-4 py-3 text-left transition-colors hover:bg-slate-950/80 ${expanded ? "rounded-t-xl" : "rounded-xl"}`}
             >
-                <span className="flex items-center gap-2 text-sm font-semibold text-gray-200">
+                <span className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-300">
                     <span>{meta.icon}</span>
                     {meta.title}
                 </span>
                 <span className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">{entries.length}</span>
-                    <span className="text-xs text-gray-400">{expanded ? "▲" : "▼"}</span>
+                    <span className="rounded border border-cyan-500/10 bg-cyan-950/20 px-2 py-0.5 font-mono text-[10px] font-bold text-cyan-300">
+                        {entries.length}
+                    </span>
+                    <span className="text-xs text-slate-400">{expanded ? "▲" : "▼"}</span>
                 </span>
             </button>
             {expanded && entryList}

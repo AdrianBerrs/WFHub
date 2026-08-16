@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import {useNavigate} from "react-router-dom";
 import {invoke} from "@tauri-apps/api/core";
 import {open} from "@tauri-apps/plugin-shell";
 import {
@@ -173,22 +174,23 @@ function DropZone({onClick, onDrop, isDragging, onDragOver, onDragLeave}: DropZo
             onDragLeave={onDragLeave}
             onDrop={onDrop}
             style={{height: "72px"}}
-            className={`w-full border-2 border-dashed rounded-lg flex items-center justify-center gap-3 cursor-pointer transition-colors shrink-0 ${
+            className={`flex w-full shrink-0 cursor-pointer items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-colors ${
                 isDragging
-                    ? "border-purple-400 bg-purple-500/10"
-                    : "border-gray-700 hover:border-purple-500"
+                    ? "border-primary-400 bg-primary-500/10"
+                    : "border-slate-800 bg-[#111119] hover:border-primary-500"
             }`}
         >
-            <span className="text-2xl text-gray-600">+</span>
+            <span className="text-2xl text-slate-600">+</span>
             <div>
-                <div className="text-sm text-gray-400">Drag, paste or click</div>
-                <div className="text-xs text-gray-600">PNG · JPG · Cmd+V</div>
+                <div className="text-sm font-semibold text-slate-400">Drag, paste or click</div>
+                <div className="font-mono text-xs text-slate-600">PNG · JPG · Cmd+V</div>
             </div>
         </button>
     );
 }
 
 export default function BuildAnalyzerPage() {
+    const navigate = useNavigate();
     const [allItems, setAllItems] = useState<ItemEntry[]>([]);
     const [allModNames, setAllModNames] = useState<string[]>([]);
     const [allWfcdMods, setAllWfcdMods] = useState<string[]>([]);
@@ -438,7 +440,15 @@ export default function BuildAnalyzerPage() {
     const hasAnalysisWorkspace = !!previewUrl;
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex min-h-full flex-col">
+            <div className="shrink-0 px-5 pb-1 pt-4">
+                <button
+                    onClick={() => navigate("/build-tracker")}
+                    className="flex items-center gap-1 text-xs text-slate-400 transition-colors hover:text-primary-300"
+                >
+                    ← Back to Builds
+                </button>
+            </div>
             <input
                 ref={inputRef}
                 type="file"
@@ -452,10 +462,10 @@ export default function BuildAnalyzerPage() {
             />
 
             {!hasAnalysisWorkspace && (
-                <div className="flex flex-col flex-1 items-center justify-center gap-6 p-8">
-                    <div>
-                        <h1 className="text-xl font-bold text-purple-400 text-center">Build Analyzer</h1>
-                        <p className="text-sm text-gray-500 mt-1 text-center">
+                <div className="wf-page flex flex-1 flex-col items-center justify-center gap-6">
+                    <div className="wf-panel w-full max-w-lg p-5 text-center">
+                        <h1 className="text-xl font-bold text-slate-100">Build Analyzer</h1>
+                        <p className="mt-1 text-sm text-slate-500">
                             Paste, drag or select a build screenshot to detect mods and arcanes
                         </p>
                     </div>
@@ -481,12 +491,12 @@ export default function BuildAnalyzerPage() {
                             <img
                                 src={previewUrl}
                                 alt="Build preview"
-                                className="max-h-64 w-full rounded-xl object-contain bg-black/40 border border-gray-800"
+                                className="max-h-64 w-full rounded-xl border border-[#1e1e2d] bg-black/40 object-contain"
                             />
                             <button
                                 onClick={analyzeBuild}
                                 disabled={loading}
-                                className="rounded-lg bg-purple-500 px-6 py-2 text-sm font-semibold text-gray-950 hover:bg-purple-400 disabled:opacity-40"
+                                className="rounded-lg border border-cyan-500/20 bg-cyan-950/40 px-6 py-2 text-xs font-bold text-cyan-300 transition-colors hover:bg-cyan-950/60 disabled:opacity-40"
                             >
                                 {loading ? "Analyzing..." : "Analyze Build"}
                             </button>
@@ -499,10 +509,10 @@ export default function BuildAnalyzerPage() {
 
             {hasAnalysisWorkspace && (
                 <>
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 shrink-0">
+                    <div className="mx-5 mt-4 flex shrink-0 items-center justify-between rounded-xl border border-[#1e1e2d] bg-gradient-to-r from-[#111119] to-[#12121e] px-5 py-4">
                         <div>
-                            <h1 className="text-lg font-bold text-purple-400">Build Analyzer</h1>
-                            <p className="text-xs text-gray-500 mt-0.5">
+                            <h1 className="text-lg font-bold text-slate-100">Build Analyzer</h1>
+                            <p className="mt-0.5 text-xs text-slate-500">
                                 Paste, drag or select a build screenshot to detect mods and arcanes
                             </p>
                         </div>
@@ -515,22 +525,22 @@ export default function BuildAnalyzerPage() {
                                     setSaveStatus("idle");
                                     setShowSaveModal(true);
                                 }}
-                                className="rounded-lg border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-800 transition-colors"
+                                className="rounded-lg border border-slate-700 px-4 py-2 text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-800"
                             >
                                 Save Build
                             </button>
                             <button
                                 onClick={analyzeBuild}
                                 disabled={loading || !imagePath}
-                                className="rounded-lg bg-purple-500 px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-purple-400 disabled:opacity-40"
+                                className="rounded-lg border border-cyan-500/20 bg-cyan-950/40 px-4 py-2 text-xs font-bold text-cyan-300 transition-colors hover:bg-cyan-950/60 disabled:opacity-40"
                             >
                                 {loading ? "Analyzing..." : "Analyze Build"}
                             </button>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-[700px_1fr] h-full min-h-0">
-                        <div className="flex flex-col gap-3 p-4 border-r border-gray-800">
+                    <div className="grid h-full min-h-0 grid-cols-[700px_1fr]">
+                        <div className="flex flex-col gap-3 border-r border-[#1e1e2d] p-5">
                             <DropZone
                                 onClick={() => inputRef.current?.click()}
                                 onDrop={handleDrop}
@@ -546,7 +556,7 @@ export default function BuildAnalyzerPage() {
                             />
 
                             {previewUrl ? (
-                                <div className="flex-1 min-h-0 rounded-lg overflow-hidden border border-gray-800 bg-black/40">
+                                <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-[#1e1e2d] bg-black/40">
                                     <img
                                         src={previewUrl}
                                         alt="Build preview"
@@ -554,20 +564,20 @@ export default function BuildAnalyzerPage() {
                                     />
                                 </div>
                             ) : (
-                                <div className="flex-1 min-h-0 rounded-lg border border-gray-800/50 bg-gray-900/30 flex items-center justify-center">
-                                    <p className="text-xs text-gray-600">No image</p>
+                                <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-[#1e1e2d] bg-[#111119]/70">
+                                    <p className="text-xs text-zinc-600">No image</p>
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex-1 overflow-auto p-4">
+                        <div className="custom-scrollbar flex-1 overflow-auto p-5">
                             {error && <p className="mb-3 text-sm text-red-400">{error}</p>}
 
-                            <div className="mb-4 rounded-xl border border-gray-800 bg-gray-900/60 p-4">
+                            <div className="mb-4 rounded-xl border border-[#1e1e2d] bg-[#111119] p-4">
                                 <div className="mb-2 flex items-center justify-between gap-3">
                                     <div>
-                                        <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Manual Add</h2>
-                                        <p className="mt-1 text-xs text-gray-500">
+                                        <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-400">Manual Add</h2>
+                                        <p className="mt-1 text-xs text-zinc-500">
                                             Add missing mods or arcanes when OCR fails. Remove unknown rows and insert the correct item here.
                                         </p>
                                     </div>
@@ -592,7 +602,7 @@ export default function BuildAnalyzerPage() {
                             </div>
 
                             {detections.length === 0 && !loading && (
-                                <p className="mb-4 text-sm text-gray-500">
+                                <p className="mb-4 text-sm text-zinc-500">
                                     No items detected yet. Run OCR or add mods and arcanes manually.
                                 </p>
                             )}
@@ -600,10 +610,10 @@ export default function BuildAnalyzerPage() {
                             {detections.length > 0 && (
                                 <>
                                     <div className="flex items-center justify-between mb-3">
-                                        <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                        <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
                                             Build Items
                                         </h2>
-                                        <p className="text-xs text-gray-500">
+                                        <p className="text-xs text-zinc-500">
                                             {foundCount} found · {detections.length - foundCount} unrecognized
                                         </p>
                                         <p className="text-xs text-emerald-400">
@@ -626,8 +636,8 @@ export default function BuildAnalyzerPage() {
                                                     onClick={() => isFound && toggleDetails(entry)}
                                                     className={`rounded-lg border overflow-hidden transition-colors ${
                                                         isFound
-                                                            ? "border-gray-800 bg-gray-900 cursor-pointer hover:bg-gray-800"
-                                                            : "border-orange-800/50 bg-gray-900"
+                                                            ? "border-zinc-800 bg-zinc-900 cursor-pointer hover:bg-zinc-800"
+                                                            : "border-orange-800/50 bg-zinc-900"
                                                     }`}
                                                 >
                                                     <div className="flex items-center gap-2 px-3 py-2">
@@ -641,7 +651,7 @@ export default function BuildAnalyzerPage() {
 
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center gap-1.5">
-                                                                <p className={`text-sm font-medium truncate ${isFound ? "text-gray-100" : "text-gray-400"}`}>
+                                                                <p className={`text-sm font-medium truncate ${isFound ? "text-zinc-100" : "text-zinc-400"}`}>
                                                                     {displayName}
                                                                 </p>
                                                                 {isOwned && (
@@ -657,7 +667,7 @@ export default function BuildAnalyzerPage() {
                                                                         e.stopPropagation();
                                                                         open(wikiUrl(isFound ? entry.matchedName! : entry.rawText));
                                                                     }}
-                                                                    className="text-gray-500 hover:text-purple-400 transition-colors shrink-0"
+                                                                    className="text-zinc-500 hover:text-primary-400 transition-colors shrink-0"
                                                                     title="View on wiki"
                                                                 >
                                                                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -668,13 +678,13 @@ export default function BuildAnalyzerPage() {
                                                                 </button>
                                                             </div>
                                                             {isFound && entry.rawText !== entry.matchedName && (
-                                                                <p className="text-[11px] text-gray-500 truncate">OCR: {entry.rawText}</p>
+                                                                <p className="text-[11px] text-zinc-500 truncate">OCR: {entry.rawText}</p>
                                                             )}
                                                         </div>
 
                                                         <div className="flex items-center gap-2 shrink-0">
                                                             {isFound && (
-                                                                <span className="text-[11px] text-gray-500">
+                                                                <span className="text-[11px] text-zinc-500">
                                                                     {isExpanded ? "▲" : "▼"}
                                                                 </span>
                                                             )}
@@ -683,7 +693,7 @@ export default function BuildAnalyzerPage() {
                                                                     e.stopPropagation();
                                                                     removeDetection(entry.id);
                                                                 }}
-                                                                className="text-[11px] text-gray-600 hover:text-gray-300 leading-none"
+                                                                className="text-[11px] text-zinc-600 hover:text-zinc-300 leading-none"
                                                             >
                                                                 ×
                                                             </button>
@@ -691,44 +701,44 @@ export default function BuildAnalyzerPage() {
                                                     </div>
 
                                                     {isFound && isExpanded && (
-                                                        <div className="border-t border-gray-800 bg-gray-950/60 px-3 py-3">
+                                                        <div className="border-t border-zinc-800 bg-zinc-950/60 px-3 py-3">
                                                             {isFarmLoading && (
-                                                                <p className="text-xs text-gray-500">Loading farm sources...</p>
+                                                                <p className="text-xs text-zinc-500">Loading farm sources...</p>
                                                             )}
                                                             {!isFarmLoading && cachedFarm.length === 0 && (
-                                                                <p className="text-xs text-gray-500">No farm sources found.</p>
+                                                                <p className="text-xs text-zinc-500">No farm sources found.</p>
                                                             )}
                                                             {!isFarmLoading && cachedFarm.length > 0 && (
                                                                 <div className="space-y-1.5">
                                                                     {cachedFarm.slice(0, 8).map((farm, index) => (
                                                                         <div
                                                                             key={`${entry.id}-farm-${index}`}
-                                                                            className="flex items-start justify-between gap-3 rounded-lg border border-gray-800 bg-gray-900 px-3 py-2"
+                                                                            className="flex items-start justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2"
                                                                         >
                                                                             <div className="min-w-0">
-                                                                                <span className="rounded-full bg-gray-800 px-2 py-0.5 text-[10px] text-gray-400">
+                                                                                <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-400">
                                                                                     {sourceLabel(farm.source)}
                                                                                 </span>
-                                                                                <p className="mt-1.5 text-xs text-gray-200 truncate">{farm.location}</p>
+                                                                                <p className="mt-1.5 text-xs text-zinc-200 truncate">{farm.location}</p>
                                                                                 {farm.source === "enemy" && farm.dropTableChance !== undefined && farm.itemChance !== undefined && (
-                                                                                    <p className="mt-0.5 text-[10px] text-gray-500 truncate">
+                                                                                    <p className="mt-0.5 text-[10px] text-zinc-500 truncate">
                                                                                         {farm.dropTableChance.toFixed(2)}% table × {farm.itemChance.toFixed(2)}% item
                                                                                     </p>
                                                                                 )}
                                                                                 {farm.source !== "enemy" && farm.extra && (
-                                                                                    <p className="mt-0.5 text-[11px] text-gray-500">{farm.extra}</p>
+                                                                                    <p className="mt-0.5 text-[11px] text-zinc-500">{farm.extra}</p>
                                                                                 )}
                                                                             </div>
                                                                             <div className="text-right shrink-0">
-                                                                                <p className="text-sm font-bold text-purple-400">{farm.chance.toFixed(2)}%</p>
-                                                                                <p className="text-[10px] text-gray-500">
+                                                                                <p className="text-sm font-bold text-primary-400">{farm.chance.toFixed(2)}%</p>
+                                                                                <p className="text-[10px] text-zinc-500">
                                                                                     ~{Math.ceil(100 / Math.max(farm.chance, 0.01))} {farm.source === "enemy" ? "kills" : "runs"}
                                                                                 </p>
                                                                             </div>
                                                                         </div>
                                                                     ))}
                                                                     {cachedFarm.length > 8 && (
-                                                                        <p className="text-[11px] text-gray-600">
+                                                                        <p className="text-[11px] text-zinc-600">
                                                                             Showing the 8 best sources.
                                                                         </p>
                                                                     )}
@@ -754,10 +764,10 @@ export default function BuildAnalyzerPage() {
                         if (e.target === e.currentTarget) setShowSaveModal(false);
                     }}
                 >
-                    <div className="w-[30rem] bg-gray-950 border border-gray-700 rounded-xl shadow-2xl p-5 flex flex-col gap-4">
+                    <div className="w-[30rem] bg-zinc-950 border border-zinc-700 rounded-xl shadow-2xl p-5 flex flex-col gap-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold text-gray-200">Save Build</span>
-                            <button onClick={() => setShowSaveModal(false)} className="text-gray-500 hover:text-gray-200">✕</button>
+                            <span className="text-sm font-semibold text-zinc-200">Save Build</span>
+                            <button onClick={() => setShowSaveModal(false)} className="text-zinc-500 hover:text-zinc-200">✕</button>
                         </div>
                         {saveStatus === "saved" ? (
                             <p className="text-sm text-green-400 text-center py-2">✓ Build saved!</p>
@@ -773,14 +783,14 @@ export default function BuildAnalyzerPage() {
                                         if (e.key === "Escape") setShowSaveModal(false);
                                     }}
                                     placeholder="Build name (e.g. Volt Prime — Endgame)"
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-primary-500"
                                 />
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between gap-2">
-                                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
                                             Related Entity
                                         </span>
-                                        <span className="text-[11px] text-gray-500">Warframe or weapon</span>
+                                        <span className="text-[11px] text-zinc-500">Warframe or weapon</span>
                                     </div>
                                     <AutocompleteField
                                         value={saveRelatedEntity}
@@ -797,16 +807,16 @@ export default function BuildAnalyzerPage() {
                                         emptyText="No known warframe or weapon matches your search."
                                     />
                                 </div>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-zinc-500">
                                     {detections.filter((d) => d.matchedName).length} recognized items will be saved.
                                 </p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-zinc-500">
                                     The current screenshot will also be attached to the build for tracking in Build Tracker.
                                 </p>
                                 <button
                                     onClick={handleSaveBuild}
                                     disabled={!saveName.trim()}
-                                    className="w-full rounded-lg bg-purple-500 hover:bg-purple-400 disabled:opacity-40 py-2 text-sm font-semibold text-gray-950 transition-colors"
+                                    className="w-full rounded-lg bg-primary-500 hover:bg-primary-400 disabled:opacity-40 py-2 text-xs font-semibold text-zinc-950 transition-colors"
                                 >
                                     Save
                                 </button>

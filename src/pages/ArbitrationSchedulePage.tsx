@@ -20,7 +20,7 @@ interface HubArbitrationScheduleResponse {
 }
 
 const tierStyles: Record<string, string> = {
-    "S TIER": "bg-purple-500/20 text-purple-300 border-purple-500/40",
+    "S TIER": "bg-primary-500/20 text-primary-300 border-primary-500/40",
     "A TIER": "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
     "B TIER": "bg-yellow-500/20 text-yellow-300 border-yellow-500/40",
     "C TIER": "bg-amber-500/20 text-amber-300 border-amber-500/40",
@@ -124,23 +124,23 @@ export default function ArbitrationSchedulePage() {
     );
 
     return (
-        <div className="flex h-full flex-col gap-4 p-4">
-            <div className="flex items-center justify-between gap-2">
+        <div className="wf-page flex min-h-full flex-col gap-5">
+            <div className="wf-panel flex items-center justify-between gap-2 p-5">
                 <div>
-                    <h1 className="text-lg font-bold text-purple-400">Arbitrations (7 days)</h1>
-                    <p className="text-xs text-gray-500">Upcoming schedule from today.</p>
+                    <h1 className="text-xl font-bold tracking-tight text-slate-100">Arbitrations (7 days)</h1>
+                    <p className="mt-1 text-xs text-slate-400">Upcoming schedule from today.</p>
                 </div>
                 <button
                     type="button"
                     onClick={() => navigate("/hub")}
-                    className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-xs font-medium text-gray-200 hover:border-purple-500/40 hover:text-purple-300"
+                    className="rounded-lg border border-cyan-500/20 bg-cyan-950/40 px-3 py-1.5 text-xs font-bold text-cyan-300 hover:bg-cyan-950/60"
                 >
                     Back to Hub
                 </button>
             </div>
 
             {source && (
-                <div className="rounded-lg border border-gray-800 bg-gray-900 px-3 py-2 text-xs text-gray-400">
+                <div className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-xs text-slate-400">
                     Source: {source}
                 </div>
             )}
@@ -158,18 +158,18 @@ export default function ArbitrationSchedulePage() {
                 </div>
             )}
 
-            <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
+            <div className="wf-card p-5">
                 <div className="flex items-center justify-between gap-2">
                     <button
                         type="button"
                         onClick={() => setSelectedDay((prev) => Math.max(0, prev - 1))}
                         disabled={selectedDay === 0}
                         title="Previous day"
-                        className="flex items-center justify-center rounded-lg p-2 text-gray-500 transition hover:bg-gray-800 hover:text-white active:scale-95">
+                        className="flex items-center justify-center rounded-lg p-2 text-slate-500 transition hover:bg-slate-800 hover:text-white active:scale-95">
                         <ChevronLeft size={16}/>
                     </button>
 
-                    <p className="text-sm font-semibold text-gray-100">
+                    <p className="text-sm font-semibold text-slate-100">
                         {formatDayTitle(selectedDayStartMs, selectedDay)}
                     </p>
 
@@ -178,25 +178,25 @@ export default function ArbitrationSchedulePage() {
                         onClick={() => setSelectedDay((prev) => Math.min(days - 1, prev + 1))}
                         disabled={selectedDay >= days - 1}
                         title="Next day"
-                        className="flex items-center justify-center rounded-lg p-2 text-2ray-400 transition hover:bg-gray-800 hover:text-white active:scale-95">
+                        className="flex items-center justify-center rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white active:scale-95">
                         <ChevronRight size={16}/>
                     </button>
                 </div>
 
                 <div className="mt-4 space-y-2">
                     {loading ? (
-                        <p className="text-sm text-gray-500">Loading arbitrations...</p>
+                        <p className="text-sm text-zinc-500">Loading arbitrations...</p>
                     ) : daySlots.length === 0 ? (
-                        <p className="text-sm text-gray-500">No arbitrations on this day.</p>
+                        <p className="text-sm text-zinc-500">No arbitrations on this day.</p>
                     ) : (
                         daySlots.map((slot) => (
                             <div
                                 key={`${slot.start_at_ms}-${slot.description}`}
-                                className="group relative rounded-lg bg-gray-950/60 px-3 py-2 transition hover:bg-gray-900/80 hover:shadow-lg hover:shadow-black/30"
+                                className="group relative rounded-lg border border-slate-900 bg-slate-950/60 px-3 py-2 transition hover:border-slate-800 hover:bg-slate-900/80 hover:shadow-lg hover:shadow-black/30"
                             >
                                 {/* BARRA LATERAL */}
                                 <div className={`absolute left-0 top-0 h-full w-1 rounded-l-lg ${
-                                    slot.tier === "S TIER" ? "bg-purple-500" : slot.tier === "A TIER" ? "bg-emerald-500"
+                                    slot.tier === "S TIER" ? "bg-primary-500" : slot.tier === "A TIER" ? "bg-emerald-500"
                                         : slot.tier === "B TIER" ? "bg-yellow-500" : slot.tier === "C TIER" ? "bg-orange-500" : "bg-red-500"
                                 }`}
                                 />
@@ -206,13 +206,13 @@ export default function ArbitrationSchedulePage() {
                                     {formatSlotDateTime(slot.start_at_ms)}
                                 </p>
 
-                                <p className="mt-0.5 flex items-center gap-2 text-xs text-gray-300">
+                                <p className="mt-0.5 flex items-center gap-2 text-xs text-zinc-300">
                                     <span
-                                        className="truncate text-xs text-gray-300">{sanitizeArbitrationDescription(slot.description, slot.tier)}</span>
+                                        className="truncate text-xs text-zinc-300">{sanitizeArbitrationDescription(slot.description, slot.tier)}</span>
                                     {slot.tier && (
                                         <span
                                             className={`shrink-0 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold ${
-                                                tierStyles[slot.tier] || "bg-gray-700 text-gray-300 border-gray-600"
+                                                tierStyles[slot.tier] || "bg-zinc-700 text-zinc-300 border-zinc-600"
                                             }`}
                                         >
                                        {slot.tier}
@@ -228,4 +228,3 @@ export default function ArbitrationSchedulePage() {
         </div>
     );
 }
-

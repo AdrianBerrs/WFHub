@@ -1,0 +1,1699 @@
+{
+  "akimbo slip shot": {
+    "name": "Akimbo Slip Shot",
+    "imageName": "ArcaneProjectionCT.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "While sliding or aim gliding: Gain 65% ammo efficiency with Dual Pistols."
+    ]
+  },
+  "arcane acceleration": {
+    "name": "Arcane Acceleration",
+    "imageName": "ArcaneProjectionAM.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Critical Hit:\\n30% chance for +90% Fire Rate to Primary Weapons (Excludes Shotguns) for 9s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane aegis": {
+    "name": "Arcane Aegis",
+    "imageName": "ArcaneProjectionBA.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Shield Damaged:\\n3% chance for +30% Shield Recharge for 12s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane agility": {
+    "name": "Arcane Agility",
+    "imageName": "ArcaneProjectionAG.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Damaged:\\n60% chance for +60% Parkour Velocity for 18s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane arachne": {
+    "name": "Arcane Arachne",
+    "imageName": "ArcaneEnergise.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Wall Latch:\\n+150% Damage to Primary and Secondary weapons for 30s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane avenger": {
+    "name": "Arcane Avenger",
+    "imageName": "ArcaneProjectionAB.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Damaged:\\n21% chance for +45% Critical Chance for 12s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane awakening": {
+    "name": "Arcane Awakening",
+    "imageName": "ArcaneProjectionAS.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Reload:\\n60% chance for +150% Damage to Pistols for 24s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane barrier": {
+    "name": "Arcane Barrier",
+    "imageName": "ArcaneProjectionAE.png",
+    "rarity": "Legendary",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Shield Damaged:\\n6% chance to instantly restore all Shields\\n6s cooldown\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane battery": {
+    "name": "Arcane Battery",
+    "imageName": "ArcaneProjectionDF.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Gain 0.30 maximum Energy per Armor point, up to 1000 Energy.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane bellicose": {
+    "name": "Arcane Bellicose",
+    "imageName": "ArcaneProjectionDI.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Gain 6% Ability Strength for every 250 Max Health up to 72%.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane blade charger": {
+    "name": "Arcane Blade Charger",
+    "imageName": "ArcaneProjectionMeleeDmgOnRifleKill.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Primary Weapon Kill:\\n30% chance for +300% Melee Damage for 12s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane blessing": {
+    "name": "Arcane Blessing",
+    "imageName": "ArcaneProjectionCA.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Health Pickup:\\n+24 Max Health. Stacks up to 50x.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane bodyguard": {
+    "name": "Arcane Bodyguard",
+    "imageName": "ArcaneProjectionHealCompanionOnSixMeleeKills.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On 6 Melee Kills within 30s:\\nHeal Companion for 900\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane camisado": {
+    "name": "Arcane Camisado",
+    "imageName": "ArcaneProjectionDP.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Attacks from summoned minions increase Ability Strength by 6% up to 60% on the next Ability Cast. Summons gain 20% Movement Speed.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane circumvent": {
+    "name": "Arcane Circumvent",
+    "imageName": "ArcaneProjectionDY.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Roll through enemies to steal 50% of their defenses for yourself. Stolen Armor lasts 15s.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane concentration": {
+    "name": "Arcane Concentration",
+    "imageName": "ArcaneProjectionAO.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Ability Cast:\\n+60% Ability Duration for 3s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane consequence": {
+    "name": "Arcane Consequence",
+    "imageName": "ArcaneProjectionBH.png",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Headshot:\\n+60% Parkour Velocity for 18s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane crepuscular": {
+    "name": "Arcane Crepuscular",
+    "imageName": "ArcaneProjectionDQ.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "While invisible, gain +30% Ability Strength and +3x Final Critical Damage.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane defense": {
+    "name": "Arcane Defense",
+    "imageName": "ArcaneProjectionPuncture.png",
+    "type": "Arcane",
+    "maxRank": 5,
+    "stats": [
+      "+102% chance to resist a <DT_PUNCTURE_COLOR>Puncture Status effect.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane deflection": {
+    "name": "Arcane Deflection",
+    "imageName": "ArcaneProjectionSlash.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "+102% chance to resist a <DT_SLASH_COLOR>Slash Status effect.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane detoxifier": {
+    "name": "Arcane Detoxifier",
+    "imageName": "ArcaneProjectionPoison.png",
+    "type": "Arcane",
+    "maxRank": 5,
+    "stats": [
+      "+102% chance to resist a <DT_POISON_COLOR>Toxin Status effect.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane double back": {
+    "name": "Arcane Double Back",
+    "imageName": "ArcaneProjectionCE.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Gain +25% damage resistance for 4s per Dodge, Double Jump and Bullet Jump. Stacks up to 3x.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane energize": {
+    "name": "Arcane Energize",
+    "imageName": "ArcaneProjectionBI.png",
+    "rarity": "Legendary",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Energy Pickup:\\n60% chance to replenish 150 Energy to self and allies within 15m\\n15s cooldown\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane eruption": {
+    "name": "Arcane Eruption",
+    "imageName": "ArcaneProjectionAU.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Energy Pickup:\\n100% chance to Knockdown nearby enemies\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane escapist": {
+    "name": "Arcane Escapist",
+    "imageName": "ArcaneProjectionDR.png",
+    "rarity": "Legendary",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Mercy Kill: Gain a stack of Escapist, up to 9x. On taking fatal damage, consume 3 stacks to avoid death and become invulnerable for 12s.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane expertise": {
+    "name": "Arcane Expertise",
+    "imageName": "ArcaneProjectionEB.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "100% of Ability Strength modifiers are also applied to Max Shields.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane fury": {
+    "name": "Arcane Fury",
+    "imageName": "ArcaneProjectionBC.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Critical Hit:\\n60% chance for +180% Melee Damage to Melee Weapons for 18s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane grace": {
+    "name": "Arcane Grace",
+    "imageName": "ArcaneProjectionAC.png",
+    "rarity": "Legendary",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Health Damaged:\\n9% chance for +6% Health Regeneration/s for 9s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane guardian": {
+    "name": "Arcane Guardian",
+    "imageName": "ArcaneProjectionAA.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Damaged:\\n15% chance for +900 Armor for 20s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane healing": {
+    "name": "Arcane Healing",
+    "imageName": "ArcaneProjectionRadiation.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "+102% chance to resist a <DT_RADIATION_COLOR>Radiation Status effect.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane hot shot": {
+    "name": "Arcane Hot Shot",
+    "imageName": "ArcaneProjectionDS.png",
+    "rarity": "Legendary",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Gain 6% weapon Critical Chance for 10s, when using abilities to inflict <DT_FIRE_COLOR>Heat Status effect on enemies. Maximum 50x stacks.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane ice": {
+    "name": "Arcane Ice",
+    "imageName": "ArcaneProjectionHeat.png",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "+102% chance to resist a <DT_FIRE_COLOR>Heat Status effect.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane ice storm": {
+    "name": "Arcane Ice Storm",
+    "imageName": "ArcaneProjectionDD.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Enemy Frozen: Gain +2% Ability Strength and +2% Ability Duration for 15s. Stacks up to 20x.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane impetus": {
+    "name": "Arcane Impetus",
+    "imageName": "ArcaneProjectionDO.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Unique Status Effects from Abilities grant +6% Ability Strength and +3% Ability Efficiency for 20s.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane intention": {
+    "name": "Arcane Intention",
+    "imageName": "ArcaneProjectionCJ.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Gain +250 Max Health per active channeled ability.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane liquid": {
+    "name": "Arcane Liquid",
+    "imageName": "ArcaneProjectionGas.png",
+    "type": "Arcane",
+    "maxRank": 5,
+    "stats": [
+      "+102% chance to resist a <DT_GAS_COLOR>Gas Status effect.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane momentum": {
+    "name": "Arcane Momentum",
+    "imageName": "ArcaneProjectionBG.png",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Critical Hit:\\n60% chance for +150% Reload Speed to Sniper Rifles for 12s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane nullifier": {
+    "name": "Arcane Nullifier",
+    "imageName": "ArcaneProjectionMagnetic.png",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "+102% chance to resist a <DT_MAGNETIC_COLOR>Magnetic Status effect.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane persistence": {
+    "name": "Arcane Persistence",
+    "imageName": "ArcaneProjectionEC.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Remove all Shields. If Armor is above 700: Cannot be hit for more than 500 Damage/s. Magnetic Status and Ability Nullifying Effects disable this protection.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane phantasm": {
+    "name": "Arcane Phantasm",
+    "imageName": "ArcaneProjectionAH.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Block:\\n45% chance for +60% Speed for 18s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane pistoleer": {
+    "name": "Arcane Pistoleer",
+    "imageName": "ArcaneProjectionAmmoEfficiencyOnPistolHeadshot.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Pistol Headshot Kill:\\n60% chance for +102% Ammo Efficiency for 12s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane power ramp": {
+    "name": "Arcane Power Ramp",
+    "imageName": "ArcaneProjectionCR.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Ability Cast: Next Ability cast gains +9% Ability Strength, stacking up to 4x. Resets when the same ability is recast consecutively.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane precision": {
+    "name": "Arcane Precision",
+    "imageName": "ArcaneProjectionBD.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Headshot:\\n+300% Damage for 18s on Secondary Weapon\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane primary charger": {
+    "name": "Arcane Primary Charger",
+    "imageName": "ArcaneProjectionPrimaryDmgOnMeleeKill.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Melee Kill:\\n30% chance for +300% Primary Weapon Damage for 12s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane protection": {
+    "name": "Arcane Protection",
+    "imageName": "ArcaneProjectionCorrosive.png",
+    "rarity": "Uncommon",
+    "type": "Arcane",
+    "maxRank": 5,
+    "stats": [
+      "+102% chance to resist a <DT_CORROSIVE_COLOR>Corrosive Status effect.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane pulse": {
+    "name": "Arcane Pulse",
+    "imageName": "ArcaneProjectionAT.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Health Pickup:\\n60% chance to restore 500 Health to allies within 25m\\n15s cooldown\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane rage": {
+    "name": "Arcane Rage",
+    "imageName": "ArcaneProjectionAL.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Headshot:\\n15% chance for +180% Damage to Primary Weapons for 24s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane reaper": {
+    "name": "Arcane Reaper",
+    "imageName": "ArcaneProjectionCK.png",
+    "rarity": "Legendary",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Melee Kill:\\n+24 Health Regen/s and +660 Armor for 10s.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane resistance": {
+    "name": "Arcane Resistance",
+    "imageName": "ArcaneProjectionPoison.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "+102% chance to resist a <DT_POISON_COLOR>Toxin Status effect.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane rise": {
+    "name": "Arcane Rise",
+    "imageName": "ArcaneProjectionCB.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Reload:\\n60% chance for +150% Damage to Primary Weapons for 24s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane shield": {
+    "name": "Arcane Shield",
+    "imageName": "ArcaneProjectionImpact.png",
+    "rarity": "Uncommon",
+    "type": "Arcane",
+    "maxRank": 5,
+    "stats": [
+      "+102% chance to resist an <DT_IMPACT_COLOR>Impact Status effect.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane steadfast": {
+    "name": "Arcane Steadfast",
+    "imageName": "ArcaneProjectionCF.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 0,
+    "stats": []
+  },
+  "arcane strike": {
+    "name": "Arcane Strike",
+    "imageName": "ArcaneProjectionAN.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Hit:\\n15% chance for +60% Attack Speed to Melee Weapons for 18s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane survival": {
+    "name": "Arcane Survival",
+    "imageName": "ArcaneProjectionAV.png",
+    "type": "Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Predeath:\\n60% chance for -100% Bleedout Rate\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane tanker": {
+    "name": "Arcane Tanker",
+    "imageName": "ArcaneProjectionArmorOnHeavyGunEquipped.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Archgun Equipped:\\n+1,200 Armor for 60s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane temperance": {
+    "name": "Arcane Temperance",
+    "imageName": "ArcaneProjectionAR.png",
+    "rarity": "Rare",
+    "type": "Arcane",
+    "maxRank": 5,
+    "stats": [
+      "-90% Damage Taken During Revive\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane tempo": {
+    "name": "Arcane Tempo",
+    "imageName": "ArcaneProjectionBF.png",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Critical Hit:\\n15% chance for +90% Fire Rate to Shotguns for 12s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane trickery": {
+    "name": "Arcane Trickery",
+    "imageName": "ArcaneProjectionAQ.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Finisher Kill:\\n15% chance to become invisible for 30s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane truculence": {
+    "name": "Arcane Truculence",
+    "imageName": "ArcaneProjectionDN.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "When gaining 3,000 or more Overguard threshold, release a 30m Radial Attack that applies max <DT_VIRAL_COLOR>Viral Status stacks.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane ultimatum": {
+    "name": "Arcane Ultimatum",
+    "imageName": "ArcaneProjectionBB.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Finisher Kill:\\n+1,200 Armor for 45s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane universal fallout": {
+    "name": "Arcane Universal Fallout",
+    "imageName": "ArcaneProjectionDT.png",
+    "rarity": "Legendary",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Each <DT_RADIATION_COLOR>Radiation Status Effect inflicted on enemies by Abilities gives a 6% chance to drop a Universal Orb on enemy death.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane velocity": {
+    "name": "Arcane Velocity",
+    "imageName": "ArcaneProjectionBE.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Critical Hit:\\n90% chance for +120% Fire Rate to Pistols for 9s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane victory": {
+    "name": "Arcane Victory",
+    "imageName": "ArcaneProjectionAJ.png",
+    "rarity": "Uncommon",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Headshot Kill:\\n75% chance for +3% Health Regeneration/s for 9s\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "arcane warmth": {
+    "name": "Arcane Warmth",
+    "imageName": "ArcaneProjectionCold.png",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "+102% chance to resist a <DT_FREEZE_COLOR>Cold Status effect.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "cascadia accuracy": {
+    "name": "Cascadia Accuracy",
+    "imageName": "ArcaneProjectionBU.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Roll:\\n+300% Critical Chance on Weakpoint Hits for 4s"
+    ]
+  },
+  "cascadia empowered": {
+    "name": "Cascadia Empowered",
+    "imageName": "ArcaneProjectionBT.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Status Effect:\\nDeals +750 Damage matching the Damage Type of the Status Effect"
+    ]
+  },
+  "cascadia flare": {
+    "name": "Cascadia Flare",
+    "imageName": "ArcaneProjectionBY.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On <DT_FIRE_COLOR>Heat Status Effect:\\n+12% Damage for 10s. Stacks up to 480%."
+    ]
+  },
+  "cascadia overcharge": {
+    "name": "Cascadia Overcharge",
+    "imageName": "ArcaneProjectionBL.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "While Overshields Active: +300% Critical Chance"
+    ]
+  },
+  "conjunction voltage": {
+    "name": "Conjunction Voltage",
+    "imageName": "ArcaneProjectionCD.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On <DT_ELECTRICITY_COLOR>Electricity Status Effect:\\n+1.5% Reload Speed and +3% Multishot for 12s. Stacks up to 40x."
+    ]
+  },
+  "emergence dissipate": {
+    "name": "Emergence Dissipate",
+    "imageName": "ArcaneProjectionBR.png",
+    "rarity": "Rare",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "WHILE IN VOID SLING: Press <PRE_ATTACK> to dissipate the endpoint in a 10m radius. Enemies hit create a short lived Void Mote that replenishes 10 Energy on pick up."
+    ]
+  },
+  "emergence renewed": {
+    "name": "Emergence Renewed",
+    "imageName": "ArcaneProjectionBQ.png",
+    "rarity": "Rare",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Energy Depleted:\\nIncrease Energy Regeneration by 300% over 5s. Cooldown: 30s"
+    ]
+  },
+  "emergence savior": {
+    "name": "Emergence Savior",
+    "imageName": "ArcaneProjectionBS.png",
+    "rarity": "Rare",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Lethal Damage:\\nBecome invulnerable for 5s and recover 60% Health. Cooldown: 90s"
+    ]
+  },
+  "eternal eradicate": {
+    "name": "Eternal Eradicate",
+    "imageName": "ArcaneProjectionBP.png",
+    "rarity": "Rare",
+    "type": "Amp Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Operator Ability:\\n+60% Damage to Amps for 8s"
+    ]
+  },
+  "eternal logistics": {
+    "name": "Eternal Logistics",
+    "imageName": "ArcaneProjectionBW.png",
+    "rarity": "Rare",
+    "type": "Amp Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Sling:\\n+72% Amp Ammo Efficiency for 8s"
+    ]
+  },
+  "eternal onslaught": {
+    "name": "Eternal Onslaught",
+    "imageName": "ArcaneProjectionBV.png",
+    "rarity": "Rare",
+    "type": "Amp Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Energy Depleted:\\n180% Critical Chance for 8s"
+    ]
+  },
+  "exodia brave": {
+    "name": "Exodia Brave",
+    "imageName": "MeleeArcaneA.png",
+    "rarity": "Rare",
+    "type": "Zaw Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Heavy Attack Kill:\\n+5 Energy Rate for 4s. Stacks up to 3x."
+    ]
+  },
+  "exodia contagion": {
+    "name": "Exodia Contagion",
+    "imageName": "MeleeArcaneProjectileOnJump.png",
+    "rarity": "Legendary",
+    "type": "Zaw Arcane",
+    "maxRank": 3,
+    "stats": [
+      "After a Bullet Jump or Double Jump:\\nMelee while Aim Gliding launches a projectile that explodes on impact"
+    ]
+  },
+  "exodia epidemic": {
+    "name": "Exodia Epidemic",
+    "imageName": "MeleeArcaneShockwaveOnJump.png",
+    "rarity": "Legendary",
+    "type": "Zaw Arcane",
+    "maxRank": 3,
+    "stats": [
+      "After a Bullet Jump or Double Jump:\\nSlam emits a shockwave forwards that suspends enemies in the air for a short period"
+    ]
+  },
+  "exodia force": {
+    "name": "Exodia Force",
+    "imageName": "MeleeArcaneF.png",
+    "rarity": "Rare",
+    "type": "Zaw Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Status Effect:\\n50% chance to deal 200% Weapon Damage to enemies within 6m."
+    ]
+  },
+  "exodia hunt": {
+    "name": "Exodia Hunt",
+    "imageName": "MeleeArcaneE.png",
+    "rarity": "Rare",
+    "type": "Zaw Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Ground Slam:\\n50% chance to pull enemies within 12m into melee range."
+    ]
+  },
+  "exodia might": {
+    "name": "Exodia Might",
+    "imageName": "MeleeArcaneC.png",
+    "rarity": "Rare",
+    "type": "Zaw Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Finisher Kill:\\n50% chance for +30% Life Steal for 8s"
+    ]
+  },
+  "exodia triumph": {
+    "name": "Exodia Triumph",
+    "imageName": "MeleeArcaneD.png",
+    "rarity": "Uncommon",
+    "type": "Zaw Arcane",
+    "maxRank": 3,
+    "stats": [
+      "+50% Additional Combo Count Chance"
+    ]
+  },
+  "exodia valor": {
+    "name": "Exodia Valor",
+    "imageName": "MeleeArcaneB.png",
+    "rarity": "Uncommon",
+    "type": "Zaw Arcane",
+    "maxRank": 3,
+    "stats": [
+      "+200% Additional Combo Count Chance on Lifted enemies"
+    ]
+  },
+  "fractalized reset": {
+    "name": "Fractalized Reset",
+    "imageName": "ArcaneProjectionBO.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Ability Cast:\\n+240% Reload Speed for 5s"
+    ]
+  },
+  "longbow sharpshot": {
+    "name": "Longbow Sharpshot",
+    "imageName": "ArcaneProjectionCL.png",
+    "rarity": "Legendary",
+    "type": "Bow Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Headshot: Gain +300% damage on your next shot."
+    ]
+  },
+  "magus accelerant": {
+    "name": "Magus Accelerant",
+    "imageName": "SolarisMagusAccelerant.png",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Sling:\\nReduce Enemy Resistance to <DT_FIRE_COLOR>Heat Damage by 65%."
+    ]
+  },
+  "magus aggress": {
+    "name": "Magus Aggress",
+    "imageName": "ArcaneProjectionCQ.png",
+    "rarity": "Uncommon",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Warframe Melee Transference: Heavy Blades deal +300% Critical Damage for 4 consecutive attacks. Cooldown 20s."
+    ]
+  },
+  "magus anomaly": {
+    "name": "Magus Anomaly",
+    "imageName": "SolarisMagusAnomaly.png",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Transference In:\\nEnemies within 30m are pulled towards Warframe. "
+    ]
+  },
+  "magus cadence": {
+    "name": "Magus Cadence",
+    "imageName": "SpeedOnVoidDash.png",
+    "rarity": "Uncommon",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Sling:\\n+90% Sprint Speed for 12s"
+    ]
+  },
+  "magus cloud": {
+    "name": "Magus Cloud",
+    "imageName": "ImmunityFallDamageOnVoidDamage.png",
+    "rarity": "Uncommon",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Mode:\\n+300% Void Sling Radius for 6s"
+    ]
+  },
+  "magus destruct": {
+    "name": "Magus Destruct",
+    "imageName": "SolarisMagusDestruct.png",
+    "rarity": "Rare",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Sling:\\nReduce Enemy Resistance to <DT_PUNCTURE_COLOR>Puncture Damage by 65%."
+    ]
+  },
+  "magus drive": {
+    "name": "Magus Drive",
+    "imageName": "SolarisMagusDrive.png",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Transference In:\\nIncrease K-Drive Speed by 150% for 30s."
+    ]
+  },
+  "magus elevate": {
+    "name": "Magus Elevate",
+    "imageName": "HealOnTransferenceIn.png",
+    "rarity": "Rare",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Transference In:\\n95% chance to restore 300 Health to Warframe"
+    ]
+  },
+  "magus firewall": {
+    "name": "Magus Firewall",
+    "imageName": "SolarisMagusFirewall.png",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Mode:\\nGenerate Void Particles every 1s up to 6 particles, each granting 12.5% Damage Reduction for 60s. Taking damage consumes a particle."
+    ]
+  },
+  "magus glitch": {
+    "name": "Magus Glitch",
+    "imageName": "SolarisMagusGlitch.png",
+    "rarity": "Uncommon",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Transference Static:\\n102% chance to negate Transference Static."
+    ]
+  },
+  "magus husk": {
+    "name": "Magus Husk",
+    "imageName": "ArmourOnOperatorMode.png",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Transference Out:\\n+300 Armor"
+    ]
+  },
+  "magus lockdown": {
+    "name": "Magus Lockdown",
+    "imageName": "SolarisMagusLockdown.png",
+    "rarity": "Rare",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Sling:\\nDrop a mine that tethers up to 10 enemies in 15m for 4s."
+    ]
+  },
+  "magus melt": {
+    "name": "Magus Melt",
+    "imageName": "SolarisMagusMelt.png",
+    "rarity": "Rare",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Sling:\\nIncrease <DT_FIRE_COLOR>Heat Damage in Operator Mode by 30% for 15s, stacking up to 7x."
+    ]
+  },
+  "magus nourish": {
+    "name": "Magus Nourish",
+    "imageName": "HealOnTransferenceOut.png",
+    "rarity": "Rare",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "While An Operator:\\nRestores 35 Health/s to Warframe."
+    ]
+  },
+  "magus overload": {
+    "name": "Magus Overload",
+    "imageName": "SolarisMagusOverload.png",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Sling:\\nStun robotic enemies for 3s, which then discharge <DT_ELECTRICITY_COLOR>Electricity Damage dealing 80% of their Max Health to anyone within 25m."
+    ]
+  },
+  "magus repair": {
+    "name": "Magus Repair",
+    "imageName": "SolarisMagusRepair.png",
+    "rarity": "Uncommon",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Mode:\\nHeal Warframes within 30m by 25% Health/s."
+    ]
+  },
+  "magus replenish": {
+    "name": "Magus Replenish",
+    "imageName": "HealOnVoidDash.png",
+    "rarity": "Uncommon",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Sling:\\nHeal 30% Health"
+    ]
+  },
+  "magus revert": {
+    "name": "Magus Revert",
+    "imageName": "SolarisMagusRevert.png",
+    "rarity": "Rare",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Void Sling:\\nUse again within 3s, to return the Operator to their original position at no energy cost. Restores 60 Health. 3s cooldown."
+    ]
+  },
+  "magus vigor": {
+    "name": "Magus Vigor",
+    "imageName": "HealthOnOperatorMode.png",
+    "type": "Operator Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Transference Out:\\n+600 Health"
+    ]
+  },
+  "melee afflictions": {
+    "name": "Melee Afflictions",
+    "imageName": "ArcaneProjectionDH.png",
+    "rarity": "Rare",
+    "type": "Melee Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Enemies affected by Status Effects gain 6 additional stacks when they're knocked down or flung by melee attacks."
+    ]
+  },
+  "melee animosity": {
+    "name": "Melee Animosity",
+    "imageName": "ArcaneProjectionCV.png",
+    "rarity": "Rare",
+    "type": "Melee Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Melee Hit: Gain 42% Critical Chance on your next Heavy Attack, up to 420%"
+    ]
+  },
+  "melee careen": {
+    "name": "Melee Careen",
+    "imageName": "ArcaneProjectionDX.png",
+    "rarity": "Rare",
+    "type": "Melee Arcane",
+    "maxRank": 5,
+    "stats": [
+      "x2.50 Melee Damage against Frozen enemies. On Roll: <DT_FREEZE_COLOR> Freeze enemies in a 5.5m radius with a 2s Cooldown."
+    ]
+  },
+  "melee crescendo": {
+    "name": "Melee Crescendo",
+    "imageName": "ArcaneProjectionDB.png",
+    "rarity": "Legendary",
+    "type": "Melee Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Finisher Kill: Gain 6 Initial Combo for the rest of your mission"
+    ]
+  },
+  "melee doughty": {
+    "name": "Melee Doughty",
+    "imageName": "ArcaneProjectionDM.png",
+    "rarity": "Rare",
+    "type": "Melee Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Gain 1.0x Critical Damage for every 10% <DT_PUNCTURE_COLOR>Puncture Status chance on your Melee Weapon."
+    ]
+  },
+  "melee duplicate": {
+    "name": "Melee Duplicate",
+    "imageName": "ArcaneProjectionCW.png",
+    "rarity": "Legendary",
+    "type": "Melee Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Base Critical Hits: 100% chance for your attack to strike a second time"
+    ]
+  },
+  "melee exposure": {
+    "name": "Melee Exposure",
+    "imageName": "ArcaneProjectionCY.png",
+    "rarity": "Rare",
+    "type": "Melee Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Ability Cast: Gain 60% Corrosive Damage on Melee strikes for 25s. Stacks up to 240%."
+    ]
+  },
+  "melee fortification": {
+    "name": "Melee Fortification",
+    "imageName": "ArcaneProjectionDA.png",
+    "rarity": "Uncommon",
+    "type": "Melee Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Melee Kill: +210 Armor for 10s"
+    ]
+  },
+  "melee influence": {
+    "name": "Melee Influence",
+    "imageName": "ArcaneProjectionCZ.png",
+    "rarity": "Rare",
+    "type": "Melee Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Melee <DT_ELECTRICITY_COLOR>Electricity Status: 20% chance for elemental Melee Status Effects to apply to enemies within 20m for 18s. Cannot refresh while active."
+    ]
+  },
+  "melee retaliation": {
+    "name": "Melee Retaliation",
+    "imageName": "ArcaneProjectionCX.png",
+    "rarity": "Uncommon",
+    "type": "Melee Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Gain 30% Melee Damage for every 200 current Shields, up to 420%. Bonus halved for Overshields."
+    ]
+  },
+  "melee vortex": {
+    "name": "Melee Vortex",
+    "imageName": "ArcaneProjectionDC.png",
+    "rarity": "Rare",
+    "type": "Melee Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Kill an enemy affected by <DT_MAGNETIC_COLOR>Magnetic Status for a 45% chance to pull in enemies within 18m radius"
+    ]
+  },
+  "molt augmented": {
+    "name": "Molt Augmented",
+    "imageName": "ArcaneProjectionBX.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Kill:\\n+0.24% Ability Strength. Stacks up to 250x.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "molt efficiency": {
+    "name": "Molt Efficiency",
+    "imageName": "ArcaneProjectionBN.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "While Shields are Active: Gain 6% Ability Duration per second, up to a maximum of 36%   ",
+      "+1 Arcane Revive"
+    ]
+  },
+  "molt reconstruct": {
+    "name": "Molt Reconstruct",
+    "imageName": "ArcaneProjectionBZ.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Heal yourself and allies within Affinity Range 6 Health for each Energy point spent on the initial casting cost of abilities.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "molt vigor": {
+    "name": "Molt Vigor",
+    "imageName": "ArcaneProjectionBM.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Operator Ability:\\n45% Ability Strength on next Warframe Ability Cast\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
+  },
+  "pax bolt": {
+    "name": "Pax Bolt",
+    "imageName": "SolarisEnergyEfficiency.png",
+    "rarity": "Rare",
+    "type": "Kitgun Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Headshot Kill:\\n+30% Ability Efficiency and +30% Ability Strength on the next Ability used within 4s."
+    ]
+  },
+  "pax charge": {
+    "name": "Pax Charge",
+    "imageName": "SolarisBulletToBattery.png",
+    "rarity": "Rare",
+    "type": "Kitgun Arcane",
+    "maxRank": 3,
+    "stats": [
+      "Battery Recharge Delay is reduced by +50%"
+    ]
+  },
+  "pax seeker": {
+    "name": "Pax Seeker",
+    "imageName": "SolarisSeekerProjOnHeadshotKill.png",
+    "rarity": "Rare",
+    "type": "Kitgun Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Headshot Kill:\\n4 projectiles burst from the target and seek the heads of nearby enemies."
+    ]
+  },
+  "pax soar": {
+    "name": "Pax Soar",
+    "imageName": "SolarisEyeInTheSky.png",
+    "rarity": "Rare",
+    "type": "Kitgun Arcane",
+    "maxRank": 3,
+    "stats": [
+      "+50% Accuracy while Airborne",
+      "-50% Weapon Recoil while Airborne",
+      "+5s Aim Glide/Wall Latch Duration"
+    ]
+  },
+  "primary blight": {
+    "name": "Primary Blight",
+    "imageName": "ArcaneProjectionCS.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On <DT_POISON_COLOR>Toxin Status Effect:\\n+3.6% Critical Damage and +1.8% Multishot for 12s. Stacks up to 40x."
+    ]
+  },
+  "primary bulwark": {
+    "name": "Primary Bulwark",
+    "imageName": "ArcaneProjectionDU.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Gain +1% damage for each unit of armor past 1,000, up to a max of +500%."
+    ]
+  },
+  "primary crux": {
+    "name": "Primary Crux",
+    "imageName": "ArcaneProjectionDK.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Weak Point Hit: Gain +30% Status Chance and +6% Ammo Efficiency for 10s. Stacks up to 10x."
+    ]
+  },
+  "primary deadhead": {
+    "name": "Primary Deadhead",
+    "imageName": "ArcaneProjectionSteelPathPrecisionHeadshotB.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Headshot Kill:\\n+120% Damage for 24s. Stacks up to 3x.\\n+30% to Headshot Multiplier\\n-50% Weapon Recoil",
+      "+30% to Headshot Multiplier",
+      "-50% Weapon Recoil"
+    ]
+  },
+  "primary debilitate": {
+    "name": "Primary Debilitate",
+    "imageName": "ArcaneProjectionDW.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "If an enemy has 10 stacks of a combined Status Effect, inflicting the same Status Effect again has a 100% chance to inflict one of the base Status Effects it is composed of."
+    ]
+  },
+  "primary dexterity": {
+    "name": "Primary Dexterity",
+    "imageName": "ArcaneProjectionSteelPathMeleeToolsB.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Melee Kill:\\n+60% Damage for 20s. Stacks up to 6x.\\n+7.5s Combo Duration",
+      "+7.5s Combo Duration"
+    ]
+  },
+  "primary exhilarate": {
+    "name": "Primary Exhilarate",
+    "imageName": "ArcaneProjectionCN.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Weapon <DT_IMPACT_COLOR>Impact Status Effect:\\n+1.2 Energy Regen/s for 10s. Stacks up to 3x."
+    ]
+  },
+  "primary frostbite": {
+    "name": "Primary Frostbite",
+    "imageName": "ArcaneProjectionCC.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On <DT_FREEZE_COLOR>Cold Status Effect:\\n+3% Critical Damage and +2.25% Multishot for 12s. Stacks up to 40x."
+    ]
+  },
+  "primary merciless": {
+    "name": "Primary Merciless",
+    "imageName": "ArcaneProjectionSteelPathWarcrimesB.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Kill:\\n+30% Damage for 4s. Stacks up to 12x.\\n+30% Reload Speed",
+      "+30% Reload Speed"
+    ]
+  },
+  "primary obstruct": {
+    "name": "Primary Obstruct",
+    "imageName": "ArcaneProjectionCM.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Weapon <DT_MAGNETIC_COLOR>Magnetic Status Effect: Enemy weapons jam within 15m of target. Cooldown 10s."
+    ]
+  },
+  "primary overcharge": {
+    "name": "Primary Overcharge",
+    "imageName": "ArcaneProjectionEA.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "While at or above 90% Energy: Gain 35% of Max Energy as Multishot, capped at 350%."
+    ]
+  },
+  "primary plated round": {
+    "name": "Primary Plated Round",
+    "imageName": "ArcaneProjectionCH.png",
+    "rarity": "Rare",
+    "type": "Primary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Reload: Deal increased damage per round loaded based on max magazine size. Lasts for 10s."
+    ]
+  },
+  "residual boils": {
+    "name": "Residual Boils",
+    "imageName": "ResidualLesions.png",
+    "rarity": "Rare",
+    "type": "Kitgun Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Kitgun Kill:\\n20% chance to spawn volatile hives for 12s that explode when enemies approach for 80 <DT_FIRE_COLOR>Heat Damage in 10m. Standing in the area applies <DT_FIRE_COLOR>Heat Damage type to Theorem Arcanes."
+    ]
+  },
+  "residual malodor": {
+    "name": "Residual Malodor",
+    "imageName": "ResidualMiasma.png",
+    "rarity": "Rare",
+    "type": "Kitgun Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Kitgun Kill:\\n20% chance to create a frigid mist for 12s, dealing 40 <DT_FREEZE_COLOR>Cold Damage/s. Standing in the area applies <DT_FREEZE_COLOR>Cold Damage to Theorem Arcanes."
+    ]
+  },
+  "residual shock": {
+    "name": "Residual Shock",
+    "imageName": "ResidualShock.png",
+    "rarity": "Rare",
+    "type": "Kitgun Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Kitgun Kill:\\n20% chance to spawn an electrified spike for 12s, dealing 200 <DT_ELECTRICITY_COLOR>Electricity Damage to enemies within 10m. Standing in the area applies <DT_ELECTRICITY_COLOR>Electricity Damage to Theorem Arcanes."
+    ]
+  },
+  "residual viremia": {
+    "name": "Residual Viremia",
+    "imageName": "ResidualViremia.png",
+    "rarity": "Rare",
+    "type": "Kitgun Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Kitgun Kill:\\n20% chance to create pool of toxic blood for 12s, dealing 40 <DT_POISON_COLOR>Toxin Damage/s. Standing in the area applies the <DT_POISON_COLOR>Toxin Damage to Theorem Arcanes."
+    ]
+  },
+  "secondary deadhead": {
+    "name": "Secondary Deadhead",
+    "imageName": "ArcaneProjectionSteelPathPrecisionHeadshotA.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Precision Headshot Kill:\\n+120% Damage for 24s. Stacks up to 3x.\\n+30% to Headshot Multiplier\\n-50% Weapon Recoil",
+      "+30% to Headshot Multiplier",
+      "-50% Weapon Recoil"
+    ]
+  },
+  "secondary dexterity": {
+    "name": "Secondary Dexterity",
+    "imageName": "ArcaneProjectionSteelPathMeleeToolsA.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Melee Kill:\\n+60% Damage for 20s. Stacks up to 6x.\\n+7.5s Combo Duration",
+      "+7.5s Combo Duration"
+    ]
+  },
+  "secondary encumber": {
+    "name": "Secondary Encumber",
+    "imageName": "ArcaneProjectionCG.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Status Effect: +24% chance to trigger a second random Status Effect."
+    ]
+  },
+  "secondary enervate": {
+    "name": "Secondary Enervate",
+    "imageName": "ArcaneProjectionDL.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Hit: Increase Critical Chance by 10%. Resets after 6 Big Critical Hit."
+    ]
+  },
+  "secondary fortifier": {
+    "name": "Secondary Fortifier",
+    "imageName": "ArcaneProjectionDG.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Gain 1 Overguard for every 100 Damage dealt to an enemy's Overguard.\\nDeals x8 Extra Damage to Overguard.",
+      "Deals x8 Extra Damage to Overguard."
+    ]
+  },
+  "secondary irradiate": {
+    "name": "Secondary Irradiate",
+    "imageName": "ArcaneProjectionDV.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On hitting enemies afflicted by 10 stacks of <DT_RADIATION_COLOR>Radiation: Deal 180% of the hit damage to enemies within 7m."
+    ]
+  },
+  "secondary kinship": {
+    "name": "Secondary Kinship",
+    "imageName": "ArcaneProjectionCI.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "While Buffing Ally Warframes: +20% Critical Chance per buff"
+    ]
+  },
+  "secondary merciless": {
+    "name": "Secondary Merciless",
+    "imageName": "ArcaneProjectionSteelPathWarcrimesA.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Kill:\\n+30% Damage for 4s. Stacks up to 12x.\\n+30% Reload Speed",
+      "+30% Reload Speed"
+    ]
+  },
+  "secondary outburst": {
+    "name": "Secondary Outburst",
+    "imageName": "ArcaneProjectionCU.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On swapping to Secondary Weapon, consume all Combo Multipliers to increase Secondary Weapon Critical Chance and Critical Damage by 20% per Combo consumed for 30s."
+    ]
+  },
+  "secondary shiver": {
+    "name": "Secondary Shiver",
+    "imageName": "ArcaneProjectionCP.png",
+    "rarity": "Legendary",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Enemies take +45% damage per <DT_FREEZE_COLOR>Cold Status"
+    ]
+  },
+  "secondary surge": {
+    "name": "Secondary Surge",
+    "imageName": "ArcaneProjectionDE.png",
+    "rarity": "Rare",
+    "type": "Secondary Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On Ability Cast: Next shot gains a Damage Multiplier for every 200 current Energy, up to x8."
+    ]
+  },
+  "shotgun vendetta": {
+    "name": "Shotgun Vendetta",
+    "imageName": "ArcaneProjectionCO.png",
+    "rarity": "Rare",
+    "type": "Shotgun Arcane",
+    "maxRank": 5,
+    "stats": [
+      "On shotgun kill within 5m of target:\\n+180% Multishot and +75% Reload Speed for 15s."
+    ]
+  },
+  "theorem contagion": {
+    "name": "Theorem Contagion",
+    "imageName": "TheoremContagion.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Standing in a zone created by a Residual Arcane creates a globe that orbits the player every 2s. The globes will strike the nearest enemy within 15m dealing 150 damage increasing their vulnerability to the globe's damage type by 200% for 6s. Globes will persist for 30s upon leaving the zone.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "theorem demulcent": {
+    "name": "Theorem Demulcent",
+    "imageName": "TheoremDemulcent.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Standing in a zone created by a Residual Arcane increases weapon damage by 12%/s stacking up to 15x. Effect persists for 20s upon leaving the zone.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "theorem infection": {
+    "name": "Theorem Infection",
+    "imageName": "TheoremInfection.png",
+    "rarity": "Rare",
+    "type": "Warframe Arcane",
+    "maxRank": 5,
+    "stats": [
+      "Standing in a zone created by a Residual Arcane increases damage of companions and summoned allies within 90m by 24%/s stacking up to 15x. Effect persists for 20s upon leaving the zone.",
+      "+1 Arcane Revive"
+    ]
+  },
+  "virtuos forge": {
+    "name": "Virtuos Forge",
+    "imageName": "SolarisVirtuosForge.png",
+    "rarity": "Uncommon",
+    "type": "Amp Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Hit:\\nConverts 98% <DT_RADIANT_COLOR>Void Damage to <DT_FIRE_COLOR>Heat Damage."
+    ]
+  },
+  "virtuos fury": {
+    "name": "Virtuos Fury",
+    "imageName": "IncreasedDamageOnStatusProc.png",
+    "rarity": "Uncommon",
+    "type": "Amp Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Status Effect:\\n20% chance for +30% Damage for 4s"
+    ]
+  },
+  "virtuos ghost": {
+    "name": "Virtuos Ghost",
+    "imageName": "StatusChanceOnHeadshot.png",
+    "rarity": "Rare",
+    "type": "Amp Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Headshot:\\n40% chance for +60% Status Chance for 12s"
+    ]
+  },
+  "virtuos null": {
+    "name": "Virtuos Null",
+    "imageName": "OperatorAmmoRegenOnKill.png",
+    "type": "Amp Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Kill:\\n+20% Amp Energy Regeneration for 4s"
+    ]
+  },
+  "virtuos shadow": {
+    "name": "Virtuos Shadow",
+    "imageName": "CriticalChanceOnHeadshot.png",
+    "rarity": "Rare",
+    "type": "Amp Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Headshot:\\n40% chance for +60% Critical Chance for 12s"
+    ]
+  },
+  "virtuos spike": {
+    "name": "Virtuos Spike",
+    "imageName": "SolarisVirtuosSpike.png",
+    "type": "Amp Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Hit:\\nConverts 98% <DT_RADIANT_COLOR>Void Damage to <DT_PUNCTURE_COLOR>Puncture Damage."
+    ]
+  },
+  "virtuos strike": {
+    "name": "Virtuos Strike",
+    "imageName": "IncreasedCriticalDamageOnCriticalStrike.png",
+    "rarity": "Uncommon",
+    "type": "Amp Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Critical Hit:\\n20% chance for +80% Critical Damage for 4s"
+    ]
+  },
+  "virtuos surge": {
+    "name": "Virtuos Surge",
+    "imageName": "SolarisVirtuosSurge.png",
+    "type": "Amp Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Hit:\\nConverts 98% <DT_RADIANT_COLOR>Void Damage to <DT_ELECTRICITY_COLOR>Electricity Damage."
+    ]
+  },
+  "virtuos tempo": {
+    "name": "Virtuos Tempo",
+    "imageName": "AttackSpeedOnKill.png",
+    "type": "Amp Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Kill:\\n60% chance for +60% Fire Rate for 8s"
+    ]
+  },
+  "virtuos trojan": {
+    "name": "Virtuos Trojan",
+    "imageName": "SolarisVirtuosTrojan.png",
+    "rarity": "Uncommon",
+    "type": "Amp Arcane",
+    "maxRank": 3,
+    "stats": [
+      "On Hit:\\nConverts 98% <DT_RADIANT_COLOR>Void Damage to <DT_VIRAL_COLOR>Viral Damage."
+    ]
+  }
+}

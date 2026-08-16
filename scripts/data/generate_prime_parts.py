@@ -11,7 +11,7 @@ Usage: /usr/bin/python3 scripts/generate_prime_parts.py
 import json
 import pathlib
 
-ROOT = pathlib.Path(__file__).parent.parent
+ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 DATA = ROOT / "data"
 
 with open(DATA / "relics.json", encoding="utf-8") as f:

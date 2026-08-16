@@ -179,7 +179,7 @@ def load_class_csv(path: str) -> dict:
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    data_dir = os.path.join(script_dir, "..", "data")
+    data_dir = os.path.join(script_dir, "..", "..", "data")
     dst = os.path.join(data_dir, "rivenWeaponRules.json")
 
     result: dict = {}

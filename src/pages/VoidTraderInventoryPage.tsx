@@ -106,13 +106,13 @@ function formatCountdown(targetMs: number, nowMs: number): string {
 
 function ItemRow({item}: { item: HubVoidTraderItem }) {
     return (
-        <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <p className="min-w-0 truncate text-sm font-medium text-gray-100">{item.name}</p>
+        <div className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-slate-950/35">
+            <p className="min-w-0 truncate text-sm font-semibold text-slate-100">{item.name}</p>
             <div className="grid shrink-0 grid-cols-2 gap-6 text-right">
                 <span className="text-sm font-semibold text-amber-300">
                     {item.ducats > 0 ? formatNumber(item.ducats) : "—"}
                 </span>
-                <span className="text-sm font-semibold text-blue-300">{formatNumber(item.credits)}</span>
+                <span className="text-sm font-semibold text-primary-300">{formatNumber(item.credits)}</span>
             </div>
         </div>
     );
@@ -182,17 +182,18 @@ export default function VoidTraderInventoryPage() {
 
     const activeCategories = CATEGORY_ORDER.filter((cat) => (grouped.get(cat)?.length ?? 0) > 0);
     const locationLabel = payload ? formatHubLocation(payload.location) : "";
+    const showingCachedCatalog = !!payload && !payload.active && payload.stale && activeCategories.length > 0;
 
     return (
-        <div className="flex flex-col gap-4 p-4">
-            <div className="flex items-center justify-between gap-2">
+        <div className="wf-page flex min-h-full flex-col gap-5">
+            <div className="wf-panel flex items-center justify-between gap-2 p-5">
                 <div>
-                    <h1 className="text-lg font-bold text-purple-400">Void Trader</h1>
+                    <h1 className="text-xl font-bold tracking-tight text-slate-100">Void Trader</h1>
                 </div>
                 <button
                     type="button"
                     onClick={() => navigate("/hub")}
-                    className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-xs font-medium text-gray-200 hover:border-purple-500/40 hover:text-purple-300"
+                    className="rounded-lg border border-cyan-500/20 bg-cyan-950/40 px-3 py-1.5 text-xs font-bold text-cyan-300 hover:bg-cyan-950/60"
                 >
                     Back to Hub
                 </button>
@@ -212,18 +213,20 @@ export default function VoidTraderInventoryPage() {
             )}
 
             {loading ? (
-                <p className="text-sm text-gray-500">Loading Void Trader inventory...</p>
+                <p className="text-sm text-slate-500">Loading Void Trader inventory...</p>
             ) : !payload ? (
-                <p className="text-sm text-gray-500">No Void Trader data at the moment.</p>
+                <p className="text-sm text-slate-500">No Void Trader data at the moment.</p>
             ) : (
                 <>
-                    <div>
-                        <p className="text-sm text-gray-200">
+                    <div className="wf-card p-5">
+                        <p className="text-sm font-semibold text-slate-200">
                             {payload.active
                                 ? `Baro Ki'Teer active at ${locationLabel}`
-                                : `Baro Ki'Teer away — ${locationLabel}`}
+                                : showingCachedCatalog
+                                    ? `Baro Ki'Teer away — showing last saved catalog`
+                                    : `Baro Ki'Teer away — ${locationLabel}`}
                         </p>
-                        <p className="mt-1 text-xs text-gray-400">
+                        <p className="mt-1 text-xs text-slate-400">
                             {payload.active
                                 ? `Leaves in ${formatCountdown(payload.ends_at_ms, nowMs)}`
                                 : payload.starts_at_ms > nowMs
@@ -232,13 +235,13 @@ export default function VoidTraderInventoryPage() {
                         </p>
                         {!payload.active && activeCategories.length > 0 && (
                             <p className="mt-2 text-xs text-yellow-500/80">
-                                Showing inventory from last cycle.
+                                {showingCachedCatalog ? "Showing locally saved inventory from the last catalog captured by WFHUB." : "Showing inventory from last cycle."}
                             </p>
                         )}
                     </div>
 
                     {activeCategories.length === 0 ? (
-                        <p className="text-sm text-gray-500">No items listed for this cycle.</p>
+                        <p className="text-sm text-slate-500">No items listed for this cycle.</p>
                     ) : (
                         <div className="space-y-4">
                             {activeCategories.map((cat) => {
@@ -248,23 +251,23 @@ export default function VoidTraderInventoryPage() {
                                     <div key={cat}>
                                         <button
                                             onClick={() => toggleGroup(cat)}
-                                            className={`flex w-full items-center justify-between border border-gray-800 bg-gray-900/60 px-3 py-2 text-left hover:bg-gray-800/60 transition-colors ${expanded ? "rounded-t-lg" : "rounded-lg"}`}
+                                            className={`flex w-full items-center justify-between border border-[#1e1e2d] bg-[#14141e]/40 px-4 py-3 text-left transition-colors hover:bg-slate-950/70 ${expanded ? "rounded-t-xl" : "rounded-xl"}`}
                                         >
                                             <span
-                                                className="flex items-center gap-2 text-sm font-semibold text-gray-200">
+                                                className="flex items-center gap-2 text-sm font-semibold text-slate-200">
                                                 <span>{CATEGORY_ICONS[cat]}</span>
                                                 <span>{CATEGORY_LABELS[cat]}</span>
                                             </span>
                                             <span className="flex items-center gap-2">
-                                                <span className="text-xs text-gray-500">{items.length}</span>
-                                                <span className="text-xs text-gray-400">{expanded ? "▲" : "▼"}</span>
+                                                <span className="text-xs text-zinc-500">{items.length}</span>
+                                                <span className="text-xs text-zinc-400">{expanded ? "▲" : "▼"}</span>
                                             </span>
                                         </button>
                                         {expanded && (
                                             <div
-                                                className="overflow-hidden rounded-b-lg border-x border-b border-gray-800">
+                                                className="overflow-hidden rounded-b-xl border-x border-b border-[#1e1e2d]">
                                                 <div
-                                                    className="grid grid-cols-[1fr_auto] items-center px-4 py-2 text-[11px] uppercase tracking-wide text-gray-500 bg-gray-900/60">
+                                                    className="grid grid-cols-[1fr_auto] items-center bg-slate-950/70 px-4 py-2 text-[11px] uppercase tracking-wide text-slate-500">
                                                     <span>Item</span>
                                                     <div className="grid grid-cols-2 gap-6 text-right">
                                                         <span>Ducats</span>
@@ -272,7 +275,7 @@ export default function VoidTraderInventoryPage() {
                                                     </div>
                                                 </div>
                                                 <div
-                                                    className="bg-gray-900 divide-y divide-gray-800/70">
+                                                    className="divide-y divide-slate-900/80 bg-[#111119]">
                                                     {items.map((item) => (
                                                         <ItemRow
                                                             key={`${item.name}-${item.ducats}-${item.credits}`}

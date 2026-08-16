@@ -1,6 +1,7 @@
 import {useDeferredValue, useEffect, useMemo, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
 import {open} from "@tauri-apps/plugin-shell";
+import {Search, Sprout} from "lucide-react";
 import {findFuzzyMatches} from "../lib/search";
 import {getSpecialModSources, type FarmResult} from "../lib/modSpecialSources";
 import {wikiUrl} from "../lib/wikiUrl";
@@ -140,59 +141,69 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
     const totalResults = results.length;
 
     return (
-        <div className="flex h-full flex-col gap-4 p-4">
+        <div className="wf-page space-y-6">
 
-            <div className="space-y-2">
-                <h1 className="text-lg font-bold text-purple-400">Farm Advisor</h1>
-                <p className="text-sm text-gray-500">
-                    Item farm location list.
+            <div className="wf-panel p-5">
+                <h1 className="flex items-center gap-2 text-xl font-bold tracking-tight text-slate-100">
+                    <Sprout size={20} className="text-green-400" />
+                    Farm Advisor
+                </h1>
+                <p className="mt-1 text-xs text-slate-400">
+                    Search mods, resources and parts to find the best drop sources.
                 </p>
             </div>
-            <div className="relative" ref={dropdownRef}>
-                <div className="flex gap-2">
-                    <input
-                        type="text"
-                        value={query}
-                        onChange={(event) => {
-                            setQuery(event.target.value);
-                            setSelectedName(null);
-                        }}
-                        onKeyDown={(event) => event.key === "Enter" && search()}
-                        placeholder="Item or mod name (e.g. Creeping Bullseye)"
-                        className="flex-1 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-purple-500 focus:outline-none"
-                    />
+
+            <div className="wf-card relative p-4" ref={dropdownRef}>
+                <label className="mb-2 block font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Search Farm Item
+                </label>
+                <div className="flex flex-col gap-2 lg:flex-row">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={15} />
+                        <input
+                            type="text"
+                            value={query}
+                            onChange={(event) => {
+                                setQuery(event.target.value);
+                                setSelectedName(null);
+                            }}
+                            onKeyDown={(event) => event.key === "Enter" && search()}
+                            placeholder="Item or mod name (e.g. Creeping Bullseye)"
+                            className="w-full rounded-lg border border-slate-800 bg-slate-950/80 py-2.5 pl-9 pr-4 text-xs font-semibold text-slate-100 placeholder-slate-500 transition-all focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500/30"
+                        />
+                        {suggestions.length > 0 && (
+                            <div
+                                className="custom-scrollbar absolute left-0 right-0 top-full z-10 mt-2 max-h-64 overflow-y-auto rounded-lg border border-slate-800 bg-[#12121a] shadow-2xl">
+                                {suggestions.map((item) => (
+                                    <button
+                                        key={item.slug || item.name}
+                                        onMouseDown={() => selectSuggestion(item)}
+                                        className="flex w-full items-center justify-between border-b border-slate-900/70 px-4 py-2.5 text-left text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-900/50 hover:text-green-300 last:border-0"
+                                    >
+                                        <span>{item.name}</span>
+                                        <span className="font-mono text-[10px] text-slate-500">Select</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                     <button
                         onClick={() => search()}
                         disabled={loading}
-                        className="rounded-lg bg-purple-500 px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-purple-400 disabled:opacity-50"
+                        className="rounded-lg border border-green-500/30 bg-green-950/40 px-4 py-2.5 text-xs font-bold text-green-300 transition-colors hover:bg-green-950/60 disabled:opacity-50"
                     >
                         {loading ? "..." : "Search"}
                     </button>
                 </div>
-
-                {suggestions.length > 0 && (
-                    <div
-                        className="absolute left-0 right-12 top-full z-10 mt-1 overflow-hidden rounded-lg border border-gray-700 bg-gray-800 shadow-xl">
-                        {suggestions.map((item) => (
-                            <button
-                                key={item.slug || item.name}
-                                onMouseDown={() => selectSuggestion(item)}
-                                className="w-full border-b border-gray-700/50 px-4 py-2 text-left text-sm text-gray-200 hover:bg-gray-700 last:border-0"
-                            >
-                                {item.name}
-                            </button>
-                        ))}
-                    </div>
-                )}
             </div>
 
             {searchedName && (
-                <p className="text-xs text-gray-500 flex items-center gap-1 flex-wrap">
+                <p className="flex flex-wrap items-center gap-1 rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-xs text-slate-500">
                     Search for
-                    <span className="text-gray-100 font-semibold">{searchedName}</span>
+                    <span className="font-semibold text-slate-100">{searchedName}</span>
                     <button
                         onClick={() => open(wikiUrl(searchedName))}
-                        className="text-gray-500 hover:text-purple-400 transition-colors"
+                        className="text-slate-500 transition-colors hover:text-primary-400"
                         title="View on wiki"
                     >
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -204,20 +215,26 @@ export default function FarmAdvisorPage({autoSearch, onAutoSearchDone}: Props) {
                 </p>
             )}
 
-            {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
+            {error && (
+                <div className="rounded-lg border border-red-700/40 bg-red-900/10 px-3 py-2 text-sm text-red-300">
+                    {error}
+                </div>
+            )}
 
             {totalResults > 0 && (
                 <div className="space-y-6 pb-6">
-                    <FarmResults source="enemy" entries={grouped.enemy} showHeader showMissionNodes />
-                    <FarmResults source="mission" entries={grouped.mission} showHeader />
-                    <FarmResults source="bounty" entries={grouped.bounty} showHeader />
-                    <FarmResults source="relic" entries={grouped.relic} showHeader />
-                    <FarmResults source="special" entries={grouped.special} showHeader />
+                    <FarmResults source="enemy" entries={grouped.enemy} showHeader showMissionNodes variant="grid" />
+                    <FarmResults source="mission" entries={grouped.mission} showHeader variant="grid" />
+                    <FarmResults source="bounty" entries={grouped.bounty} showHeader variant="grid" />
+                    <FarmResults source="relic" entries={grouped.relic} showHeader variant="grid" />
+                    <FarmResults source="special" entries={grouped.special} showHeader variant="grid" />
                 </div>
             )}
 
             {!loading && searchedName && totalResults === 0 && !error && (
-                <p className="text-sm text-gray-500">No drops found for this item.</p>
+                <p className="rounded-xl border border-dashed border-[#1e1e2d] bg-[#111119]/50 py-12 text-center text-sm text-slate-500">
+                    No drops found for this item.
+                </p>
             )}
         </div>
     );

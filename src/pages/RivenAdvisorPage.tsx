@@ -1,6 +1,7 @@
 import {useDeferredValue, useEffect, useId, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
 import {findFuzzyMatches} from "../lib/search";
+import {Swords} from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -170,7 +171,7 @@ function createEmptyBucket(label: string, color: string): ValuationBucket {
 function buildValuationResult(): ValuationResult {
     return {
         perfect: createEmptyBucket("Perfect Match", "text-green-300 border-green-500/30 bg-green-500/10"),
-        good: createEmptyBucket("Good Match", "text-purple-300 border-purple-500/30 bg-purple-500/10"),
+        good: createEmptyBucket("Good Match", "text-primary-300 border-primary-500/30 bg-primary-500/10"),
         okay: createEmptyBucket("Okay Match", "text-sky-300 border-sky-500/30 bg-sky-500/10"),
     };
 }
@@ -345,322 +346,6 @@ type AnalyzerState =
     | { phase: "error"; message: string }
     | { phase: "result"; ocr: OcrResult; rules: RivenRules };
 
-// ─── Tutorial data (unchanged) ───────────────────────────────────────────────
-
-type TutorialElement = { element: string; frames: string[]; colorClass: string; summary: string };
-type TutorialWeapon = { weapon: string; best: string; alternatives?: string; notes: string[] };
-type TutorialCategory = { title: string; weapons: TutorialWeapon[] };
-type TutorialSystem = { name: string; categories: TutorialCategory[] };
-
-const PROGENITOR_WARFRAMES: TutorialElement[] = [
-    {
-        element: "Heat 🔥",
-        colorClass: "text-orange-300",
-        summary: "Best for sustained damage. Scales well on single targets, stacks easily and still helps with partial strip.",
-        frames: ["Chroma", "Ember", "Inaros", "Jade", "Kullervo", "Nezha", "Protea", "Temple", "Uriel", "Vauban", "Wisp"],
-    },
-    {
-        element: "Cold ❄️",
-        colorClass: "text-cyan-300",
-        summary: "Focused on raw damage and pure crit, usually in raw damage setups or alongside Corrosive.",
-        frames: ["Frost", "Gara", "Hildryn", "Koumei", "Revenant", "Styanax", "Titania", "Trinity"],
-    },
-    {
-        element: "Electricity ⚡️",
-        colorClass: "text-violet-300",
-        summary: "Best for burst DPS, grouping and setups where immediate damage and headshots carry heavy weight.",
-        frames: ["Banshee", "Caliban", "Excalibur", "Gyre", "Limbo", "Nova", "Valkyr", "Volt"],
-    },
-    {
-        element: "Toxin 🦠",
-        colorClass: "text-lime-300",
-        summary: "Great against Corpus and very valuable for saving a slot in Viral builds or traditional crit/slash builds.",
-        frames: ["Atlas", "Dagath", "Ivara", "Khora", "Nekros", "Nidus", "Nokko", "Oberon", "Oraxia", "Saryn"],
-    },
-    {
-        element: "Magnetic 🧲",
-        colorClass: "text-blue-300",
-        summary: "Best wildcard element. Normally doesn't interfere with status order and is very useful against shields and overguard.",
-        frames: ["Citrine", "Cyte-09", "Harrow", "Hydroid", "Lavos", "Mag", "Mesa", "Xaku", "Yareli"],
-    },
-    {
-        element: "Radiation ☢️",
-        colorClass: "text-yellow-300",
-        summary: "More situational today. In the current meta, Magnetic replaces much of the role that Radiation previously held.",
-        frames: ["Ash", "Equinox", "Garuda", "Loki", "Mirage", "Nyx", "Octavia", "Qorvex", "Voruna"],
-    },
-];
-
-const TUTORIAL_SYSTEMS: TutorialSystem[] = [
-    {
-        name: "Kuva",
-        categories: [
-            {
-                title: "Rifle Primaries",
-                weapons: [
-                    {
-                        weapon: "Kuva Bramma",
-                        best: "Toxin",
-                        alternatives: "Magnetic",
-                        notes: ["Toxin is the best for classic Viral/Hunter Munitions builds.", "Magnetic is the alternative for raw damage without altering status order."]
-                    },
-                    {
-                        weapon: "Kuva Chakkhurr",
-                        best: "Toxin",
-                        alternatives: "Magnetic, Electric",
-                        notes: ["Toxin helps Internal Bleeding setups and saves a slot.", "Magnetic is the general choice for pure elemental builds.", "Electric is more situational to maximize Electric weight."]
-                    },
-                    {
-                        weapon: "Kuva Ogris",
-                        best: "Magnetic",
-                        alternatives: "Electric, Cold",
-                        notes: ["Magnetic is the best default for helping against overguard and shields.", "Electric is strong in grouping and tesla-chain DoTs.", "Cold works as a niche option for specific tech, like Saryn."]
-                    },
-                    {
-                        weapon: "Kuva Tonkor",
-                        best: "Toxin",
-                        alternatives: "Magnetic",
-                        notes: ["Toxin is the ideal pick for Viral/HM.", "Magnetic fits in raw damage builds."]
-                    },
-                    {
-                        weapon: "Kuva Zarr",
-                        best: "Toxin",
-                        alternatives: "Magnetic",
-                        notes: ["Toxin remains the main choice in traditional slash/viral.", "Magnetic is the option for more neutral and flexible builds."]
-                    },
-                    {
-                        weapon: "Kuva Hind",
-                        best: "Magnetic",
-                        alternatives: "Heat, Toxin",
-                        notes: ["Magnetic is the general recommendation.", "Heat works very well in pure heat/precision.", "Toxin helps close Viral with a single mod."]
-                    },
-                    {
-                        weapon: "Kuva Karak",
-                        best: "Magnetic",
-                        alternatives: "Toxin",
-                        notes: ["Magnetic is the best default.", "Toxin is useful if the build revolves around Viral/HM."]
-                    },
-                    {
-                        weapon: "Kuva Quartakk",
-                        best: "Magnetic",
-                        alternatives: "Toxin",
-                        notes: ["Magnetic for general flexibility.", "Toxin is the choice for classic slash/viral."]
-                    },
-                ],
-            },
-            {
-                title: "Shotgun Primaries",
-                weapons: [
-                    {
-                        weapon: "Kuva Drakgoon",
-                        best: "Magnetic",
-                        alternatives: "Toxin",
-                        notes: ["Magnetic is the general recommendation for not interfering with status order.", "Toxin is worth it if the goal is saving a slot for Viral."]
-                    },
-                    {
-                        weapon: "Kuva Hek",
-                        best: "Cold",
-                        alternatives: "Toxin",
-                        notes: ["Cold enables Corrosive + Cold with few slots and is the best for raw damage.", "Toxin is the second option for flexibility."]
-                    },
-                    {
-                        weapon: "Kuva Kohm",
-                        best: "Magnetic",
-                        alternatives: "Toxin",
-                        notes: ["Magnetic is the best general pick and works well with pure electric.", "Toxin remains strong for slash/viral."]
-                    },
-                    {
-                        weapon: "Kuva Sobek",
-                        best: "Magnetic",
-                        alternatives: "Electric, Heat",
-                        notes: ["Magnetic is the best universal pick.", "Electric rises significantly in grouping builds.", "Heat remains excellent for sustain and single-target scaling."]
-                    },
-                ],
-            },
-            {
-                title: "Secondaries",
-                weapons: [
-                    {
-                        weapon: "Kuva Brakk",
-                        best: "Magnetic",
-                        alternatives: "Electric, Heat",
-                        notes: ["Magnetic is the safest default.", "Electric and Heat are more specialized paths for pure damage."]
-                    },
-                    {
-                        weapon: "Kuva Kraken",
-                        best: "Toxin",
-                        alternatives: "Magnetic",
-                        notes: ["Toxin helps a lot in Hemorrhage builds and general setups.", "Magnetic is the neutral option."]
-                    },
-                    {
-                        weapon: "Kuva Nukor",
-                        best: "Magnetic",
-                        notes: ["Best general choice for Encumber, Enervate and primer/utility."]
-                    },
-                    {
-                        weapon: "Kuva Seer",
-                        best: "Magnetic",
-                        notes: ["The current meta treats Magnetic as the best option for broad debuffs and general use."]
-                    },
-                    {
-                        weapon: "Kuva Twin Stubbas",
-                        best: "Magnetic",
-                        alternatives: "Electric, Heat",
-                        notes: ["Magnetic is the standard pick.", "Electric and Heat work better in builds dedicated to the element."]
-                    },
-                ],
-            },
-            {
-                title: "Melee",
-                weapons: [
-                    {
-                        weapon: "Kuva Ghoulsaw",
-                        best: "Electric",
-                        alternatives: "Magnetic",
-                        notes: ["Electric is the best for Melee Influence.", "Magnetic is worth it when the build wants to explore grouping/vortex."]
-                    },
-                    {
-                        weapon: "Kuva Shildeg",
-                        best: "Electric",
-                        alternatives: "Magnetic",
-                        notes: ["Electric is the zero-cost entry for Influence.", "Magnetic is for tox/afflictions."]
-                    },
-                ],
-            },
-            {
-                title: "Archgun",
-                weapons: [
-                    {weapon: "Kuva Ayanga", best: "Magnetic", notes: ["Magnetic is the recommended general pick."]},
-                    {
-                        weapon: "Kuva Grattler",
-                        best: "Magnetic",
-                        notes: ["Same logic as Ayanga: stable and universal choice."]
-                    },
-                ],
-            },
-        ],
-    },
-    {
-        name: "Tenet",
-        categories: [
-            {
-                title: "Rifle Primaries",
-                weapons: [
-                    {
-                        weapon: "Tenet Envoy",
-                        best: "Toxin",
-                        notes: ["It is the natural choice because the weapon already has Cold, closing Viral at no cost."]
-                    },
-                    {
-                        weapon: "Tenet Ferrox",
-                        best: "Electric",
-                        alternatives: "Toxin",
-                        notes: ["Electric is the best due to synergy with the electric alt fire and the pull.", "Toxin comes in if you want to open other combinations, like Corrosive."]
-                    },
-                    {
-                        weapon: "Tenet Flux Rifle",
-                        best: "Magnetic",
-                        alternatives: "Toxin",
-                        notes: ["Magnetic is the best default for elemental builds.", "Toxin is worth it in Viral/HM because of slash."]
-                    },
-                    {
-                        weapon: "Tenet Glaxion",
-                        best: "Magnetic",
-                        alternatives: "Heat, Toxin, Impact",
-                        notes: ["Magnetic is the best general use and shines in Debilitate setups.", "Heat is very strong for pure blast.", "Toxin works for more classic Viral.", "Impact is niche for energy-focused builds."]
-                    },
-                    {
-                        weapon: "Tenet Quanta",
-                        best: "Magnetic",
-                        alternatives: "Toxin",
-                        notes: ["Magnetic is the standard choice for general use.", "Toxin is interesting for modless Corrosive or Precision Acuity."]
-                    },
-                    {
-                        weapon: "Tenet Tetra",
-                        best: "Electric",
-                        alternatives: "Magnetic, Toxin",
-                        notes: ["Electric is the best for Kinetic Ricochet and grouping.", "Magnetic is the flexible alternative.", "Toxin remains useful in viral/slash."]
-                    },
-                ],
-            },
-            {
-                title: "Shotgun Primaries",
-                weapons: [
-                    {
-                        weapon: "Tenet Arca Plasmor",
-                        best: "Electric",
-                        alternatives: "Magnetic, Toxin",
-                        notes: ["Electric is the best for Electric weight and grouping setups.", "Magnetic is a great general pick.", "Toxin still works, but is considered less meta in the current tier list."]
-                    },
-                ],
-            },
-            {
-                title: "Secondaries",
-                weapons: [
-                    {
-                        weapon: "Tenet Cycron",
-                        best: "Heat",
-                        alternatives: "Cold, Magnetic",
-                        notes: ["Heat is the best for pure DPS today.", "Cold gains a lot of value by creating Blast at no cost with the innate Heat.", "Magnetic remains ideal for use as a primer."]
-                    },
-                    {
-                        weapon: "Tenet Detron",
-                        best: "Magnetic",
-                        alternatives: "Electric, Heat",
-                        notes: ["Magnetic is the general recommendation.", "Electric and Heat shine in builds fully dedicated to the element."]
-                    },
-                    {
-                        weapon: "Tenet Diplos",
-                        best: "Magnetic",
-                        alternatives: "Toxin",
-                        notes: ["Magnetic is the best for general raw DPS.", "Toxin is for Viral/Slash."]
-                    },
-                    {
-                        weapon: "Tenet Plinx",
-                        best: "Magnetic",
-                        alternatives: "Electric",
-                        notes: ["Magnetic is the best general choice in both fire modes.", "Electric rises to the top when the focus is pure alt fire."]
-                    },
-                    {
-                        weapon: "Tenet Spirex",
-                        best: "Magnetic",
-                        alternatives: "Toxin",
-                        notes: ["Magnetic is the best general pick in the current state.", "Toxin still exists for Hemorrhage, but elemental setups are considered superior."]
-                    },
-                ],
-            },
-            {
-                title: "Melee",
-                weapons: [
-                    {
-                        weapon: "Tenet Agendus",
-                        best: "Electric",
-                        notes: ["Electric is the direct pick for Melee Influence."]
-                    },
-                    {
-                        weapon: "Tenet Exec",
-                        best: "Electric",
-                        alternatives: "Toxin",
-                        notes: ["Electric dominates for Influence and general clear.", "Toxin fits in for viral/afflictions in specific builds."]
-                    },
-                    {
-                        weapon: "Tenet Grigori",
-                        best: "Electric",
-                        alternatives: "Toxin",
-                        notes: ["Electric has great synergy with the discs and Influence.", "Toxin is the option for viral or afflictions."]
-                    },
-                    {
-                        weapon: "Tenet Livia",
-                        best: "Electric",
-                        alternatives: "Toxin",
-                        notes: ["Electric is the standard for Influence.", "Toxin works for viral, pure tox or afflictions in heavy/slam builds."]
-                    },
-                ],
-            },
-        ],
-    },
-];
-
 // ─── Evaluation logic ─────────────────────────────────────────────────────────
 
 function findWeapon(name: string, rules: RivenRules): { cls: string; rule: WeaponRule } | null {
@@ -774,11 +459,11 @@ const CLASS_LABELS: Record<string, string> = {
 };
 
 const VERDICT_CONFIG: Record<Verdict, { label: string; color: string }> = {
-    god_roll: {label: "God Roll", color: "bg-purple-500/20 text-purple-400 border-purple-500/30"},
+    god_roll: {label: "God Roll", color: "bg-primary-500/20 text-primary-400 border-primary-500/30"},
     good: {label: "Good", color: "bg-green-500/20 text-green-300 border-green-500/30"},
     decent: {label: "Decent", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"},
     bad: {label: "Bad", color: "bg-red-500/20 text-red-300 border-red-500/30"},
-    unknown: {label: "Unknown weapon", color: "bg-gray-500/20 text-gray-400 border-gray-500/30"},
+    unknown: {label: "Unknown weapon", color: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30"},
 };
 
 function RivenCombinedCard({
@@ -793,16 +478,16 @@ function RivenCombinedCard({
     label: string;
 }) {
     return (
-        <div className="group rounded-2xl border border-gray-800 bg-gray-900/60 p-4 flex flex-col gap-4">
+        <div className="group rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 flex flex-col gap-4">
 
             {/* HEADER */}
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                 {label}
             </p>
 
             {/* PREVIEW */}
             {preview && (
-                <div className="relative h-64 overflow-hidden rounded-xl border border-gray-700 bg-black/30">
+                <div className="relative h-64 overflow-hidden rounded-xl border border-zinc-700 bg-black/30">
                     <img
                         src={preview}
                         className="h-full w-full object-contain"
@@ -880,18 +565,18 @@ function RivenCard({
         <div
             className={`flex flex-col gap-4 flex-1
                  ${variant === "default"
-                ? "rounded-2xl border border-gray-800 bg-gray-900/60 p-5"
+                ? "rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5"
                 : "p-1"
             }
             `}
         >
-            {label && <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{label}</p>}
+            {label && <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">{label}</p>}
 
             {/* Weapon header */}
             <div className="flex flex-wrap items-start gap-2">
                 <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-            <span className="text-base text-gray-400">
+            <span className="text-base text-zinc-400">
               {riven.modName ?? "Mod name not detected"}
             </span>
                     </div>
@@ -908,23 +593,23 @@ function RivenCard({
                     {evaluation
                         ? evaluation.positiveRatings.map((s) => (
                             <div key={s.stat} className="flex items-center gap-2 text-sm">
-                                <span className="text-gray-100">+</span>
+                                <span className="text-zinc-100">+</span>
                                 <span
-                                    className={s.rating === "must" ? "text-purple-400" : s.rating === "preferred" ? "text-sky-400" : "text-yellow-400"}>
+                                    className={s.rating === "must" ? "text-primary-400" : s.rating === "preferred" ? "text-sky-400" : "text-yellow-400"}>
                   {s.displayName}
                 </span>
-                                <span className="ml-auto text-gray-400">{s.value.toFixed(1)}%</span>
+                                <span className="ml-auto text-zinc-400">{s.value.toFixed(1)}%</span>
                                 <span
-                                    className={`text-xs ${s.rating === "must" ? "text-purple-400" : s.rating === "preferred" ? "text-sky-500" : "text-yellow-500"}`}>
+                                    className={`text-xs ${s.rating === "must" ? "text-primary-400" : s.rating === "preferred" ? "text-sky-500" : "text-yellow-500"}`}>
                   {s.rating === "must" ? "Must Have" : s.rating === "preferred" ? "Preferred" : "Ok"}
                 </span>
                             </div>
                         ))
                         : riven.positives.map((s) => (
                             <div key={s.stat} className="flex items-center gap-2 text-sm">
-                                <span className="text-gray-500">+</span>
-                                <span className="text-gray-300">{s.displayName}</span>
-                                <span className="ml-auto text-gray-400">{s.value.toFixed(1)}%</span>
+                                <span className="text-zinc-500">+</span>
+                                <span className="text-zinc-300">{s.displayName}</span>
+                                <span className="ml-auto text-zinc-400">{s.value.toFixed(1)}%</span>
                             </div>
                         ))}
 
@@ -942,7 +627,7 @@ function RivenCard({
                             >
                               {riven.negative.displayName}
                             </span>
-                            <span className="ml-auto text-gray-400">{riven.negative.value.toFixed(1)}%</span>
+                            <span className="ml-auto text-zinc-400">{riven.negative.value.toFixed(1)}%</span>
                             {evaluation && (
                                 <span
                                     className={`text-xs ${evaluation.negRating === "free" ? "text-emerald-400" : "text-red-500"}`}>
@@ -951,15 +636,15 @@ function RivenCard({
                             )}
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                            <span className="text-gray-500">−</span>
+                        <div className="flex items-center gap-2 text-sm text-zinc-500">
+                            <span className="text-zinc-500">−</span>
                             <span>No negative</span>
                         </div>
                     )}
                 </div>
 
                 {/* Meta */}
-                <div className="flex gap-4 text-xs text-gray-600 mt-auto ">
+                <div className="flex gap-4 text-xs text-zinc-600 mt-auto ">
                     {riven.rerolls > 0 && <span>Rerolls: {riven.rerolls}</span>}
                     {riven.mastery > 0 && <span>MR: {riven.mastery}</span>}
                     {evaluation && evaluation.mustTotal > 0 &&
@@ -970,9 +655,9 @@ function RivenCard({
             </div>
 
             {/* Market Valuate */}
-            <div className="border-t border-gray-800 pt-4 space-y-3 mt-auto">
+            <div className="border-t border-zinc-800 pt-4 space-y-3 mt-auto">
                 <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">Market Valuate</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">Market Valuate</p>
                     <button
                         onClick={handleValuate}
                         disabled={!activeWeapon || valuationState.phase === "loading"}
@@ -995,11 +680,11 @@ function RivenCard({
                                     <div key={tier} className={`rounded-xl border px-3 py-3 ${bucket.color}`}>
                                         <p className="text-xs font-semibold uppercase tracking-wide">{bucket.label}</p>
                                         <p className="mt-2 text-lg font-bold">{formatPriceBand(bucket.prices)}</p>
-                                        <p className="mt-1 text-[11px] text-gray-400">
+                                        <p className="mt-1 text-[11px] text-zinc-400">
                                             {bucket.auctions.length > 0 ? `${bucket.auctions.length} comps` : "No comps"}
                                         </p>
                                         {bucket.auctions[0] && (
-                                            <p className="mt-2 text-[11px] text-gray-400 truncate">
+                                            <p className="mt-2 text-[11px] text-zinc-400 truncate">
                                                 Lowest: {bucket.auctions[0].owner.ingame_name} • {auctionPrice(bucket.auctions[0])}p
                                             </p>
                                         )}
@@ -1019,7 +704,7 @@ function RivenCard({
                                             href={bucket.url}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="inline-flex items-center rounded-lg border border-gray-700 bg-gray-800/70 px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-700/70 hover:text-gray-100"
+                                            className="inline-flex items-center rounded-lg border border-zinc-700 bg-zinc-800/70 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700/70 hover:text-zinc-100"
                                         >
                                             View {bucket.label.toLowerCase()}
                                         </a>
@@ -1036,13 +721,13 @@ function RivenCard({
 
 function RivenImagePreview({src, label}: { src: string; label: string }) {
     return (
-        <div className="h-full flex flex-col overflow-hidden rounded-2xl border border-gray-800 bg-[#121622]">
-            <div className="border-b border-gray-800 px-4 py-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">{label}</p>
+        <div className="h-full flex flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-[#121622]">
+            <div className="border-b border-zinc-800 px-4 py-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">{label}</p>
             </div>
             <div
                 className="bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.10),transparent_45%),linear-gradient(180deg,#141926,#0b1020)] p-4 flex-1 flex flex-col">
-                <div className="relative flex-1 overflow-hidden rounded-xl border border-gray-700 bg-black/30">
+                <div className="relative flex-1 overflow-hidden rounded-xl border border-zinc-700 bg-black/30">
                     <img src={src} alt={label} className="h-full w-full object-contain"/>
                 </div>
             </div>
@@ -1194,12 +879,12 @@ function RivenAnalyzer() {
         return (
             <div className="flex h-full items-center justify-center">
                 <div
-                    className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-gray-700 bg-gray-900/30 p-12 text-center">
+                    className="flex flex-col w-full items-center gap-4 rounded-2xl border border-dashed border-slate-800 bg-[#111119]/70 p-12 text-center">
                     <p className="text-4xl">⚔️</p>
                     <div className="space-y-1">
-                        <p className="text-base font-semibold text-gray-200">Paste your riven screenshot here</p>
-                        <p className="text-sm text-gray-500">Cmd+V with the riven screenshot</p>
-                        <p className="text-xs text-gray-600">Accepts 1 or 2 rivens in the same image</p>
+                        <p className="text-base font-semibold text-slate-200">Paste your riven screenshot here</p>
+                        <p className="text-sm text-slate-500">Cmd+V with the riven screenshot</p>
+                        <p className="text-xs text-slate-600">Accepts 1 or 2 rivens in the same image</p>
                     </div>
                 </div>
             </div>
@@ -1210,8 +895,8 @@ function RivenAnalyzer() {
         return (
             <div className="flex h-full items-center justify-center">
                 <div className="flex flex-col items-center gap-3 text-center">
-                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-purple-500 border-t-transparent"/>
-                    <p className="text-sm text-gray-400">Analyzing riven...</p>
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent"/>
+                    <p className="text-sm text-zinc-400">Analyzing riven...</p>
                 </div>
             </div>
         );
@@ -1226,7 +911,7 @@ function RivenAnalyzer() {
                     <p className="text-xs text-red-500/80 break-all">{state.message}</p>
                     <button
                         onClick={handleReset}
-                        className="rounded-lg border border-gray-700 px-4 py-2 text-xs text-gray-400 hover:text-gray-200 transition-colors"
+                        className="rounded-lg border border-zinc-700 px-4 py-2 text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
                     >
                         Try again
                     </button>
@@ -1251,7 +936,7 @@ function RivenAnalyzer() {
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-red-400">{ocr.error}</p>
                     <button onClick={handleReset}
-                            className="text-xs text-gray-500 hover:text-gray-300 transition-colors">
+                            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
                         Clear
                     </button>
                 </div>
@@ -1264,8 +949,9 @@ function RivenAnalyzer() {
         ? ocr.riven.weaponGuess ?? null
         : ocr.riven1.weaponGuess ?? ocr.riven2.weaponGuess ?? null;
     const sharedWeapon = weaponOverrides.shared ?? defaultWeapon;
-    const sharedWeaponClass = sharedWeapon ? findWeapon(sharedWeapon, rules)?.cls : null;
-    const shouldShowWeaponSelector = !defaultWeapon;
+    const sharedWeaponMatch = sharedWeapon ? findWeapon(sharedWeapon, rules) : null;
+    const sharedWeaponClass = sharedWeaponMatch?.cls ?? null;
+    const shouldShowWeaponSelector = !sharedWeaponMatch;
     const weaponSuggestions =
         deferredWeaponInput.trim().length >= 2
             ? findFuzzyMatches(weaponOptions, deferredWeaponInput, 8)
@@ -1281,35 +967,41 @@ function RivenAnalyzer() {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-zinc-600">
                     {ocr.mode === "compare" ? "2 rivens detected" : "1 riven detected"} — paste another screenshot to replace
                 </p>
-                <button onClick={handleReset} className="text-xs text-gray-500 hover:text-gray-300 transition-colors">
+                <button onClick={handleReset} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
                     Clear
                 </button>
             </div>
 
-            <div className="rounded-2xl border border-gray-800 bg-gray-900/50 p-4 space-y-3">
+            <div className="space-y-3 rounded-2xl border border-[#1e1e2d] bg-[#111119] p-4">
                 <div className="flex flex-wrap items-center gap-2">
                     {sharedWeapon ? (
                         <span
-                            className="text-xs font-semibold uppercase tracking-[0.18em] text-purple-500">
-              {titleCaseWeapon(sharedWeapon)} - {CLASS_LABELS[sharedWeaponClass?.toLowerCase() ?? ""] || sharedWeaponClass}
+                            className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-500">
+              {titleCaseWeapon(sharedWeapon)}{sharedWeaponClass ? ` - ${CLASS_LABELS[sharedWeaponClass.toLowerCase()] || sharedWeaponClass}` : ""}
             </span>
                     ) : (
-                        <span className="text-sm text-gray-500">Weapon not detected</span>
+                        <span className="text-sm text-zinc-500">Weapon not detected</span>
                     )}
                 </div>
 
                 {shouldShowWeaponSelector && (
-                    <div className="flex gap-2">
+                    <div className="space-y-2">
+                        <p className="text-sm text-amber-300">
+                            {sharedWeapon
+                                ? `Could not match "${titleCaseWeapon(sharedWeapon)}". Set the weapon manually to evaluate this riven.`
+                                : "Weapon not detected. Set the weapon manually to evaluate this riven."}
+                        </p>
+                        <div className="flex gap-2">
                         <input
                             value={weaponInput}
                             onChange={(e) => setWeaponInput(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && applySharedWeapon()}
                             list={weaponListId}
                             placeholder={sharedWeapon ? "Change weapon" : "Search weapon to apply to the riven"}
-                            className="flex-1 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 placeholder-gray-600 focus:border-purple-500/50 focus:outline-none"
+                            className="flex-1 rounded-lg border border-slate-800 bg-slate-950/80 px-3 py-2 text-xs text-slate-200 placeholder-slate-600 focus:border-primary-500/50 focus:outline-none"
                         />
                         <datalist id={weaponListId}>
                             {weaponSuggestions.map((weapon) => (
@@ -1318,22 +1010,23 @@ function RivenAnalyzer() {
                         </datalist>
                         <button
                             onClick={applySharedWeapon}
-                            className="rounded-lg bg-purple-500/20 border border-purple-500/30 px-3 py-2 text-xs font-medium text-purple-300 hover:bg-purple-500/30 transition-colors"
+                            className="rounded-lg bg-primary-500/20 border border-primary-500/30 px-3 py-2 text-xs font-medium text-primary-300 hover:bg-primary-500/30 transition-colors"
                         >
                             Apply
                         </button>
+                        </div>
                     </div>
                 )}
 
                 <div className="space-y-1">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500"></p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500"></p>
                     {hasHeaderHints ? (
                         <div className="flex flex-wrap items-start gap-6">
 
                             {/* MUST HAVE */}
                             {hasMust && (
                                 <div className="flex flex-col gap-2">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
                                         Must Have
                                     </p>
 
@@ -1341,7 +1034,7 @@ function RivenAnalyzer() {
                                         {mustHaveStats.map((stat) => (
                                             <span
                                                 key={stat}
-                                                className="rounded-lg border border-purple-500/30 bg-purple-500/10 px-2.5 py-1 text-xs font-medium text-purple-400"
+                                                className="rounded-lg border border-primary-500/30 bg-primary-500/10 px-2.5 py-1 text-xs font-medium text-primary-400"
                                             >  {formatStatLabel(stat)}
                                             </span>
                                         ))}
@@ -1352,7 +1045,7 @@ function RivenAnalyzer() {
                             {/* ALTERNATIVES */}
                             {hasAlternatives && (
                                 <div className="flex flex-col gap-2">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
                                         Alternatives
                                     </p>
                                     <div className="flex flex-wrap gap-2">
@@ -1373,7 +1066,7 @@ function RivenAnalyzer() {
                             {/* FREE NEGATIVES */}
                             {hasFreeNegatives && (
                                 <div className="flex flex-col gap-2">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
                                         Free Negatives
                                     </p>
 
@@ -1394,7 +1087,7 @@ function RivenAnalyzer() {
 
                         </div>
                     ) : (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-zinc-500">
                             {sharedWeapon
                                 ? "No priority data for the current pattern."
                                 : "Select a weapon to see priorities."}
@@ -1444,149 +1137,23 @@ function RivenAnalyzer() {
     );
 }
 
-// ─── Shared UI ────────────────────────────────────────────────────────────────
-
-function TabButton({active, label, onClick}: { active: boolean; label: string; onClick: () => void }) {
-    return (
-        <button
-            onClick={onClick}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                active
-                    ? "bg-purple-500/20 text-purple-400 border border-purple-500/40"
-                    : "border border-gray-800 text-gray-400 hover:text-gray-100 hover:bg-gray-900/60"
-            }`}
-        >
-            {label}
-        </button>
-    );
-}
-
-// ─── Tutorial Panel (unchanged logic) ────────────────────────────────────────
-
-function TutorialPanel() {
-    const [systemTab, setSystemTab] = useState<"Kuva" | "Tenet">("Kuva");
-    const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-    const currentSystem = TUTORIAL_SYSTEMS.find((item) => item.name === systemTab)!;
-
-    function isOpen(key: string) {
-        return !collapsed[key];
-    }
-
-    function toggleGroup(key: string) {
-        setCollapsed((prev) => ({...prev, [key]: !prev[key]}));
-    }
-
-    return (
-        <div className="space-y-4">
-            <div className="rounded-2xl border border-gray-800 bg-gray-900/40 p-4">
-                <h2 className="text-lg font-semibold text-purple-300">Progenitor Tutorial</h2>
-                <p className="mt-2 text-sm text-gray-400">
-                    Quick guide for choosing the progenitor element for Kuva and Tenet weapons.
-                </p>
-                <p className="mt-2 text-sm text-gray-400">
-                    The main logic is simple: use the element that improves the weapon's dominant build without disrupting the status order.
-                </p>
-            </div>
-
-            <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
-                {PROGENITOR_WARFRAMES.map((entry) => (
-                    <div key={entry.element} className="rounded-2xl border border-gray-800 bg-gray-900/40 p-4">
-                        <p className={`text-sm font-semibold ${entry.colorClass}`}>{entry.element}</p>
-                        <p className="mt-2 text-xs leading-5 text-gray-400">{entry.summary}</p>
-                        <p className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Warframes</p>
-                        <p className="mt-1 text-xs leading-5 text-gray-300">{entry.frames.join(" • ")}</p>
-                    </div>
-                ))}
-            </div>
-
-            <div className="rounded-2xl border border-gray-800 bg-gray-900/40 p-4">
-                <div className="flex flex-wrap gap-2">
-                    {(["Kuva", "Tenet"] as const).map((tab) => (
-                        <TabButton key={tab} active={systemTab === tab} label={tab} onClick={() => setSystemTab(tab)}/>
-                    ))}
-                </div>
-
-                <div className="mt-4 space-y-4">
-                    {currentSystem.categories.map((category) => {
-                        const key = `${currentSystem.name}-${category.title}`;
-                        const expanded = isOpen(key);
-                        return (
-                            <section key={category.title}>
-                                <button
-                                    onClick={() => toggleGroup(key)}
-                                    className={`flex w-full items-center justify-between border border-gray-800 bg-gray-900/60 px-3 py-2 text-left hover:bg-gray-800/60 transition-colors ${expanded ? "rounded-t-lg" : "rounded-lg"}`}
-                                >
-                  <span className="flex items-center gap-2 text-sm font-semibold text-gray-200">
-                    <span className="text-purple-300">{currentSystem.name}</span>
-                    <span>•</span>
-                    <span>{category.title}</span>
-                  </span>
-                                    <span className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">{category.weapons.length}</span>
-                    <span className="text-xs text-gray-400">{expanded ? "▲" : "▼"}</span>
-                  </span>
-                                </button>
-                                {expanded && (
-                                    <div
-                                        className="overflow-hidden rounded-b-lg border-x border-b border-gray-800 bg-gray-900 p-3">
-                                        <div className="grid gap-3 xl:grid-cols-2">
-                                            {category.weapons.map((entry) => (
-                                                <article key={entry.weapon}
-                                                         className="rounded-xl border border-gray-800 bg-gray-950/70 p-4">
-                                                    <div className="flex flex-wrap items-start justify-between gap-2">
-                                                        <div>
-                                                            <h4 className="text-sm font-semibold text-gray-100">{entry.weapon}</h4>
-                                                            <p className="mt-1 text-xs text-gray-400">
-                                                                Best: <span
-                                                                className="font-semibold text-purple-300">{entry.best}</span>
-                                                                {entry.alternatives && (
-                                                                    <> • Alternatives: <span
-                                                                        className="text-gray-300">{entry.alternatives}</span></>
-                                                                )}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="mt-3 space-y-1.5">
-                                                        {entry.notes.map((note) => (
-                                                            <p key={note}
-                                                               className="text-xs leading-5 text-gray-400">{note}</p>
-                                                        ))}
-                                                    </div>
-                                                </article>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </section>
-                        );
-                    })}
-                </div>
-            </div>
-        </div>
-    );
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function RivenAdvisorPage() {
-    const [tab, setTab] = useState<"advisor" | "tutorial">("tutorial");
-
     return (
-        <div className="flex h-full flex-col gap-4 p-4">
-            <div className="space-y-2">
-                <h1 className="text-lg font-bold text-purple-400">Rivens</h1>
-                <p className="text-sm text-gray-500">
-                    Evaluate rivens by pasting a screenshot (Cmd+V) or consult the progenitor guide.
+        <div className="wf-page flex min-h-full flex-col gap-5">
+            <div className="wf-panel p-5">
+                <h1 className="flex items-center gap-2 text-xl font-bold tracking-tight text-slate-100">
+                    <Swords size={20} className="text-red-400" />
+                    Riven Analyzer
+                </h1>
+                <p className="mt-1 text-xs text-slate-400">
+                    Evaluate rivens by pasting a screenshot with Cmd+V.
                 </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-                <TabButton active={tab === "tutorial"} label="Tutorial" onClick={() => setTab("tutorial")}/>
-                <TabButton active={tab === "advisor"} label="Analyzer" onClick={() => setTab("advisor")}/>
-            </div>
-
-            <div className="min-h-0 flex-1 overflow-auto">
-                {tab === "advisor" ? <RivenAnalyzer/> : <TutorialPanel/>}
+            <div className="custom-scrollbar min-h-0 flex-1 overflow-auto">
+                <RivenAnalyzer/>
             </div>
         </div>
     );

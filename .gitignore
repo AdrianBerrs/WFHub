@@ -29,6 +29,11 @@ data/filtered_items.json
 data/misc_wfcd.json
 data/resources_wfcd.json
 data/dict.en.json
+data/arcanes_all.json
+data/mod_ranks.json
+data/ducat_values.json
+data/items_prices.json
+data/circuit_images.json
 
 # Exports brutos do Warframe (baixados por update.sh)
 data/Export*.json
@@ -39,6 +44,9 @@ data/inventory.json
 data/builds.json
 data/hub_state.json
 data/build_images/
+data/wfmarket_auth.json
+data/reward_history.json
+data/void_trader_last_inventory.json
 
 # Fontes CSV dos rivens (geradas externamente — ignore se não forem mantidas manualmente)
 # data/rivenWeaponRulesSource_*.csv

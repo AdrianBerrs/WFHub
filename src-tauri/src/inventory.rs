@@ -14,9 +14,9 @@ use image::{DynamicImage, imageops::FilterType};
 use tauri::{AppHandle, Emitter, Manager, State};
 use xcap::Window as CaptureWindow;
 
-const VALID_SCAN_TYPES: [&str; 2] = ["mods", "arcanes"];
+const VALID_SCAN_TYPES: [&str; 3] = ["mods", "arcanes", "prime_parts"];
 
-use crate::{log_to_file, project_root, save_debug_image};
+use crate::{data_path, log_to_file, resource_path, save_debug_image};
 
 // ─── Managed state ────────────────────────────────────────────────────────────
 
@@ -77,8 +77,8 @@ pub fn start_inventory_scan(
     let items_arc = Arc::clone(&state.items);
 
     thread::spawn(move || {
-        let scroll_script = project_root().join("scripts/automation/inventory_scroll.py");
-        let ocr_script    = project_root().join("scripts/automation/inventory_ocr.py");
+        let scroll_script = resource_path(&app, "scripts/automation/inventory_scroll.py");
+        let ocr_script    = resource_path(&app, "scripts/automation/inventory_ocr.py");
 
         // Focus Warframe once before loop
         focus_wine();
@@ -207,12 +207,12 @@ pub fn start_inventory_scan(
             });
         }
 
-        let out = Command::new("/usr/bin/python3")
-            .arg(&ocr_script)
+        let mut ocr_cmd = Command::new("/usr/bin/python3");
+        ocr_cmd.arg(&ocr_script)
             .arg("--batch")
             .arg(frame_idx.to_string())
-            .arg(&scan_type)
-            .output();
+            .arg(&scan_type);
+        let out = ocr_cmd.output();
 
         ocr_running.store(false, Ordering::SeqCst);
 
@@ -281,16 +281,67 @@ pub fn save_inventory_result(state: State<'_, InventoryState>) -> Result<usize, 
 
 #[tauri::command]
 pub fn read_inventory() -> Result<String, String> {
-    let path = project_root().join("data").join("inventory.json");
+    let path = data_path("inventory.json");
     if !path.exists() {
         return Ok(r#"{"mods":[],"arcanes":[],"prime_parts":[]}"#.to_string());
     }
     fs::read_to_string(&path).map_err(|e| e.to_string())
 }
 
+/// Capture one frame of the Warframe window and run the debug OCR script on it.
+/// Returns raw JSON: { scan_type, raw_lines, matched }
+#[tauri::command]
+pub fn debug_inventory_ocr(app: AppHandle, scan_type: String) -> Result<String, String> {
+    if !VALID_SCAN_TYPES.contains(&scan_type.as_str()) {
+        return Err(format!("Invalid scan_type: {scan_type}"));
+    }
+
+    let frame = xcap::Window::all()
+        .map_err(|e| e.to_string())?
+        .into_iter()
+        .find(|w| w.title() == "Warframe")
+        .ok_or_else(|| "Janela Warframe não encontrada. Abra o jogo e tente novamente.".to_string())?
+        .capture_image()
+        .map_err(|e| e.to_string())?;
+
+    let image = image::DynamicImage::ImageRgba8(frame)
+        .resize(1920, 1080, image::imageops::FilterType::Triangle);
+
+    let tmp_path = "/tmp/wfhub_inv_debug.png";
+    image.save(tmp_path).map_err(|e| e.to_string())?;
+    // Persistent copy for manual re-runs (survives the cleanup below)
+    let _ = fs::copy(tmp_path, "/tmp/wfhub_inv_debug_last.png");
+
+    let script = resource_path(&app, "scripts/automation/inventory_ocr_debug.py");
+    let out = Command::new("/usr/bin/python3")
+        .arg(&script)
+        .arg(tmp_path)
+        .arg(&scan_type)
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    let _ = fs::remove_file(tmp_path);
+
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    if !stderr.trim().is_empty() {
+        log_to_file(&format!("[inventory_debug] OCR log:\n{}", stderr.trim()));
+    }
+
+    if !out.status.success() {
+        return Err(format!(
+            "OCR falhou (exit {}): {}",
+            out.status.code().unwrap_or(-1),
+            stderr.trim()
+        ));
+    }
+
+    let stdout = String::from_utf8_lossy(&out.stdout).trim().to_string();
+    Ok(stdout)
+}
+
 #[tauri::command]
 pub fn save_prime_parts(parts: Vec<String>) -> Result<(), String> {
-    let path = project_root().join("data").join("inventory.json");
+    let path = data_path("inventory.json");
 
     let mut data: serde_json::Value = if path.exists() {
         let content = fs::read_to_string(&path).unwrap_or_default();
@@ -331,7 +382,7 @@ fn focus_wine() {
 }
 
 fn merge_inventory_json(scan_type: &str, items: &HashSet<String>) -> Result<(), String> {
-    let path = project_root().join("data").join("inventory.json");
+    let path = data_path("inventory.json");
 
     let mut data: serde_json::Value = if path.exists() {
         let content = fs::read_to_string(&path).unwrap_or_default();

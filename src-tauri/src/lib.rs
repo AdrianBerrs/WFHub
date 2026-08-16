@@ -1,17 +1,17 @@
-mod forja;
 mod inventory;
 mod ocr;
 mod theme;
 
+use tauri::AppHandle;
+
 use std::{
     collections::{HashMap, HashSet},
     fs,
-    fs::File,
-    io::{BufRead, BufReader, Seek, SeekFrom, Write},
+    io::{BufRead, BufReader, BufWriter, Seek, SeekFrom, Write},
     path::{Component, Path, PathBuf},
-    process::Command,
+    process::{Command as SyncCommand, Stdio},
     str::FromStr,
-    sync::{LazyLock, OnceLock},
+    sync::{LazyLock, Mutex, OnceLock},
     thread,
     time::{Duration, Instant},
 };
@@ -20,37 +20,85 @@ use image::DynamicImage;
 use serde::{Deserialize, Serialize};
 use tauri::{
     image::Image,
+    menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Emitter, Manager, WebviewWindow,
 };
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 use xcap::Window as CaptureWindow;
 
+static EXITING: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
 const REWARD_FILE: &str = "/tmp/wfhub_reward.json";
-const ITEM_SEARCH_FILE: &str = "/tmp/wfhub_item_search.json";
-const ITEM_SCREEN_PATH: &str = "/tmp/wfhub_item_screen.png";
-fn get_log_path() -> PathBuf {
-    let config_path = project_root().join("data").join("config.json");
-    if let Ok(content) = fs::read_to_string(&config_path) {
-        if let Ok(v) = serde_json::from_str::<serde_json::Value>(&content) {
-            if let Some(p) = v["log_path"].as_str() {
-                if !p.is_empty() {
-                    return PathBuf::from(p);
-                }
-            }
-        }
-    }
-    PathBuf::new()
+const REWARD_HISTORY_FILE: &str = "reward_history.json";
+const MAX_REWARD_HISTORY: usize = 100;
+static CONFIG_LOG_PATH: Mutex<Option<PathBuf>> = Mutex::new(None);
+
+fn config_path() -> PathBuf {
+    data_path("config.json")
 }
+
+fn read_config_file() -> serde_json::Value {
+    fs::read_to_string(config_path())
+        .ok()
+        .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
+        .unwrap_or_else(|| serde_json::Value::Object(serde_json::Map::new()))
+}
+
+fn read_log_path_from_config() -> PathBuf {
+    let config = read_config_file();
+    config["log_path"]
+        .as_str()
+        .filter(|p| !p.is_empty())
+        .map(PathBuf::from)
+        .unwrap_or_default()
+}
+
+pub fn get_log_path() -> PathBuf {
+    if let Some(path) = CONFIG_LOG_PATH.lock().unwrap().clone() {
+        return path;
+    }
+    let path = read_log_path_from_config();
+    *CONFIG_LOG_PATH.lock().unwrap() = Some(path.clone());
+    path
+}
+
+fn set_log_path(path: &str) {
+    *CONFIG_LOG_PATH.lock().unwrap() = Some(PathBuf::from(path));
+}
+
+
 const WARFRAME_WINDOW_NAME: &str = "Warframe";
 const BUILD_IMAGE_PATH: &str = "/tmp/wfhub_build_input.png";
 const RIVEN_IMAGE_PATH: &str = "/tmp/wfhub_riven_input.png";
 const MARKET_USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 const HUB_STATE_FILE: &str = "hub_state.json";
+const VOID_TRADER_INVENTORY_CACHE_FILE: &str = "void_trader_last_inventory.json";
 const DEFAULT_HUB_REFRESH_SECONDS: u64 = 60;
 const MIN_HUB_REFRESH_SECONDS: u64 = 15;
 const MAX_HUB_REFRESH_SECONDS: u64 = 600;
 const MAX_SAVED_BUILDS: usize = 20;
+const WFMARKET_AUTH_FILE: &str = "wfmarket_auth.json";
+const WFMARKET_API_BASE: &str = "https://api.warframe.market/v1";
+
+#[derive(Deserialize, Serialize, Clone, Debug, Default)]
+struct WfMarketAuth {
+    jwt: String,
+    username: String,
+    csrf_token: String,
+}
+
+fn extract_csrf_from_jwt(jwt: &str) -> Option<String> {
+    use base64::Engine;
+    let parts: Vec<&str> = jwt.split('.').collect();
+    if parts.len() != 3 { return None; }
+    let payload = parts[1];
+    let decoded = base64::engine::general_purpose::URL_SAFE_NO_PAD
+        .decode(payload)
+        .ok()?;
+    let json: serde_json::Value = serde_json::from_slice(&decoded).ok()?;
+    json.get("csrf_token")?.as_str().map(|s| s.to_string())
+}
 
 static HTTP_CLIENT: LazyLock<reqwest::Client> = LazyLock::new(|| {
     reqwest::Client::builder()
@@ -66,6 +114,7 @@ static MOD_NAMES_CACHE: OnceLock<String> = OnceLock::new();
 static ITEM_RARITIES_CACHE: OnceLock<String> = OnceLock::new();
 static MOD_LOCATIONS_CACHE: OnceLock<serde_json::Value> = OnceLock::new();
 static ENEMY_MOD_TABLES_JSON_CACHE: OnceLock<serde_json::Value> = OnceLock::new();
+static MOD_RANKS_CACHE: OnceLock<String> = OnceLock::new();
 static MISSION_REWARDS_CACHE: OnceLock<serde_json::Value> = OnceLock::new();
 static CETUS_BOUNTY_CACHE: OnceLock<serde_json::Value> = OnceLock::new();
 static SOLARIS_BOUNTY_CACHE: OnceLock<serde_json::Value> = OnceLock::new();
@@ -74,6 +123,9 @@ static TRANSIENT_REWARDS_CACHE: OnceLock<serde_json::Value> = OnceLock::new();
 static RELICS_CACHE: OnceLock<serde_json::Value> = OnceLock::new();
 static ENEMY_LOCATIONS_CACHE: OnceLock<serde_json::Value> = OnceLock::new();
 static PRIME_PARTS_CACHE: OnceLock<String> = OnceLock::new();
+static DUCAT_VALUES_CACHE: OnceLock<String> = OnceLock::new();
+static PRIME_VAULT_CACHE: OnceLock<String> = OnceLock::new();
+static MOD_META_CACHE: OnceLock<String> = OnceLock::new();
 static BARO_NAME_MAP_CACHE: OnceLock<HashMap<String, String>> = OnceLock::new();
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -85,6 +137,7 @@ struct RewardItem {
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 struct RewardPayload {
+    #[serde(default)]
     timestamp: String,
     items: Vec<RewardItem>,
 }
@@ -114,13 +167,26 @@ struct HubAlert {
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
+
 struct HubInvasion {
     id: String,
     location: String,
     attacker: String,
     defender: String,
     reward: String,
+    #[serde(default)]
+    attacker_reward: String,
+    #[serde(default)]
+    defender_reward: String,
     expires_at_ms: i64,
+    #[serde(default)]
+    completion_pct: f64,
+    #[serde(default)]
+    count: i64,
+    #[serde(default)]
+    required_runs: i64,
+    #[serde(default)]
+    completed: bool,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -153,6 +219,21 @@ struct HubVoidTrader {
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
+struct HubSortieMission {
+    mission_type: String,
+    node: String,
+    modifier: String,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+struct HubSortie {
+    boss: String,
+    faction: String,
+    expires_at_ms: i64,
+    missions: Vec<HubSortieMission>,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
 struct HubSnapshot {
     source: String,
     fetched_at_ms: i64,
@@ -163,6 +244,8 @@ struct HubSnapshot {
     news: Vec<HubNews>,
     #[serde(default)]
     arbitration: Option<HubActivity>,
+    #[serde(default)]
+    sortie: Option<HubSortie>,
     #[serde(default)]
     archon_hunt: Option<HubActivity>,
     void_trader: HubVoidTrader,
@@ -196,6 +279,84 @@ struct HubArbitrationScheduleResponse {
     slots: Vec<HubArbitrationSlot>,
 }
 
+#[derive(Serialize, Clone, Debug)]
+struct WeeklyMission {
+    mission_type: String,
+    node: String,
+    modifier: String,
+}
+
+#[derive(Serialize, Clone, Debug)]
+struct WeeklyArchonHunt {
+    boss: String,
+    faction: String,
+    expires_at_ms: i64,
+    missions: Vec<WeeklyMission>,
+}
+
+#[derive(Serialize, Clone, Debug)]
+struct WeeklyArchimedeaRisk {
+    name: String,
+    description: String,
+    is_hard: bool,
+}
+
+#[derive(Serialize, Clone, Debug)]
+struct WeeklyArchimedeaMission {
+    mission_type: String,
+    faction: String,
+    deviation: String,
+    #[serde(default)]
+    deviation_description: String,
+    risks: Vec<WeeklyArchimedeaRisk>,
+}
+
+#[derive(Serialize, Clone, Debug)]
+struct WeeklyModifier {
+    name: String,
+    description: String,
+}
+
+#[derive(Serialize, Clone, Debug)]
+struct WeeklyArchimedea {
+    type_name: String,
+    expires_at_ms: i64,
+    missions: Vec<WeeklyArchimedeaMission>,
+    personal_modifiers: Vec<WeeklyModifier>,
+}
+
+#[derive(Serialize, Clone, Debug)]
+struct WeeklyCircuitChoices {
+    category: String,
+    choices: Vec<String>,
+}
+
+#[derive(Serialize, Clone, Debug)]
+struct WeeklySteelPathReward {
+    name: String,
+    cost: i64,
+}
+
+#[derive(Serialize, Clone, Debug)]
+struct WeeklySteelPath {
+    current_reward: WeeklySteelPathReward,
+    rotation: Vec<WeeklySteelPathReward>,
+    evergreens: Vec<WeeklySteelPathReward>,
+    expires_at_ms: i64,
+}
+
+#[derive(Serialize, Clone, Debug)]
+struct WeeklyState {
+    fetched_at_ms: i64,
+    weekly_reset_ms: i64,
+    archon_hunt: Option<WeeklyArchonHunt>,
+    sortie: Option<WeeklyArchonHunt>,
+    archimedeas: Vec<WeeklyArchimedea>,
+    circuit_normal: Option<WeeklyCircuitChoices>,
+    circuit_hard: Option<WeeklyCircuitChoices>,
+    steel_path: Option<WeeklySteelPath>,
+}
+
 #[derive(Deserialize, Serialize, Clone, Debug)]
 struct HubStateFile {
     refresh_seconds: u64,
@@ -219,7 +380,133 @@ fn log_to_file(msg: &str) {
         .append(true)
         .open("/tmp/wfhub_debug.log")
     {
-        let _ = writeln!(f, "{}", msg);
+        use std::time::{SystemTime, UNIX_EPOCH};
+        let secs = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+        let h = (secs / 3600) % 24;
+        let m = (secs / 60) % 60;
+        let s = secs % 60;
+        let _ = writeln!(f, "[{h:02}:{m:02}:{s:02}] {msg}");
+    }
+}
+
+struct OcrDaemon {
+    _process: std::process::Child,
+    writer: BufWriter<std::process::ChildStdin>,
+    reader: BufReader<std::process::ChildStdout>,
+}
+
+static OCR_DAEMON: Mutex<Option<OcrDaemon>> = Mutex::new(None);
+
+fn init_ocr_daemon(app: &tauri::AppHandle) {
+    if OCR_DAEMON.lock().unwrap().is_some() {
+        return;
+    }
+    let script_path = ocr_script_path(app);
+    log_to_file(&format!("[ocr_daemon] iniciando: {}", script_path.display()));
+    let mut child = match SyncCommand::new("/usr/bin/python3")
+        .arg(&script_path)
+        .arg("--daemon")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        Ok(c) => c,
+        Err(e) => {
+            log_to_file(&format!("[ocr_daemon] falha ao spawnar: {e}"));
+            return;
+        }
+    };
+
+    let stdin = match child.stdin.take() {
+        Some(s) => s,
+        None => {
+            log_to_file("[ocr_daemon] stdin indisponível");
+            return;
+        }
+    };
+    let stdout = match child.stdout.take() {
+        Some(s) => s,
+        None => {
+            log_to_file("[ocr_daemon] stdout indisponível");
+            return;
+        }
+    };
+    if let Some(stderr) = child.stderr.take() {
+        thread::spawn(move || {
+            for line in BufReader::new(stderr).lines().map_while(Result::ok) {
+                log_to_file(&format!("[ocr_py] {line}"));
+            }
+        });
+    }
+
+    let mut reader = BufReader::new(stdout);
+    let mut ready_line = String::new();
+    match reader.read_line(&mut ready_line) {
+        Ok(0) => {
+            log_to_file("[ocr_daemon] processo encerrou antes de READY");
+            return;
+        }
+        Err(e) => {
+            log_to_file(&format!("[ocr_daemon] erro lendo READY: {e}"));
+            return;
+        }
+        Ok(_) => {}
+    }
+
+    let signal = ready_line.trim();
+    if signal != "READY" {
+        log_to_file(&format!("[ocr_daemon] sinal inesperado: '{signal}'"));
+        return;
+    }
+
+    log_to_file("[ocr_daemon] pronto");
+    *OCR_DAEMON.lock().unwrap() = Some(OcrDaemon {
+        _process: child,
+        writer: BufWriter::new(stdin),
+        reader,
+    });
+}
+
+fn call_ocr_daemon(image_path: &str, app: &tauri::AppHandle) -> Result<String, String> {
+    let mut guard = OCR_DAEMON.lock().map_err(|e| e.to_string())?;
+
+    if guard.is_none() {
+        drop(guard);
+        log_to_file("[ocr_daemon] não inicializado, reiniciando...");
+        init_ocr_daemon(app);
+        return Err("daemon não estava pronto, reiniciado".to_string());
+    }
+
+    let daemon = guard.as_mut().unwrap();
+    let io_result = (|| -> std::io::Result<String> {
+        writeln!(daemon.writer, "{}", image_path)?;
+        daemon.writer.flush()?;
+        let mut line = String::new();
+        daemon.reader.read_line(&mut line)?;
+        Ok(line)
+    })();
+
+    match io_result {
+        Ok(line) if !line.trim().is_empty() => Ok(line),
+        Ok(_) => {
+            // daemon encerrou stdin sem responder
+            *guard = None;
+            drop(guard);
+            log_to_file("[ocr_daemon] sem resposta, reiniciando...");
+            init_ocr_daemon(app);
+            Err("daemon reiniciado após resposta vazia".to_string())
+        }
+        Err(e) => {
+            *guard = None;
+            drop(guard);
+            log_to_file(&format!("[ocr_daemon] erro de IO: {e}, reiniciando..."));
+            init_ocr_daemon(app);
+            Err(format!("daemon reiniciado após erro: {e}"))
+        }
     }
 }
 
@@ -274,15 +561,18 @@ fn show_overlay(app: &tauri::AppHandle, payload: RewardPayload) {
         let phys_size = monitor.size();
         let phys_pos = monitor.position();
         let logical_width = phys_size.width as f64 / scale;
+        let logical_height = phys_size.height as f64 / scale;
         let logical_x = phys_pos.x as f64 / scale;
         let logical_y = phys_pos.y as f64 / scale;
-        let x = logical_x + logical_width - 450.0;
-        let _ = overlay.set_position(tauri::LogicalPosition::new(x, logical_y + 60.0));
+        let overlay_w = 964.0_f64;
+        let overlay_h = 310.0_f64;
+        let x = logical_x + (logical_width - overlay_w) / 2.0;
+        let y = logical_y + logical_height - overlay_h - 40.0;
+        let _ = overlay.set_position(tauri::LogicalPosition::new(x, y));
+        let _ = overlay.set_size(tauri::LogicalSize::new(overlay_w, overlay_h));
+    } else {
+        let _ = overlay.set_size(tauri::LogicalSize::new(964.0, 310.0));
     }
-
-    // Altura dinâmica: base (header + hint + padding) + por item
-    let height = 110.0 + payload.items.len() as f64 * 46.0;
-    let _ = overlay.set_size(tauri::LogicalSize::new(420.0, height));
 
     let _ = overlay.emit("reward-detected", &payload);
     let _ = overlay.show();
@@ -303,6 +593,64 @@ fn show_overlay(app: &tauri::AppHandle, payload: RewardPayload) {
         let _ = overlay_clone.emit("hide-overlay", ());
         let _ = overlay_clone.hide();
     });
+}
+
+fn show_trade_overlay(app: &tauri::AppHandle, payload: TradeSuccessPayload) {
+    let overlay = match app.get_webview_window("overlay") {
+        Some(w) => w,
+        None => {
+            eprintln!("[wfhub] ERROR: overlay window not found!");
+            return;
+        }
+    };
+
+    let target_monitor = overlay
+        .available_monitors()
+        .ok()
+        .and_then(|monitors| monitors.into_iter().max_by_key(|m| m.size().width));
+
+    if let Some(monitor) = target_monitor {
+        let scale = monitor.scale_factor();
+        let phys_size = monitor.size();
+        let phys_pos = monitor.position();
+        let logical_width = phys_size.width as f64 / scale;
+        let logical_height = phys_size.height as f64 / scale;
+        let logical_x = phys_pos.x as f64 / scale;
+        let logical_y = phys_pos.y as f64 / scale;
+        let overlay_w = 480.0_f64;
+        let overlay_h = 200.0_f64;
+        let x = logical_x + logical_width - overlay_w - 20.0;
+        let y = logical_y + logical_height - overlay_h - 60.0;
+        let _ = overlay.set_position(tauri::LogicalPosition::new(x, y));
+        let _ = overlay.set_size(tauri::LogicalSize::new(overlay_w, overlay_h));
+    } else {
+        let _ = overlay.set_size(tauri::LogicalSize::new(480.0, 200.0));
+    }
+
+    let _ = overlay.emit("trade-success", &payload);
+    let _ = overlay.show();
+    #[cfg(target_os = "macos")]
+    {
+        let overlay_main = overlay.clone();
+        let _ = overlay.run_on_main_thread(move || {
+            set_overlay_window_level(&overlay_main);
+        });
+    }
+}
+
+fn append_reward_history(payload: &RewardPayload) {
+    let path = data_path(REWARD_HISTORY_FILE);
+    let mut history: Vec<RewardPayload> = path
+        .exists()
+        .then(|| fs::read_to_string(&path).ok())
+        .flatten()
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default();
+    history.insert(0, payload.clone());
+    history.truncate(MAX_REWARD_HISTORY);
+    if let Ok(json) = serde_json::to_string(&history) {
+        let _ = fs::write(&path, json);
+    }
 }
 
 fn reward_payload_from_file() -> Result<RewardPayload, String> {
@@ -338,8 +686,41 @@ fn project_root() -> PathBuf {
         .to_path_buf()
 }
 
-fn data_path(path: &str) -> PathBuf {
-    project_root().join("data").join(path)
+// Resolved once at startup: the repo's data/ in dev, the writable app-data
+// directory in a bundled app (seeded from the bundled resources).
+static DATA_DIR: Mutex<Option<PathBuf>> = Mutex::new(None);
+
+pub fn set_data_dir(path: PathBuf) {
+    *DATA_DIR.lock().unwrap() = Some(path);
+}
+
+pub fn data_dir() -> PathBuf {
+    if let Some(path) = DATA_DIR.lock().unwrap().clone() {
+        return path;
+    }
+    project_root().join("data")
+}
+
+pub fn data_path(path: &str) -> PathBuf {
+    data_dir().join(path)
+}
+
+// Resolve a project-relative file (e.g. a script) to a path that works both in
+// dev (repo) and in a bundled app (resources directory).
+pub fn resource_path(app: &tauri::AppHandle, relative: &str) -> PathBuf {
+    let dev_path = project_root().join(relative);
+    if dev_path.exists() {
+        return dev_path;
+    }
+
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        let bundled_path = resource_dir.join(relative);
+        if bundled_path.exists() {
+            return bundled_path;
+        }
+    }
+
+    dev_path
 }
 
 fn read_text_cached(path: &str, cache: &OnceLock<String>) -> Result<String, String> {
@@ -401,100 +782,15 @@ fn to_riven_auction_stat_url_name(stat: &str) -> Option<&'static str> {
 }
 
 fn ocr_script_path(app: &tauri::AppHandle) -> PathBuf {
-    let dev_path = project_root().join("scripts/ocr/ocr_vision.py");
-    if dev_path.exists() {
-        return dev_path;
-    }
-
-    if let Ok(resource_dir) = app.path().resource_dir() {
-        let bundled_path = resource_dir.join("scripts/ocr/ocr_vision.py");
-        if bundled_path.exists() {
-            return bundled_path;
-        }
-    }
-
-    dev_path
+    resource_path(app, "scripts/ocr/ocr_vision.py")
 }
 
 fn build_ocr_script_path(app: &tauri::AppHandle) -> PathBuf {
-    let dev_path = project_root().join("scripts/ocr/ocr_vision_build.py");
-    if dev_path.exists() {
-        return dev_path;
-    }
-
-    if let Ok(resource_dir) = app.path().resource_dir() {
-        let bundled_path = resource_dir.join("scripts/ocr/ocr_vision_build.py");
-        if bundled_path.exists() {
-            return bundled_path;
-        }
-    }
-
-    dev_path
+    resource_path(app, "scripts/ocr/ocr_vision_build.py")
 }
 
 fn riven_ocr_script_path(app: &tauri::AppHandle) -> PathBuf {
-    let dev_path = project_root().join("scripts/ocr/ocr_vision_riven.py");
-    if dev_path.exists() {
-        return dev_path;
-    }
-    if let Ok(resource_dir) = app.path().resource_dir() {
-        let bundled_path = resource_dir.join("scripts/ocr/ocr_vision_riven.py");
-        if bundled_path.exists() {
-            return bundled_path;
-        }
-    }
-    dev_path
-}
-
-fn item_ocr_script_path(app: &tauri::AppHandle) -> PathBuf {
-    let dev_path = project_root().join("scripts/ocr/ocr_item_name.py");
-    if dev_path.exists() {
-        return dev_path;
-    }
-
-    if let Ok(resource_dir) = app.path().resource_dir() {
-        let bundled_path = resource_dir.join("scripts/ocr/ocr_item_name.py");
-        if bundled_path.exists() {
-            return bundled_path;
-        }
-    }
-
-    dev_path
-}
-
-fn capture_item_from_warframe(app: &tauri::AppHandle) -> Result<String, String> {
-    let window = warframe_window()?;
-    let frame = window
-        .capture_image()
-        .map_err(|err| format!("failed to capture Warframe window: {err}"))?;
-    let image = DynamicImage::ImageRgba8(frame);
-    image
-        .save(ITEM_SCREEN_PATH)
-        .map_err(|err| format!("failed to save item screenshot: {err}"))?;
-
-    let script = item_ocr_script_path(app);
-    let output = Command::new("/usr/bin/python3")
-        .arg(&script)
-        .arg(ITEM_SCREEN_PATH)
-        .output()
-        .map_err(|err| format!("failed to run OCR script: {err}"))?;
-
-    if !output.status.success() {
-        return Err(format!(
-            "OCR script failed: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
-    }
-
-    let json_str = fs::read_to_string(ITEM_SEARCH_FILE)
-        .map_err(|err| format!("failed to read OCR result: {err}"))?;
-    let val: serde_json::Value =
-        serde_json::from_str(&json_str).map_err(|err| format!("failed to parse OCR result: {err}"))?;
-
-    val["name"]
-        .as_str()
-        .map(|s| s.to_string())
-        .ok_or_else(|| "item name not found in OCR output".to_string())
+    resource_path(app, "scripts/ocr/ocr_vision_riven.py")
 }
 
 fn warframe_window() -> Result<CaptureWindow, String> {
@@ -515,49 +811,33 @@ fn run_detection(app: &tauri::AppHandle) -> Result<Option<RewardPayload>, String
     save_debug_image(&image, "/tmp/wfinfo_capture.png");
 
     let theme = ocr::detect_theme(&image);
-    let parts = ocr::extract_parts(&image, theme);
-    log_to_file(&format!("[run_detection] partes extraídas: {}", parts.len()));
-    if parts.is_empty() {
-        log_to_file("[run_detection] nenhuma parte, abortando OCR");
+    let _parts = ocr::extract_parts(&image, theme);
+    log_to_file(&format!("[run_detection] partes extraídas: {}", _parts.len()));
+
+    log_to_file("[run_detection] chamando daemon OCR...");
+    let json_line = match call_ocr_daemon("/tmp/wfinfo_prefilter.png", app) {
+        Ok(line) => line,
+        Err(e) => {
+            log_to_file(&format!("[run_detection] daemon indisponível: {e}"));
+            return Ok(None);
+        }
+    };
+
+    let payload: RewardPayload = match serde_json::from_str(json_line.trim()) {
+        Ok(p) => p,
+        Err(e) => {
+            log_to_file(&format!("[run_detection] erro ao parsear JSON do daemon: {e}\nJSON: {json_line}"));
+            return Ok(None);
+        }
+    };
+
+    if payload.items.is_empty() {
+        log_to_file("[run_detection] daemon retornou 0 itens");
         return Ok(None);
     }
 
-    let _ = fs::remove_file(REWARD_FILE);
-
-    let script_path = ocr_script_path(app);
-    log_to_file(&format!("[run_detection] chamando OCR: {}", script_path.display()));
-    let output = Command::new("/usr/bin/python3")
-        .arg(&script_path)
-        .arg("/tmp/wfinfo_prefilter.png")
-        .output()
-        .map_err(|err| format!("failed to run {}: {err}", script_path.display()))?;
-
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    if !stdout.trim().is_empty() {
-        log_to_file(&format!("[run_detection] OCR stdout:\n{}", stdout.trim()));
-        eprintln!("[wfhub] OCR stdout:\n{}", stdout.trim());
-    }
-    if !stderr.trim().is_empty() {
-        log_to_file(&format!("[run_detection] OCR stderr:\n{}", stderr.trim()));
-        eprintln!("[wfhub] OCR stderr:\n{}", stderr.trim());
-    }
-    if !output.status.success() {
-        let err = format!("OCR script exited with status {}", output.status);
-        log_to_file(&format!("[run_detection] ERRO: {err}"));
-        return Err(err);
-    }
-
-    if !Path::new(REWARD_FILE).exists() {
-        log_to_file("[run_detection] reward JSON não gerado pelo OCR");
-        return Ok(None);
-    }
-
-    let result = reward_payload_from_file().map(Some);
-    if let Ok(Some(ref payload)) = result {
-        log_to_file(&format!("[run_detection] payload OK: {} itens", payload.items.len()));
-    }
-    result
+    log_to_file(&format!("[run_detection] payload OK: {} itens", payload.items.len()));
+    Ok(Some(payload))
 }
 
 #[tauri::command]
@@ -667,13 +947,93 @@ fn read_all_mods() -> Result<String, String> {
 }
 
 #[tauri::command]
+fn read_mod_ranks() -> Result<String, String> {
+    read_text_cached("mod_ranks.json", &MOD_RANKS_CACHE)
+}
+
+#[tauri::command]
+fn read_items_prices() -> Result<String, String> {
+    fs::read_to_string(data_path("items_prices.json")).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn save_item_price(name: String, buy: Option<f64>, sell: Option<f64>) -> Result<(), String> {
+    let path = data_path("items_prices.json");
+    let mut map: std::collections::HashMap<String, serde_json::Value> =
+        serde_json::from_str(&fs::read_to_string(&path).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+
+    let now = chrono::Utc::now().format("%Y-%m-%dT%H:%M:%SZ").to_string();
+
+    let entry = map.entry(name.clone()).or_insert_with(|| serde_json::json!({
+        "avg": null, "buy": null, "sell": null, "ducats": null
+    }));
+
+    if let Some(obj) = entry.as_object_mut() {
+        if let Some(b) = buy {
+            obj.insert("buy".into(), serde_json::json!(b));
+        }
+        if let Some(s) = sell {
+            obj.insert("sell".into(), serde_json::json!(s));
+        }
+        obj.insert("updated_at".into(), serde_json::json!(now));
+    }
+
+    let tmp_path = std::path::PathBuf::from("/tmp/.items_prices.json.tmp");
+    let content = serde_json::to_string_pretty(&map).map_err(|e| e.to_string())?;
+    fs::write(&tmp_path, &content).map_err(|e| e.to_string())?;
+    fs::rename(&tmp_path, &path).map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+fn read_mod_images() -> Result<String, String> {
+    fs::read_to_string(data_path("mod_images.json")).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn read_arcane_images() -> Result<String, String> {
+    fs::read_to_string(data_path("arcane_images.json")).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 fn read_prime_parts() -> Result<String, String> {
     read_text_cached("prime_parts.json", &PRIME_PARTS_CACHE)
 }
 
 #[tauri::command]
+fn read_circuit_images() -> Result<String, String> {
+    fs::read_to_string(data_path("circuit_images.json")).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn read_ducat_values() -> Result<String, String> {
+    read_text_cached("ducat_values.json", &DUCAT_VALUES_CACHE)
+}
+
+#[tauri::command]
+fn read_prime_vault() -> Result<String, String> {
+    read_text_cached("prime_vault.json", &PRIME_VAULT_CACHE)
+}
+
+#[tauri::command]
+fn read_mod_meta() -> Result<String, String> {
+    read_text_cached("mod_meta.json", &MOD_META_CACHE)
+}
+
+#[tauri::command]
 fn read_prices() -> Result<String, String> {
     read_text_cached("prices.json", &PRICES_CACHE)
+}
+
+#[tauri::command]
+fn read_reward_history() -> Result<String, String> {
+    let path = data_path(REWARD_HISTORY_FILE);
+    if !path.exists() {
+        return Ok("[]".to_string());
+    }
+    fs::read_to_string(&path).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -683,7 +1043,7 @@ fn read_enemy_mod_tables() -> Result<String, String> {
 
 #[tauri::command]
 fn read_builds() -> Result<String, String> {
-    let path = project_root().join("data").join("builds.json");
+    let path = data_path("builds.json");
     if !path.exists() {
         return Ok("[]".to_string());
     }
@@ -709,7 +1069,7 @@ fn maybe_store_build_screenshot(id: &str, image_path: Option<String>) -> Option<
         .filter(|ext| matches!(ext.as_str(), "png" | "jpg" | "jpeg" | "webp"))
         .unwrap_or_else(|| "png".to_string());
 
-    let images_dir = project_root().join("data").join("build_images");
+    let images_dir = data_path("build_images");
     if fs::create_dir_all(&images_dir).is_err() {
         return None;
     }
@@ -735,7 +1095,7 @@ fn build_screenshot_path_if_valid(screenshot_rel_path: &str) -> Option<PathBuf> 
         return None;
     }
 
-    Some(project_root().join("data").join(rel_path))
+    Some(data_path(rel_path.to_string_lossy().as_ref()))
 }
 
 fn collect_screenshot_paths(builds: &[serde_json::Value]) -> Vec<PathBuf> {
@@ -747,6 +1107,52 @@ fn collect_screenshot_paths(builds: &[serde_json::Value]) -> Vec<PathBuf> {
 }
 
 #[tauri::command]
+fn test_overlay(app: tauri::AppHandle) {
+    let payload = RewardPayload {
+        timestamp: "test".to_string(),
+        items: vec![
+            RewardItem { name: "Ash Prime Neuroptics".to_string(), platinum: 45.0, is_best: true },
+            RewardItem { name: "Volt Prime Chassis".to_string(), platinum: 12.0, is_best: false },
+            RewardItem { name: "Forma Blueprint".to_string(), platinum: 2.0, is_best: false },
+            RewardItem { name: "Orokin Cell".to_string(), platinum: 5.0, is_best: false },
+        ],
+    };
+    show_overlay(&app, payload);
+}
+
+#[tauri::command]
+fn test_trade_overlay(app: tauri::AppHandle) {
+    let payload = TradeSuccessPayload {
+        items: vec!["Baruuk Prime Neuroptics Blueprint".to_string()],
+        buyer: "Bizuaxd".to_string(),
+        platinum: 25,
+    };
+    show_trade_overlay(&app, payload);
+}
+
+#[tauri::command]
+fn test_trade_overlay_set(app: tauri::AppHandle) {
+    let payload = TradeSuccessPayload {
+        items: vec![
+            "Baruuk Prime Neuroptics Blueprint".to_string(),
+            "Baruuk Prime Chassis Blueprint".to_string(),
+            "Baruuk Prime Systems Blueprint".to_string(),
+            "Baruuk Prime Blueprint".to_string(),
+        ],
+        buyer: "Bizuaxd".to_string(),
+        platinum: 70,
+    };
+    show_trade_overlay(&app, payload);
+}
+
+#[tauri::command]
+fn hide_overlay_window(app: tauri::AppHandle) {
+    if let Some(overlay) = app.get_webview_window("overlay") {
+        let _ = overlay.hide();
+    }
+}
+
+#[tauri::command]
 fn save_build(
     name: String,
     items: Vec<String>,
@@ -754,7 +1160,7 @@ fn save_build(
     related_entity: Option<String>,
     related_entity_kind: Option<String>,
 ) -> Result<(), String> {
-    let path = project_root().join("data").join("builds.json");
+    let path = data_path("builds.json");
     let mut builds: Vec<serde_json::Value> = if path.exists() {
         let content = fs::read_to_string(&path).unwrap_or_default();
         serde_json::from_str(&content).unwrap_or_default()
@@ -798,7 +1204,7 @@ fn save_build(
 
 #[tauri::command]
 fn delete_build(id: String) -> Result<(), String> {
-    let path = project_root().join("data").join("builds.json");
+    let path = data_path("builds.json");
     if !path.exists() { return Ok(()); }
     let content = fs::read_to_string(&path).unwrap_or_default();
     let mut builds: Vec<serde_json::Value> = serde_json::from_str(&content).unwrap_or_default();
@@ -858,35 +1264,90 @@ fn read_build_screenshot_preview(screenshot_rel_path: String) -> Result<String, 
     Ok(format!("data:{};base64,{}", mime, encoded))
 }
 
-#[tauri::command]
-fn run_shell_action(action: String) -> Result<ShellCommandResult, String> {
-    match action.as_str() {
-        "run_update_script" => {
-            let script = project_root().join("update.sh");
-            if !script.exists() {
-                return Err(format!("update.sh não encontrado em {}", script.display()));
-            }
+#[derive(Clone, Serialize)]
+struct ShellProgressPayload {
+    action: String,
+    line: String,
+    done: bool,
+}
 
-            let output = Command::new(&script)
-                .current_dir(project_root())
-                .output()
-                .map_err(|e| format!("falha ao executar update.sh: {e}"))?;
-            Ok(command_result(output))
-        }
-        "update_prices" => {
-            let script = project_root().join("update_prices.sh");
-            if !script.exists() {
-                return Err(format!("update_prices.sh não encontrado em {}", script.display()));
-            }
-            let output = Command::new("sh")
-                .arg(&script)
-                .current_dir(project_root())
-                .output()
-                .map_err(|e| format!("falha ao executar update_prices.sh: {e}"))?;
-            Ok(command_result(output))
-        }
-        _ => Err(format!("ação desconhecida: {action}")),
+#[tauri::command]
+async fn run_shell_action(app: AppHandle, action: String) -> Result<ShellCommandResult, String> {
+    let script = match action.as_str() {
+        "run_update_script" => resource_path(&app, "update.sh"),
+        "update_prices" => resource_path(&app, "update_prices.sh"),
+        _ => return Err(format!("ação desconhecida: {action}")),
+    };
+    if !script.exists() {
+        return Err(format!("Script não encontrado em {}", script.display()));
     }
+
+    let mut cmd = tokio::process::Command::new(
+        if action == "update_prices" { "sh" } else { script.to_str().unwrap_or("") }
+    );
+    cmd.current_dir(data_dir());
+    cmd.env("WFHUB_DATA_DIR", data_dir());
+    if action == "update_prices" {
+        cmd.arg(script.to_string_lossy().as_ref());
+    }
+
+    let mut child = cmd
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .map_err(|e: std::io::Error| format!("falha ao executar: {e}"))?;
+
+    let stdout = child.stdout.take()
+        .ok_or_else(|| "stdout not available".to_string())?;
+    let stderr = child.stderr.take()
+        .ok_or_else(|| "stderr not available".to_string())?;
+
+    use tokio::io::AsyncBufReadExt;
+
+    let mut out_lines = Vec::new();
+    let mut out_reader = tokio::io::BufReader::new(stdout);
+    let mut line = String::new();
+    loop {
+        line.clear();
+        let n = out_reader.read_line(&mut line).await
+            .map_err(|e: std::io::Error| e.to_string())?;
+        if n == 0 { break; }
+        let trimmed = line.trim_end().to_string();
+        out_lines.push(trimmed.clone());
+        let _ = app.emit("shell-progress", ShellProgressPayload {
+            action: action.clone(),
+            line: trimmed,
+            done: false,
+        });
+    }
+
+    let mut err_lines = Vec::new();
+    let mut err_reader = tokio::io::BufReader::new(stderr);
+    let mut line = String::new();
+    loop {
+        line.clear();
+        let n = err_reader.read_line(&mut line).await
+            .map_err(|e: std::io::Error| e.to_string())?;
+        if n == 0 { break; }
+        err_lines.push(line.trim_end().to_string());
+    }
+
+    let status = child.wait().await.map_err(|e: std::io::Error| e.to_string())?;
+    let _ = app.emit("shell-progress", ShellProgressPayload {
+        action,
+        line: String::new(),
+        done: true,
+    });
+
+    let stdout = out_lines.join("\n");
+    let stderr = err_lines.join("\n");
+
+    Ok(ShellCommandResult {
+        success: status.success(),
+        code: status.code(),
+        stdout: stdout.trim().to_string(),
+        stderr: stderr.trim().to_string(),
+    })
 }
 
 fn now_ms() -> i64 {
@@ -921,6 +1382,23 @@ fn write_hub_state_file(state: &HubStateFile) -> Result<(), String> {
     normalized.refresh_seconds = clamp_refresh_seconds(normalized.refresh_seconds);
     let json = serde_json::to_string_pretty(&normalized).map_err(|e| e.to_string())?;
     fs::write(hub_state_path(), json).map_err(|e| e.to_string())
+}
+
+fn wfmarket_auth_path() -> PathBuf {
+    data_path(WFMARKET_AUTH_FILE)
+}
+
+fn read_wfmarket_auth_file() -> WfMarketAuth {
+    let path = wfmarket_auth_path();
+    if !path.exists() {
+        return WfMarketAuth::default();
+    }
+    serde_json::from_str(&fs::read_to_string(path).unwrap_or_default()).unwrap_or_default()
+}
+
+fn write_wfmarket_auth_file(auth: &WfMarketAuth) -> Result<(), String> {
+    let json = serde_json::to_string_pretty(auth).map_err(|e| e.to_string())?;
+    fs::write(wfmarket_auth_path(), json).map_err(|e| e.to_string())
 }
 
 fn mongo_date_to_ms(value: &serde_json::Value) -> Option<i64> {
@@ -1272,6 +1750,24 @@ fn duviri_cycle(now: i64) -> HubCycle {
     }
 }
 
+fn wfstat_side_reward(side: &serde_json::Value) -> String {
+    let items = side.pointer("/reward/countedItems")
+        .and_then(|v| v.as_array());
+    if let Some(items) = items {
+        let parts: Vec<String> = items.iter().filter_map(|item| {
+            let name = item.get("type").and_then(|v| v.as_str())?;
+            let count = item.get("count").and_then(|v| v.as_i64()).unwrap_or(1);
+            Some(if count > 1 { format!("{count}x {name}") } else { name.to_string() })
+        }).collect();
+        if !parts.is_empty() {
+            return parts.join(", ");
+        }
+    }
+    let credits = side.pointer("/reward/credits").and_then(|v| v.as_i64()).unwrap_or(0);
+    if credits > 0 { return format!("{credits} Credits"); }
+    "Battle Pay".to_string()
+}
+
 fn normalize_resource_name(resource: &str) -> String {
     let base = resource.rsplit('/').next().unwrap_or(resource);
     let mut out = String::with_capacity(base.len() + 8);
@@ -1341,6 +1837,170 @@ fn browse_invasion_reward(item: &serde_json::Value) -> Option<String> {
     Some(format_reward_with_count(&name, count))
 }
 
+fn humanize_sortie_boss(raw: &str) -> String {
+    let stripped = raw.replace("SORTIE_BOSS_", "");
+    match stripped.as_str() {
+        "ALAD_V" => return "Alad V".to_string(),
+        "LECH_KRIL" | "LIEUTENANT_LECH_KRIL" => return "Lech Kril".to_string(),
+        "TYL_REGOR" => return "Tyl Regor".to_string(),
+        "GENERAL_SARGAS_RUK" => return "Sargas Ruk".to_string(),
+        "KELA_DE_THAYM" => return "Kela De Thaym".to_string(),
+        "AMBULAS" => return "Ambulas".to_string(),
+        "VOR" => return "Vor".to_string(),
+        "NEF" | "NEF_ANYO" => return "Nef Anyo".to_string(),
+        "CORRUPTED_VOR" => return "Corrupted Vor".to_string(),
+        "THE_SERGEANT" => return "The Sergeant".to_string(),
+        "COUNCILOR_VAY_HEK" => return "Vay Hek".to_string(),
+        "RAPTOR" => return "Raptor".to_string(),
+        "JORDAS_GOLEM" | "JORDAS" => return "Jordas Golem".to_string(),
+        "PHORID" => return "Phorid".to_string(),
+        "HYENA" | "HYENA_PACK" => return "Hyena Pack".to_string(),
+        _ => {}
+    }
+    stripped
+        .split('_')
+        .map(|word| {
+            let mut chars = word.chars();
+            match chars.next() {
+                Some(c) => c.to_uppercase().to_string() + &chars.as_str().to_lowercase(),
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+fn faction_from_tileset(tileset: &str) -> Option<&'static str> {
+    let t = tileset.to_lowercase();
+    if t.contains("corpus") { return Some("Corpus"); }
+    if t.contains("grineer") { return Some("Grineer"); }
+    if t.contains("infest") { return Some("Infested"); }
+    if t.contains("orokin") { return Some("Corrupted"); }
+    None
+}
+
+fn faction_from_boss(boss_raw: &str) -> Option<&'static str> {
+    let stripped = boss_raw.replace("SORTIE_BOSS_", "");
+    match stripped.as_str() {
+        "NEF" | "NEF_ANYO" | "ALAD_V" | "THE_SERGEANT" | "AMBULAS" | "RAPTOR" | "HYENA" | "HYENA_PACK" => Some("Corpus"),
+        "LECH_KRIL" | "LIEUTENANT_LECH_KRIL" | "TYL_REGOR" | "GENERAL_SARGAS_RUK" | "KELA_DE_THAYM" | "COUNCILOR_VAY_HEK" | "VOR" => Some("Grineer"),
+        "JORDAS_GOLEM" | "JORDAS" | "PHORID" => Some("Infested"),
+        "CORRUPTED_VOR" => Some("Corrupted"),
+        _ => None,
+    }
+}
+
+fn humanize_sortie_modifier(raw: &str) -> String {
+    let stripped = raw.replace("SORTIE_MODIFIER_", "");
+    match stripped.as_str() {
+        "EXIMUS_STRONGHOLD" | "EXIMUS" => return "Eximus Stronghold".to_string(),
+        "SNIPER_ONLY" => return "Sniper Only".to_string(),
+        "SHOTGUN_ONLY" => return "Shotgun Only".to_string(),
+        "ASSAULT_RIFLE_ONLY" => return "Rifle Only".to_string(),
+        "ENERGY_REDUCTION" | "LOW_ENERGY" => return "Energy Reduction".to_string(),
+        "SHIELD_DISABLE" => return "Shields Disabled".to_string(),
+        "MELEE_ONLY" => return "Melee Only".to_string(),
+        "PISTOL_ONLY" => return "Pistol Only".to_string(),
+        "BOW_ONLY" => return "Bow Only".to_string(),
+        "ARMOR_REDUCTION" => return "Armor Reduction".to_string(),
+        "HAZARD_RADIATION" => return "Radiation Hazard".to_string(),
+        "HAZARD_COLD" => return "Cryogenic Leakage".to_string(),
+        "HAZARD_FIRE" => return "Fire Fissures".to_string(),
+        "HAZARD_MAGNETIC" => return "Magnetic Anomaly".to_string(),
+        "HAZARD_ELECTRICITY" => return "Electrical Hazard".to_string(),
+        "HAZARD_TOXIN" => return "Toxic Gas".to_string(),
+        "LOW_GRAVITY" => return "Low Gravity".to_string(),
+        _ => {}
+    }
+    stripped
+        .split('_')
+        .map(|word| {
+            let mut chars = word.chars();
+            match chars.next() {
+                Some(c) => c.to_uppercase().to_string() + &chars.as_str().to_lowercase(),
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+fn parse_sortie_from_worldstate(
+    worldstate: &serde_json::Value,
+    now_ms: i64,
+    export_regions: Option<&serde_json::Value>,
+    dict: Option<&serde_json::Value>,
+) -> Option<HubSortie> {
+    let entry = worldstate
+        .get("Sorties")
+        .and_then(|v| v.as_array())
+        .and_then(|arr| {
+            arr.iter()
+                .find(|item| {
+                    let end = item.get("Expiry").and_then(mongo_date_to_ms).unwrap_or(0);
+                    now_ms < end
+                })
+                .or_else(|| arr.last())
+        })?;
+
+    let expires_at_ms = entry
+        .get("Expiry")
+        .and_then(mongo_date_to_ms)
+        .unwrap_or(now_ms + 86_400_000);
+    let boss_raw = entry.get("Boss").and_then(|v| v.as_str()).unwrap_or("");
+    let boss = humanize_sortie_boss(boss_raw);
+
+    let mission_array = entry
+        .get("Variants")
+        .and_then(|v| v.as_array())
+        .or_else(|| entry.get("Missions").and_then(|v| v.as_array()));
+
+    // Derive faction from Faction field, first variant's tileset, or boss name
+    let faction = entry
+        .get("Faction")
+        .and_then(|v| v.as_str())
+        .filter(|s| !s.is_empty())
+        .map(|s| humanize_faction(s))
+        .or_else(|| {
+            mission_array
+                .and_then(|arr| arr.first())
+                .and_then(|m| m.get("tileset"))
+                .and_then(|v| v.as_str())
+                .and_then(faction_from_tileset)
+                .map(|s| s.to_string())
+        })
+        .or_else(|| faction_from_boss(boss_raw).map(|s| s.to_string()))
+        .unwrap_or_else(|| "Unknown".to_string());
+
+    let missions = mission_array
+        .map(|missions| {
+            missions
+                .iter()
+                .map(|mission| {
+                    let mission_type = mission
+                        .get("missionType")
+                        .and_then(|v| v.as_str())
+                        .map(humanize_mission_type)
+                        .unwrap_or_else(|| "Mission".to_string());
+                    let node = mission
+                        .get("node")
+                        .and_then(|v| v.as_str())
+                        .map(|node| resolve_node_label(node, export_regions, dict))
+                        .unwrap_or_else(|| "Unknown".to_string());
+                    let modifier = mission
+                        .get("modifierType")
+                        .and_then(|v| v.as_str())
+                        .map(humanize_sortie_modifier)
+                        .unwrap_or_else(|| "—".to_string());
+                    HubSortieMission { mission_type, node, modifier }
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+
+    Some(HubSortie { boss, faction, expires_at_ms, missions })
+}
+
 fn humanize_faction(raw: &str) -> String {
     match raw {
         "FC_GRINEER" | "Grineer" => "Grineer".to_string(),
@@ -1398,7 +2058,7 @@ async fn fetch_hub_from_browse() -> Result<HubSnapshot, String> {
     let client = http_client();
 
     let worldstate: serde_json::Value = client
-        .get("https://oracle.browse.wf/worldState.json")
+        .get("https://oracle.browse.wf/worldState.min.json")
         .header("Accept", "application/json")
         .send()
         .await
@@ -1426,6 +2086,25 @@ async fn fetch_hub_from_browse() -> Result<HubSnapshot, String> {
         .json()
         .await
         .map_err(|e| format!("browse invasions parse failed: {e}"))?;
+
+    // Fetch completion data from warframestat (oracle.browse.wf não tem esses campos)
+    let wfstat_invasions: HashMap<String, serde_json::Value> = {
+        let arr: Vec<serde_json::Value> = match client
+            .get("https://api.warframestat.us/pc/invasions")
+            .header("Accept", "application/json")
+            .send()
+            .await
+        {
+            Ok(resp) => resp.json::<Vec<serde_json::Value>>().await.unwrap_or_default(),
+            Err(_) => vec![],
+        };
+        arr.into_iter()
+            .filter_map(|item| {
+                let id = item.get("id")?.as_str()?.to_string();
+                Some((id, item))
+            })
+            .collect()
+    };
 
     let redtext_payload: serde_json::Value = client
         .get("https://oracle.browse.wf/redtext.json")
@@ -1616,7 +2295,7 @@ async fn fetch_hub_from_browse() -> Result<HubSnapshot, String> {
                     .unwrap_or_else(|| "Opposition".to_string());
 
                 merged.push(HubInvasion {
-                    id,
+                    id: id.clone(),
                     location: maybe_tenno_invasion
                         .and_then(|entry| entry.get("location"))
                         .and_then(|v| v.as_str())
@@ -1626,7 +2305,21 @@ async fn fetch_hub_from_browse() -> Result<HubSnapshot, String> {
                     attacker,
                     defender,
                     reward,
+                    attacker_reward: wfstat_invasions.get(&id)
+                        .and_then(|w| w.get("attacker"))
+                        .map(wfstat_side_reward).unwrap_or_default(),
+                    defender_reward: wfstat_invasions.get(&id)
+                        .and_then(|w| w.get("defender"))
+                        .map(wfstat_side_reward).unwrap_or_default(),
                     expires_at_ms: invasion_expiry,
+                    completion_pct: wfstat_invasions.get(&id)
+                        .and_then(|w| w.get("completion")).and_then(|v| v.as_f64()).unwrap_or(0.0),
+                    count: wfstat_invasions.get(&id)
+                        .and_then(|w| w.get("count")).and_then(|v| v.as_i64()).unwrap_or(0),
+                    required_runs: wfstat_invasions.get(&id)
+                        .and_then(|w| w.get("requiredRuns")).and_then(|v| v.as_i64()).unwrap_or(0),
+                    completed: wfstat_invasions.get(&id)
+                        .and_then(|w| w.get("completed")).and_then(|v| v.as_bool()).unwrap_or(false),
                 });
 
                 if merged.len() >= 12 {
@@ -1682,6 +2375,13 @@ async fn fetch_hub_from_browse() -> Result<HubSnapshot, String> {
         dict_payload.as_ref(),
     );
 
+    let sortie = parse_sortie_from_worldstate(
+        &worldstate,
+        now,
+        export_regions_payload.as_ref(),
+        dict_payload.as_ref(),
+    );
+
     let void_trader = worldstate
         .get("VoidTraders")
         .and_then(|v| v.as_array())
@@ -1721,6 +2421,7 @@ async fn fetch_hub_from_browse() -> Result<HubSnapshot, String> {
         invasions,
         news,
         arbitration,
+        sortie,
         archon_hunt,
         void_trader,
     })
@@ -1796,11 +2497,17 @@ async fn fetch_hub_from_tenno_tools() -> Result<HubSnapshot, String> {
                         attacker: item.get("factionAttacker").and_then(|v| v.as_str()).unwrap_or("Unknown").to_string(),
                         defender: item.get("factionDefender").and_then(|v| v.as_str()).unwrap_or("Unknown").to_string(),
                         reward,
+                        attacker_reward: String::new(),
+                        defender_reward: String::new(),
                         expires_at_ms: item
                             .get("start")
                             .and_then(|v| v.as_i64())
                             .map(|start| (start + 86_400) * 1000)
                             .unwrap_or(now + 3_600_000),
+                        completion_pct: 0.0,
+                        count: 0,
+                        required_runs: 0,
+                        completed: false,
                     }
                 })
                 .collect::<Vec<_>>()
@@ -1859,6 +2566,7 @@ async fn fetch_hub_from_tenno_tools() -> Result<HubSnapshot, String> {
     let arbitration = parse_arbitration_from_tenno(&payload, now);
 
     let archon_hunt = None;
+    let sortie = None;
 
     Ok(HubSnapshot {
         source: "tenno.tools".to_string(),
@@ -1868,6 +2576,7 @@ async fn fetch_hub_from_tenno_tools() -> Result<HubSnapshot, String> {
         invasions,
         news,
         arbitration,
+        sortie,
         archon_hunt,
         void_trader,
     })
@@ -1917,14 +2626,209 @@ async fn fetch_arbitrations_next_days_from_browse(now_ms: i64, days: u8) -> Resu
     ))
 }
 
-#[derive(Serialize)]
+fn next_weekly_reset_ms(now: i64) -> i64 {
+    use chrono::Datelike;
+    // Warframe weekly reset: Monday 00:00 UTC
+    let dt = chrono::DateTime::<chrono::Utc>::from_timestamp_millis(now).unwrap_or_default();
+    let mut days_until_monday = (7 - dt.weekday().num_days_from_monday()) % 7;
+    // Se hoje é segunda, o reset de hoje já passou → próximo reset é a próxima segunda
+    if days_until_monday == 0 {
+        days_until_monday = 7;
+    }
+    let next = dt
+        .date_naive()
+        .and_hms_opt(0, 0, 0)
+        .unwrap_or_default()
+        .checked_add_days(chrono::Days::new(days_until_monday as u64))
+        .unwrap_or_default();
+    next.and_utc().timestamp_millis()
+}
+
+fn parse_iso_ms(raw: Option<&str>) -> Option<i64> {
+    chrono::DateTime::parse_from_rfc3339(raw?).ok().map(|dt| dt.timestamp_millis())
+}
+
+fn archimedea_type_name(raw: &str) -> &str {
+    let cleaned: String = raw.chars().filter(|c| !c.is_whitespace() && *c != '_').collect();
+    if cleaned.contains("HEX") {
+        "Temporal Archimedea"
+    } else {
+        "Deep Archimedea"
+    }
+}
+
+async fn fetch_weekly_state_internal() -> Result<WeeklyState, String> {
+    let now = now_ms();
+    let client = http_client();
+
+    let payload: serde_json::Value = client
+        .get("https://api.warframestat.us/pc/")
+        .header("Accept", "application/json")
+        .send()
+        .await
+        .map_err(|e| format!("warframestat request failed: {e}"))?
+        .json()
+        .await
+        .map_err(|e| format!("warframestat parse failed: {e}"))?;
+
+    let archon_hunt = payload.get("archonHunt").and_then(|v| {
+        if v.is_null() { return None; }
+        let expires = parse_iso_ms(v.get("expiry").and_then(|x| x.as_str()));
+        let missions = v.get("missions").and_then(|x| x.as_array()).map(|arr| {
+            arr.iter().map(|m| WeeklyMission {
+                mission_type: m.get("type").and_then(|x| x.as_str()).unwrap_or("Missao").to_string(),
+                node: m.get("node").and_then(|x| x.as_str()).unwrap_or("Nodo").to_string(),
+                modifier: String::new(),
+            }).collect::<Vec<_>>()
+        }).unwrap_or_default();
+        Some(WeeklyArchonHunt {
+            boss: v.get("boss").and_then(|x| x.as_str()).unwrap_or("Archon").to_string(),
+            faction: v.get("faction").and_then(|x| x.as_str()).unwrap_or("Narmer").to_string(),
+            expires_at_ms: expires.unwrap_or(now + 7 * 86_400_000),
+            missions,
+        })
+    });
+
+    let sortie = payload.get("sortie").and_then(|v| {
+        if v.is_null() { return None; }
+        let expires = parse_iso_ms(v.get("expiry").and_then(|x| x.as_str()));
+        let missions = v.get("variants").or_else(|| v.get("missions")).and_then(|x| x.as_array()).map(|arr| {
+            arr.iter().map(|m| WeeklyMission {
+                mission_type: m.get("missionType").or_else(|| m.get("type")).and_then(|x| x.as_str()).unwrap_or("Missao").to_string(),
+                node: m.get("node").and_then(|x| x.as_str()).unwrap_or("Nodo").to_string(),
+                modifier: m.get("modifier").or_else(|| m.get("modifierType")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
+            }).collect::<Vec<_>>()
+        }).unwrap_or_default();
+        Some(WeeklyArchonHunt {
+            boss: v.get("boss").and_then(|x| x.as_str()).unwrap_or("").to_string(),
+            faction: v.get("faction").and_then(|x| x.as_str()).unwrap_or("").to_string(),
+            expires_at_ms: expires.unwrap_or(now + 86_400_000),
+            missions,
+        })
+    });
+
+    let archimedeas = payload.get("archimedeas").and_then(|v| v.as_array()).map(|arr| {
+        arr.iter().map(|a| {
+            let raw_type = a.get("type").and_then(|x| x.as_str()).unwrap_or("");
+            let expires = parse_iso_ms(a.get("expiry").and_then(|x| x.as_str()));
+            let missions = a.get("missions").and_then(|x| x.as_array()).map(|ms| {
+                ms.iter().map(|m| WeeklyArchimedeaMission {
+                    mission_type: m.get("missionType").and_then(|x| x.as_str()).unwrap_or("Missao").to_string(),
+                    faction: m.get("faction").and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                    deviation: m.get("deviation").and_then(|d| d.get("name")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                    deviation_description: m.get("deviation").and_then(|d| d.get("description")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                    risks: m.get("risks").and_then(|x| x.as_array()).map(|rs| {
+                        rs.iter().map(|r| WeeklyArchimedeaRisk {
+                            name: r.get("name").and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                            description: r.get("description").and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                            is_hard: r.get("isHard").and_then(|x| x.as_bool()).unwrap_or(false),
+                        }).collect::<Vec<_>>()
+                    }).unwrap_or_default(),
+                }).collect::<Vec<_>>()
+            }).unwrap_or_default();
+            let modifiers = a.get("personalModifiers").and_then(|x| x.as_array()).map(|ms| {
+                ms.iter().map(|m| WeeklyModifier {
+                    name: m.get("name").and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                    description: m.get("description").and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                }).collect::<Vec<_>>()
+            }).unwrap_or_default();
+            WeeklyArchimedea {
+                type_name: archimedea_type_name(raw_type).to_string(),
+                expires_at_ms: expires.unwrap_or(now + 7 * 86_400_000),
+                missions,
+                personal_modifiers: modifiers,
+            }
+        }).collect::<Vec<_>>()
+    }).unwrap_or_default();
+
+    let mut circuit_normal = None;
+    let mut circuit_hard = None;
+    if let Some(choices) = payload.get("duviriCycle").and_then(|v| v.get("choices")).and_then(|v| v.as_array()) {
+        for entry in choices {
+            let category = entry.get("category").and_then(|x| x.as_str()).unwrap_or("");
+            let choice_list = entry.get("choices").and_then(|x| x.as_array()).map(|cs| {
+                cs.iter().filter_map(|c| c.as_str().map(|s| s.to_string())).collect::<Vec<_>>()
+            }).unwrap_or_default();
+            let struct_choice = WeeklyCircuitChoices {
+                category: category.to_string(),
+                choices: choice_list,
+            };
+            if category == "hard" {
+                circuit_hard = Some(struct_choice);
+            } else {
+                circuit_normal = Some(struct_choice);
+            }
+        }
+    }
+
+    let steel_path = payload.get("steelPath").and_then(|v| {
+        if v.is_null() { return None; }
+        let reward = |field: &str| -> Vec<WeeklySteelPathReward> {
+            v.get(field).and_then(|x| x.as_array()).map(|arr| {
+                arr.iter().map(|r| WeeklySteelPathReward {
+                    name: r.get("name").and_then(|x| x.as_str()).unwrap_or("").to_string(),
+                    cost: r.get("cost").and_then(|x| x.as_i64()).unwrap_or(0),
+                }).collect::<Vec<_>>()
+            }).unwrap_or_default()
+        };
+        let current = v.get("currentReward").map(|r| WeeklySteelPathReward {
+            name: r.get("name").and_then(|x| x.as_str()).unwrap_or("").to_string(),
+            cost: r.get("cost").and_then(|x| x.as_i64()).unwrap_or(0),
+        });
+        let expires = parse_iso_ms(v.get("expiry").and_then(|x| x.as_str()));
+        Some(WeeklySteelPath {
+            current_reward: current.unwrap_or(WeeklySteelPathReward { name: String::new(), cost: 0 }),
+            rotation: reward("rotation"),
+            evergreens: reward("evergreens"),
+            expires_at_ms: expires.unwrap_or(now + 7 * 86_400_000),
+        })
+    });
+
+    // Weekly reset = maior expiry das atividades semanais (Archon/Archimedea),
+    // todos reiniciam na mesma hora (segunda 00:00 UTC). Fallback: cálculo local.
+    let mut weekly_reset_ms = next_weekly_reset_ms(now);
+    let mut expiries: Vec<i64> = Vec::new();
+    if let Some(ah) = &archon_hunt {
+        expiries.push(ah.expires_at_ms);
+    }
+    for a in &archimedeas {
+        expiries.push(a.expires_at_ms);
+    }
+    if let Some(sp) = &steel_path {
+        expiries.push(sp.expires_at_ms);
+    }
+    if let Some(&max_exp) = expiries.iter().max() {
+        if max_exp > now {
+            weekly_reset_ms = max_exp;
+        }
+    }
+
+    Ok(WeeklyState {
+        fetched_at_ms: now,
+        weekly_reset_ms,
+        archon_hunt,
+        sortie,
+        archimedeas,
+        circuit_normal,
+        circuit_hard,
+        steel_path,
+    })
+}
+
+#[tauri::command]
+async fn fetch_weekly_state() -> Result<String, String> {
+    let state = fetch_weekly_state_internal().await?;
+    serde_json::to_string(&state).map_err(|e| e.to_string())
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
 struct HubVoidTraderInventoryItem {
     name: String,
     ducats: i64,
     credits: i64,
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 struct HubVoidTraderInventoryResponse {
     source: String,
     generated_at_ms: i64,
@@ -1935,6 +2839,46 @@ struct HubVoidTraderInventoryResponse {
     stale: bool,
     message: Option<String>,
     items: Vec<HubVoidTraderInventoryItem>,
+}
+
+fn void_trader_inventory_cache_path() -> PathBuf {
+    data_path(VOID_TRADER_INVENTORY_CACHE_FILE)
+}
+
+fn read_void_trader_inventory_cache() -> Option<HubVoidTraderInventoryResponse> {
+    let path = void_trader_inventory_cache_path();
+    let raw = fs::read_to_string(path).ok()?;
+    let cached: HubVoidTraderInventoryResponse = serde_json::from_str(&raw).ok()?;
+    if cached.items.is_empty() {
+        return None;
+    }
+    Some(cached)
+}
+
+fn write_void_trader_inventory_cache(resp: &HubVoidTraderInventoryResponse) -> Result<(), String> {
+    if resp.items.is_empty() {
+        return Ok(());
+    }
+    let json = serde_json::to_string_pretty(resp).map_err(|e| e.to_string())?;
+    fs::write(void_trader_inventory_cache_path(), json).map_err(|e| e.to_string())
+}
+
+fn fill_void_trader_inventory_from_cache(
+    mut resp: HubVoidTraderInventoryResponse,
+    message: &str,
+) -> HubVoidTraderInventoryResponse {
+    if !resp.items.is_empty() {
+        let _ = write_void_trader_inventory_cache(&resp);
+        return resp;
+    }
+
+    if let Some(cached) = read_void_trader_inventory_cache() {
+        resp.items = cached.items;
+        resp.stale = true;
+        resp.message = Some(message.to_string());
+    }
+
+    resp
 }
 
 #[tauri::command]
@@ -2068,7 +3012,7 @@ async fn fetch_hub_void_trader_inventory() -> Result<String, String> {
     // --- Primary: browse.wf worldstate (live data) + cached name map ---
     let browse_result: Result<HubVoidTraderInventoryResponse, String> = async {
         let worldstate: serde_json::Value = client
-            .get("https://oracle.browse.wf/worldState.json")
+            .get("https://oracle.browse.wf/worldState.min.json")
             .header("Accept", "application/json")
             .send()
             .await
@@ -2133,7 +3077,13 @@ async fn fetch_hub_void_trader_inventory() -> Result<String, String> {
     .await;
 
     match browse_result {
-        Ok(resp) => return serde_json::to_string(&resp).map_err(|e| e.to_string()),
+        Ok(resp) => {
+            let resp = fill_void_trader_inventory_from_cache(
+                resp,
+                "No catalog in the current worldstate. Showing the last saved Baro catalog.",
+            );
+            return serde_json::to_string(&resp).map_err(|e| e.to_string());
+        }
         Err(primary_err) => {
             // --- Fallback: tenno.tools ---
             let fallback_result: Result<HubVoidTraderInventoryResponse, String> = async {
@@ -2187,13 +3137,33 @@ async fn fetch_hub_void_trader_inventory() -> Result<String, String> {
                     starts_at_ms,
                     ends_at_ms,
                     stale: true,
-                    message: Some(primary_err),
+                    message: Some(primary_err.clone()),
                     items,
                 })
             }
             .await;
 
-            let resp = fallback_result?;
+            let resp = match fallback_result {
+                Ok(resp) => fill_void_trader_inventory_from_cache(
+                    resp,
+                    "Fallback source did not include a catalog. Showing the last saved Baro catalog.",
+                ),
+                Err(fallback_err) => {
+                    if let Some(mut cached) = read_void_trader_inventory_cache() {
+                        cached.source = "local cache".to_string();
+                        cached.active = false;
+                        cached.stale = true;
+                        cached.message = Some(format!(
+                            "Live Void Trader sources unavailable. browse.wf: {primary_err}; tenno.tools: {fallback_err}"
+                        ));
+                        cached
+                    } else {
+                        return Err(format!(
+                            "browse.wf failed: {primary_err}; tenno.tools failed: {fallback_err}"
+                        ));
+                    }
+                }
+            };
             serde_json::to_string(&resp).map_err(|e| e.to_string())
         }
     }
@@ -2211,6 +3181,649 @@ fn save_hub_settings(refresh_seconds: u64) -> Result<String, String> {
     state.refresh_seconds = clamp_refresh_seconds(refresh_seconds);
     write_hub_state_file(&state)?;
     serde_json::to_string(&state).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn read_config() -> Result<String, String> {
+    serde_json::to_string(&read_config_file()).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn save_log_path(path: String) -> Result<String, String> {
+    let trimmed = path.trim().to_string();
+    let mut config = read_config_file();
+    config["log_path"] = serde_json::Value::String(trimmed.clone());
+    let json = serde_json::to_string_pretty(&config).map_err(|e| e.to_string())?;
+    fs::write(config_path(), json).map_err(|e| e.to_string())?;
+    set_log_path(&trimmed);
+    log_to_file(&format!("[config] log_path salvo: {}", trimmed));
+    serde_json::to_string(&config).map_err(|e| e.to_string())
+}
+
+fn expand_ee_log_under(app_bundle: &Path) -> Option<PathBuf> {
+    let users = app_bundle.join("Contents/SharedSupport/prefix/drive_c/users");
+    for entry in fs::read_dir(&users).ok()?.flatten() {
+        let candidate = entry.path().join("AppData/Local/Warframe/EE.log");
+        if candidate.exists() {
+            return Some(candidate);
+        }
+    }
+    None
+}
+
+fn detect_ee_log_path() -> Option<PathBuf> {
+    let home = std::env::var("HOME").unwrap_or_default();
+
+    let direct_candidates = [
+        PathBuf::from(&home).join("Library/Application Support/Warframe/EE.log"),
+        PathBuf::from(&home).join("Library/Application Support/Steam/steamapps/common/Warframe/EE.log"),
+        PathBuf::from(&home).join("Library/Application Support/Steam/SteamApps/common/Warframe/EE.log"),
+    ];
+
+    for candidate in direct_candidates {
+        if candidate.exists() {
+            return Some(candidate);
+        }
+    }
+
+    let mut app_roots = vec![PathBuf::from("/Applications"), PathBuf::from(&home).join("Applications")];
+    if let Ok(entries) = fs::read_dir("/Volumes") {
+        for entry in entries.flatten() {
+            app_roots.push(entry.path());
+        }
+    }
+
+    for root in app_roots {
+        let Ok(entries) = fs::read_dir(&root) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.extension().map(|ext| ext == "app").unwrap_or(false) {
+                if let Some(found) = expand_ee_log_under(&path) {
+                    return Some(found);
+                }
+            }
+        }
+    }
+
+    None
+}
+
+#[tauri::command]
+fn detect_log_path() -> Result<Option<String>, String> {
+    Ok(detect_ee_log_path().map(|p| p.to_string_lossy().to_string()))
+}
+
+// Copy bundled datasets into the writable data dir on first run (skips files
+// that already exist so user updates are preserved).
+fn seed_data_from_bundle(app: &tauri::AppHandle, target: &Path) {
+    let Ok(resource_dir) = app.path().resource_dir() else {
+        return;
+    };
+    let src = resource_dir.join("data");
+    if !src.exists() {
+        return;
+    }
+    if fs::create_dir_all(target).is_err() {
+        return;
+    }
+    let Ok(entries) = fs::read_dir(&src) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if !path.is_file() {
+            continue;
+        }
+        let Some(name) = path.file_name() else {
+            continue;
+        };
+        let dest = target.join(name);
+        if !dest.exists() {
+            let _ = fs::copy(&path, &dest);
+        }
+    }
+}
+
+fn first_run_setup(app: tauri::AppHandle) {    if !data_path("prices.json").exists() {
+        log_to_file("[setup] datasets ausentes, executando update.sh");
+        let script = resource_path(&app, "update.sh");
+        let _ = SyncCommand::new(&script)
+            .current_dir(data_dir())
+            .env("WFHUB_DATA_DIR", data_dir())
+            .output();
+        log_to_file("[setup] update.sh concluído");
+    }
+
+    if get_log_path().as_os_str().is_empty() {
+        if let Some(found) = detect_ee_log_path() {
+            log_to_file(&format!("[setup] EE.log auto-detectado: {}", found.display()));
+            let _ = save_log_path(found.to_string_lossy().to_string());
+        }
+    }
+}
+
+// ── WF Market Auth & Orders ──────────────────────────────────────────────────
+
+#[tauri::command]
+fn wfmarket_read_auth() -> Result<String, String> {
+    serde_json::to_string(&read_wfmarket_auth_file()).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn wfmarket_save_jwt(jwt: String) -> Result<String, String> {
+    let jwt = jwt.trim().to_string();
+    if jwt.is_empty() {
+        return Err("JWT não pode ser vazio".to_string());
+    }
+    // Valida estrutura básica (3 partes separadas por '.')
+    if jwt.split('.').count() != 3 {
+        return Err("JWT inválido: formato incorreto".to_string());
+    }
+
+    let csrf_token = extract_csrf_from_jwt(&jwt).unwrap_or_default();
+
+    // Tenta buscar ingame_name via v1 /profile, fallback para v2 /profile/me
+    let username = async {
+        let try_parse = |text: String| -> Option<String> {
+            let json: serde_json::Value = serde_json::from_str(&text).ok()?;
+            json.pointer("/payload/profile/ingame_name")
+                .or_else(|| json.pointer("/payload/user/ingame_name"))
+                .or_else(|| json.pointer("/data/ingame_name"))
+                .or_else(|| json.pointer("/data/username"))
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string())
+        };
+
+        if let Ok(resp) = http_client()
+            .get(format!("{WFMARKET_API_BASE}/profile"))
+            .header("Accept", "application/json")
+            .header("Authorization", format!("JWT {jwt}"))
+            .header("Platform", "pc")
+            .header("Language", "en")
+            .send()
+            .await
+        {
+            let text = resp.text().await.unwrap_or_default();
+            eprintln!("[wfmarket] v1/profile response: {}", &text[..text.len().min(400)]);
+            if let Some(name) = try_parse(text) {
+                return name;
+            }
+        }
+
+        if let Ok(resp) = http_client()
+            .get("https://api.warframe.market/v2/profile/me")
+            .header("Accept", "application/json")
+            .header("Authorization", format!("Bearer {jwt}"))
+            .header("Platform", "pc")
+            .header("Language", "en")
+            .send()
+            .await
+        {
+            let text = resp.text().await.unwrap_or_default();
+            eprintln!("[wfmarket] v2/profile/me response: {}", &text[..text.len().min(400)]);
+            if let Some(name) = try_parse(text) {
+                return name;
+            }
+        }
+
+        "Connected".to_string()
+    }.await;
+
+    let auth = WfMarketAuth { jwt, username, csrf_token };
+    write_wfmarket_auth_file(&auth)?;
+    serde_json::to_string(&auth).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn wfmarket_logout() -> Result<(), String> {
+    let path = wfmarket_auth_path();
+    if path.exists() {
+        fs::remove_file(path).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+async fn set_wfmarket_status_inner(status: &str) -> Result<(), String> {
+    use futures_util::{SinkExt, StreamExt};
+    use tokio_tungstenite::tungstenite::Message;
+
+    let auth = read_wfmarket_auth_file();
+    if auth.jwt.is_empty() {
+        return Err("Not logged in to warframe.market".to_string());
+    }
+
+    let key = tokio_tungstenite::tungstenite::handshake::client::generate_key();
+    let request = http::Request::builder()
+        .uri("wss://ws.warframe.market/socket")
+        .header("Host", "ws.warframe.market")
+        .header("Connection", "Upgrade")
+        .header("Upgrade", "websocket")
+        .header("Sec-WebSocket-Version", "13")
+        .header("Sec-WebSocket-Key", key)
+        .header("Sec-WebSocket-Protocol", "wfm")
+        .body(())
+        .map_err(|e| e.to_string())?;
+
+    let (mut ws, _) = tokio::time::timeout(
+        std::time::Duration::from_secs(10),
+        tokio_tungstenite::connect_async(request),
+    )
+    .await
+    .map_err(|_| "WebSocket connection timed out".to_string())?
+    .map_err(|e| format!("WebSocket connect failed: {e}"))?;
+
+    let timeout_dur = std::time::Duration::from_secs(8);
+
+    let auth_msg = serde_json::json!({
+        "route": "@wfm|cmd/auth/signIn",
+        "id": "1",
+        "payload": { "token": auth.jwt }
+    })
+    .to_string();
+    ws.send(Message::Text(auth_msg)).await.map_err(|e| e.to_string())?;
+
+    let auth_result = tokio::time::timeout(timeout_dur, async {
+        while let Some(msg) = ws.next().await {
+            let msg = msg.map_err(|e| e.to_string())?;
+            if let Message::Text(txt) = msg {
+                let v: serde_json::Value = serde_json::from_str(&txt).unwrap_or_default();
+                let route = v["route"].as_str().unwrap_or("");
+                log_to_file(&format!("[wfmarket_ws] rx: {route}"));
+                if route == "@wfm|cmd/auth/signIn:ok" {
+                    return Ok(());
+                }
+                if route.ends_with(":error") {
+                    return Err(format!("Auth error: {}", v["payload"]));
+                }
+            }
+        }
+        Err("WebSocket closed before auth response".to_string())
+    })
+    .await
+    .map_err(|_| "Auth response timed out".to_string())?;
+
+    auth_result?;
+
+    let status_msg = serde_json::json!({
+        "route": "@wfm|cmd/status/set",
+        "id": "2",
+        "payload": { "status": status, "duration": 21600 }
+    })
+    .to_string();
+    ws.send(Message::Text(status_msg)).await.map_err(|e| e.to_string())?;
+
+    let status_result = tokio::time::timeout(timeout_dur, async {
+        while let Some(msg) = ws.next().await {
+            let msg = msg.map_err(|e| e.to_string())?;
+            if let Message::Text(txt) = msg {
+                let v: serde_json::Value = serde_json::from_str(&txt).unwrap_or_default();
+                let route = v["route"].as_str().unwrap_or("");
+                log_to_file(&format!("[wfmarket_ws] rx: {route}"));
+                if route == "@wfm|cmd/status/set:ok" {
+                    return Ok(());
+                }
+                if route.ends_with(":error") {
+                    return Err(format!("Status error: {}", v["payload"]));
+                }
+            }
+        }
+        Err("WebSocket closed before status response".to_string())
+    })
+    .await
+    .map_err(|_| "Status response timed out".to_string())?;
+
+    ws.close(None).await.ok();
+    log_to_file(&format!("[wfmarket_ws] status set to {status} ok"));
+    status_result
+}
+
+#[tauri::command]
+async fn wfmarket_set_status(status: String) -> Result<(), String> {
+    let valid = ["ingame", "online", "invisible"];
+    if !valid.contains(&status.as_str()) {
+        return Err(format!("Invalid status: {status}"));
+    }
+    set_wfmarket_status_inner(&status).await
+}
+
+#[tauri::command]
+async fn wfmarket_create_sell_order(
+    item_slug: String,
+    platinum: u32,
+    quantity: u32,
+    rank: Option<u32>,
+) -> Result<String, String> {
+    let auth = read_wfmarket_auth_file();
+    if auth.jwt.is_empty() {
+        return Err("Not logged in to warframe.market".to_string());
+    }
+
+    // Usa v2 para resolver item_id (mais confiável que v1 para todos os tipos de item)
+    let item_resp = http_client()
+        .get(format!("https://api.warframe.market/v2/item/{item_slug}"))
+        .header("Accept", "application/json")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let item_text = item_resp.text().await.map_err(|e| e.to_string())?;
+    log_to_file(&format!("[wfmarket_create] v2 item response: {}", &item_text[..item_text.len().min(400)]));
+    let item_json: serde_json::Value =
+        serde_json::from_str(&item_text).map_err(|e| format!("failed to parse item info: {e}"))?;
+
+    let item_id = item_json
+        .pointer("/data/id")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| format!("item_id not found. response: {}", &item_text[..item_text.len().min(200)]))?
+        .to_string();
+
+    let bulk_tradable = item_json
+        .pointer("/data/bulkTradable")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
+
+    // v2 body: camelCase fields
+    let mut order_body = serde_json::json!({
+        "type": "sell",
+        "itemId": item_id,
+        "platinum": platinum,
+        "quantity": quantity,
+        "visible": true,
+    });
+    if bulk_tradable {
+        order_body["perTrade"] = serde_json::json!(1);
+    }
+    if let Some(r) = rank {
+        order_body["rank"] = serde_json::json!(r);
+    }
+
+    let resp = http_client()
+        .post("https://api.warframe.market/v2/order")
+        .header("Accept", "application/json")
+        .header("Content-Type", "application/json")
+        .header("Authorization", format!("Bearer {}", auth.jwt))
+        .header("Platform", "pc")
+        .header("Language", "en")
+        .json(&order_body)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let order_status = resp.status();
+    let order_text = resp.text().await.map_err(|e| e.to_string())?;
+    log_to_file(&format!("[wfmarket_create] POST /v2/order → {} | {}", order_status, &order_text[..order_text.len().min(400)]));
+
+    if !order_status.is_success() {
+        return Err(format!("HTTP {}: {}", order_status, &order_text[..order_text.len().min(300)]));
+    }
+    Ok(order_text)
+}
+
+#[tauri::command]
+async fn wfmarket_get_orders() -> Result<String, String> {
+    let auth = read_wfmarket_auth_file();
+    if auth.jwt.is_empty() {
+        return Err("Not logged in to warframe.market".to_string());
+    }
+    let resp = http_client()
+        .get("https://api.warframe.market/v2/orders/my")
+        .header("Accept", "application/json")
+        .header("Authorization", format!("Bearer {}", auth.jwt))
+        .header("Platform", "pc")
+        .header("Language", "en")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+    if !status.is_success() {
+        return Err(format!("HTTP {}: {}", status, &text[..text.len().min(300)]));
+    }
+
+    let mut json: serde_json::Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
+
+    // Enrich each order with item slug+name via GET /v2/item/{itemId}
+    if let Some(orders) = json.get_mut("data").and_then(|d| d.as_array_mut()) {
+        for order in orders.iter_mut() {
+            let item_id = match order.get("itemId").and_then(|v| v.as_str()) {
+                Some(id) => id.to_string(),
+                None => continue,
+            };
+            if let Ok(item_resp) = http_client()
+                .get(format!("https://api.warframe.market/v2/item/{item_id}"))
+                .header("Accept", "application/json")
+                .send()
+                .await
+            {
+                if let Ok(item_text) = item_resp.text().await {
+                    if let Ok(item_json) = serde_json::from_str::<serde_json::Value>(&item_text) {
+                        let name = item_json.pointer("/data/i18n/en/name")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("Unknown")
+                            .to_string();
+                        let slug = item_json.pointer("/data/slug")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("")
+                            .to_string();
+                        order["item"] = serde_json::json!({ "id": item_id, "slug": slug, "name": name });
+                    }
+                }
+            }
+        }
+    }
+
+    serde_json::to_string(&json).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn wfmarket_update_order(
+    id: String,
+    platinum: u32,
+    quantity: u32,
+    visible: bool,
+    rank: Option<u32>,
+) -> Result<String, String> {
+    let auth = read_wfmarket_auth_file();
+    if auth.jwt.is_empty() {
+        return Err("Not logged in to warframe.market".to_string());
+    }
+    let mut body = serde_json::json!({
+        "platinum": platinum,
+        "quantity": quantity,
+        "visible": visible,
+    });
+    if let Some(r) = rank {
+        body["rank"] = serde_json::json!(r);
+    }
+    let resp = http_client()
+        .patch(format!("https://api.warframe.market/v2/order/{id}"))
+        .header("Accept", "application/json")
+        .header("Content-Type", "application/json")
+        .header("Authorization", format!("Bearer {}", auth.jwt))
+        .header("Platform", "pc")
+        .header("Language", "en")
+        .json(&body)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+    if !status.is_success() {
+        return Err(format!("HTTP {}: {}", status, &text[..text.len().min(300)]));
+    }
+    Ok(text)
+}
+
+#[tauri::command]
+async fn wfmarket_close_order(id: String, quantity: u32) -> Result<String, String> {
+    let auth = read_wfmarket_auth_file();
+    if auth.jwt.is_empty() {
+        return Err("Not logged in to warframe.market".to_string());
+    }
+    let resp = http_client()
+        .post(format!("https://api.warframe.market/v2/order/{id}/close"))
+        .header("Accept", "application/json")
+        .header("Content-Type", "application/json")
+        .header("Authorization", format!("Bearer {}", auth.jwt))
+        .header("Platform", "pc")
+        .header("Language", "en")
+        .json(&serde_json::json!({ "quantity": quantity }))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+    if !status.is_success() {
+        return Err(format!("HTTP {}: {}", status, &text[..text.len().min(300)]));
+    }
+    Ok(text)
+}
+
+#[tauri::command]
+async fn wfmarket_delete_order(id: String) -> Result<String, String> {
+    let auth = read_wfmarket_auth_file();
+    if auth.jwt.is_empty() {
+        return Err("Not logged in to warframe.market".to_string());
+    }
+    let resp = http_client()
+        .delete(format!("https://api.warframe.market/v2/order/{id}"))
+        .header("Accept", "application/json")
+        .header("Authorization", format!("Bearer {}", auth.jwt))
+        .header("Platform", "pc")
+        .header("Language", "en")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+    if !status.is_success() {
+        return Err(format!("HTTP {}: {}", status, &text[..text.len().min(300)]));
+    }
+    Ok(text)
+}
+
+async fn resolve_item_name(item_id: &str) -> Option<(String, String)> {
+    let resp = http_client()
+        .get(format!("https://api.warframe.market/v2/item/{item_id}"))
+        .header("Accept", "application/json")
+        .send()
+        .await
+        .ok()?;
+
+    let text = resp.text().await.ok()?;
+    let json: serde_json::Value = serde_json::from_str(&text).ok()?;
+
+    let name = json.pointer("/data/i18n/en/name")
+        .or_else(|| json.pointer("/data/item_name"))
+        .or_else(|| json.pointer("/item/item_name"))
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+
+    let slug = json.pointer("/data/slug")
+        .or_else(|| json.pointer("/data/url_name"))
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+
+    match (name, slug) {
+        (Some(n), Some(s)) => Some((n, s)),
+        (Some(n), None) => Some((n.clone(), n.to_lowercase().replace(' ', "_"))),
+        (None, Some(s)) => Some((s.replace('_', " "), s)),
+        (None, None) => None,
+    }
+}
+
+#[tauri::command]
+async fn wfmarket_confirm_trade(item_name: String) -> Result<String, String> {
+    let auth = read_wfmarket_auth_file();
+    if auth.jwt.is_empty() {
+        return Err("Not logged in to warframe.market".to_string());
+    }
+
+    let resp = http_client()
+        .get("https://api.warframe.market/v2/orders/my")
+        .header("Accept", "application/json")
+        .header("Authorization", format!("Bearer {}", auth.jwt))
+        .header("Platform", "pc")
+        .header("Language", "en")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+    if !status.is_success() {
+        return Err(format!("HTTP {}: {}", status, &text[..text.len().min(300)]));
+    }
+
+    let orders: serde_json::Value = serde_json::from_str(&text)
+        .map_err(|e| format!("Invalid JSON: {e}"))?;
+
+    let orders_list: Vec<&serde_json::Value> = orders
+        .get("data")
+        .and_then(|d| d.as_array())
+        .ok_or("No orders list found")?
+        .iter()
+        .collect();
+
+    let item_lower = item_name.to_lowercase();
+    let item_slug = item_lower.replace(' ', "_");
+
+    log_to_file(&format!("[wfmarket] {} ordens, buscando '{}'", orders_list.len(), item_name));
+
+    let mut matching_order: Option<(String, u32)> = None;
+    let mut best_score: usize = 0;
+
+    for order in &orders_list {
+        let order_type = order.get("type").and_then(|v| v.as_str()).unwrap_or("");
+        let visible = order.get("visible").and_then(|v| v.as_bool()).unwrap_or(false);
+        if order_type != "sell" || !visible { continue; }
+
+        let item_id = match order.get("itemId").and_then(|v| v.as_str()) {
+            Some(id) => id,
+            None => continue,
+        };
+
+        let (item_name_resolved, item_slug_resolved) = match resolve_item_name(item_id).await {
+            Some(result) => result,
+            None => {
+                log_to_file(&format!("[wfmarket] resolve falhou itemId={}", item_id));
+                continue;
+            }
+        };
+
+        let c_lower = item_name_resolved.to_lowercase();
+        let c_slug = item_slug_resolved.to_lowercase();
+
+        let score = if c_lower == item_lower || c_slug == item_slug {
+            100
+        } else if c_lower.contains(&item_lower) || item_lower.contains(&c_lower)
+               || c_slug.contains(&item_slug) || item_slug.contains(&c_slug)
+        {
+            item_lower.len().min(c_lower.len()).max(1)
+        } else {
+            0
+        };
+
+        if score > best_score {
+            if let Some(id) = order.get("id").and_then(|v| v.as_str()) {
+                if let Some(quantity) = order.get("quantity").and_then(|v| v.as_u64()) {
+                    matching_order = Some((id.to_string(), quantity as u32));
+                    best_score = score;
+                    log_to_file(&format!(
+                        "[wfmarket] match: '{}' (slug={}) score={} id={}",
+                        item_name_resolved, item_slug_resolved, score, id
+                    ));
+                }
+            }
+        }
+    }
+
+    let (order_id, quantity) = matching_order
+        .ok_or_else(|| format!("Nenhuma ordem ativa para '{}'", item_name))?;
+
+    log_to_file(&format!("[wfmarket] fechando {} (qty={})", order_id, quantity));
+    wfmarket_close_order(order_id, quantity).await
 }
 
 #[tauri::command]
@@ -2472,6 +4085,22 @@ fn read_item_rarities() -> Result<String, String> {
         }
     }
 
+    let mod_locations = read_json_cached("modLocations.json", &MOD_LOCATIONS_CACHE)?;
+    if let Some(locs) = mod_locations["modLocations"].as_array() {
+        for entry in locs {
+            let mod_name = entry["modName"].as_str().unwrap_or("");
+            if let Some(enemies) = entry["enemies"].as_array() {
+                for enemy in enemies {
+                    upsert_rarity(
+                        &mut rarities,
+                        mod_name,
+                        enemy["rarity"].as_str().unwrap_or(""),
+                    );
+                }
+            }
+        }
+    }
+
     let serialized = serde_json::to_string(&rarities).map_err(|e| e.to_string())?;
     let _ = ITEM_RARITIES_CACHE.set(serialized.clone());
     Ok(serialized)
@@ -2494,7 +4123,7 @@ fn analyze_riven_image(app: tauri::AppHandle, image_path: String) -> Result<Stri
             .map_err(|e| format!("failed to copy riven image to {RIVEN_IMAGE_PATH}: {e}"))?;
     }
     let script_path = riven_ocr_script_path(&app);
-    let output = Command::new("/usr/bin/python3")
+    let output = SyncCommand::new("/usr/bin/python3")
         .arg(&script_path)
         .arg(RIVEN_IMAGE_PATH)
         .output()
@@ -2528,7 +4157,7 @@ fn analyze_build_image(app: tauri::AppHandle, image_path: String) -> Result<Stri
     }
 
     let script_path = build_ocr_script_path(&app);
-    let output = Command::new("/usr/bin/python3")
+    let output = SyncCommand::new("/usr/bin/python3")
         .arg(&script_path)
         .arg(BUILD_IMAGE_PATH)
         .output()
@@ -2548,11 +4177,6 @@ fn analyze_build_image(app: tauri::AppHandle, image_path: String) -> Result<Stri
     }
 
     Ok(stdout.trim().to_string())
-}
-
-#[tauri::command]
-fn capture_item_name(app: tauri::AppHandle) -> Result<String, String> {
-    capture_item_from_warframe(&app)
 }
 
 #[tauri::command]
@@ -2751,113 +4375,199 @@ fn search_farm_data(query: String) -> Result<String, String> {
     serde_json::to_string(&results).map_err(|e| e.to_string())
 }
 
-fn is_reward_trigger(line: &str) -> bool {
-    line.contains("Pause countdown done")
-        || line.contains("Got rewards")
-        || line.contains("Created /Lotus/Interface/ProjectionRewardChoice.swf")
+
+fn open_ee_log_at_end(log_path: &std::path::Path) -> Option<BufReader<fs::File>> {
+    let file = fs::File::open(log_path).ok()?;
+    let mut reader = BufReader::new(file);
+    reader.seek(SeekFrom::End(0)).ok()?;
+    Some(reader)
 }
 
-fn start_reward_monitor(app: tauri::AppHandle) {
-    thread::spawn(move || {
-        log_to_file("[startup] start_reward_monitor iniciado");
-        let log_path = get_log_path();
-        let mut position: Option<u64> = None;
-        let mut last_trigger = Instant::now()
-            .checked_sub(Duration::from_secs(60))
-            .unwrap_or_else(Instant::now);
+#[derive(Serialize, Clone)]
+struct TradeSuccessPayload {
+    items: Vec<String>,
+    buyer: String,
+    platinum: u32,
+}
 
-        loop {
+fn parse_trade_from_buffer(buf: &[String]) -> Option<TradeSuccessPayload> {
+    let mut items = Vec::new();
+    let mut buyer = String::new();
+    let mut platinum = 0u32;
+    let mut in_trade = false;
+    let mut after_offering = false;
+
+    for line_raw in buf {
+        let line = line_raw.trim();
+        if line.contains("Dialog.lua: Dialog::CreateOkCancel(description=Are you sure you want to accept this trade") {
+            in_trade = true;
+            after_offering = line.contains("You are offering:");
+            continue;
+        }
+        if !in_trade { continue; }
+
+        if line.starts_with("and will receive from") {
+            // Extract buyer between "from " and " the following:"
+            let rest = line.strip_prefix("and will receive from")?.trim();
+            if let Some(end) = rest.find(" the following:") {
+                buyer = rest[..end]
+                    .trim_end_matches(|c: char| c.is_control() || c == '\u{200d}')
+                    .to_string();
+            }
+            continue;
+        }
+
+        if line.starts_with("Platinum x ") {
+            let rest = line.strip_prefix("Platinum x ")?;
+            let amount_str = rest.split(',').next()?.trim();
+            platinum = amount_str.parse().unwrap_or(0);
+            break;
+        }
+
+        if line.starts_with('\"') && line.contains(',') && line.contains("title=") {
+            break;
+        }
+
+        if !line.is_empty() && !line.starts_with("title=") {
+            items.push(line.to_string());
+        }
+    }
+
+    if items.is_empty() || buyer.is_empty() || platinum == 0 {
+        return None;
+    }
+
+    Some(TradeSuccessPayload { items, buyer, platinum })
+}
+
+static LINE_RING: LazyLock<Mutex<Vec<String>>> = LazyLock::new(|| Mutex::new(Vec::new()));
+const RING_CAPACITY: usize = 200;
+
+fn push_ring(line: String) {
+    let mut ring = LINE_RING.lock().unwrap();
+    ring.push(line);
+    if ring.len() > RING_CAPACITY {
+        ring.remove(0);
+    }
+}
+
+fn find_recent_trade_context() -> Option<TradeSuccessPayload> {
+    let ring = LINE_RING.lock().unwrap();
+    // Walk backwards to find the trade dialog
+    let start = ring.len().saturating_sub(150);
+    for i in (start..ring.len()).rev() {
+        if ring[i].contains("Dialog.lua: Dialog::CreateOkCancel(description=Are you sure you want to accept this trade") {
+            if let Some(payload) = parse_trade_from_buffer(&ring[i..]) {
+                return Some(payload);
+            }
+        }
+    }
+    None
+}
+
+fn monitor_ee_log(app: tauri::AppHandle) {
+    let cooldown = Duration::from_secs(10);
+    let mut last_trigger = Instant::now() - cooldown;
+
+    loop {
+        let log_path = get_log_path();
+        if log_path.as_os_str().is_empty() {
+            log_to_file("[ee_log] log_path não configurado, aguardando configuração");
+            thread::sleep(Duration::from_secs(2));
+            continue;
+        }
+
+        // Wait until the file exists (game might not be open yet)
+        let mut reader = match open_ee_log_at_end(&log_path) {
+            Some(r) => r,
+            None => {
+                thread::sleep(Duration::from_secs(2));
+                continue;
+            }
+        };
+        log_to_file(&format!("[ee_log] monitorando EE.log: {}", log_path.display()));
+
+        let mut reader_pos: u64 = reader.seek(SeekFrom::Current(0)).unwrap_or(0);
+
+        'monitor: loop {
             thread::sleep(Duration::from_millis(200));
 
-            let Ok(metadata) = fs::metadata(&log_path) else {
-                position = None;
-                continue;
-            };
-            let current_len = metadata.len();
-            let current_position = position.get_or_insert(current_len);
-
-            if current_len < *current_position {
-                *current_position = current_len;
-                continue;
+            // Re-read the configured path so changes apply without a restart.
+            if get_log_path() != log_path {
+                log_to_file("[ee_log] log_path alterado, reiniciando monitor");
+                break 'monitor;
             }
 
-            if current_len == *current_position {
-                continue;
+            // Detect if the file was truncated or replaced (Warframe restart)
+            let file_len = fs::metadata(&log_path).ok().map(|m| m.len()).unwrap_or(u64::MAX);
+            if file_len < reader_pos {
+                log_to_file("[ee_log] EE.log foi recriado (Warframe reiniciado), reabrindo");
+                break 'monitor;
             }
 
-            let mut file = match File::open(&log_path) {
-                Ok(file) => file,
-                Err(err) => {
-                    eprintln!("[wfhub] Failed to open {}: {err}", log_path.display());
-                    continue;
-                }
-            };
+            let mut line = String::new();
+            loop {
+                line.clear();
+                match reader.read_line(&mut line) {
+                    Ok(0) => break,
+                    Ok(_) => {
+                        reader_pos = reader.seek(SeekFrom::Current(0)).unwrap_or(reader_pos);
+                        push_ring(line.clone());
 
-            if let Err(err) = file.seek(SeekFrom::Start(*current_position)) {
-                eprintln!(
-                    "[wfhub] Failed to seek {} to {}: {err}",
-                    log_path.display(),
-                    current_position
-                );
-                continue;
-            }
-            *current_position = current_len;
+                        let trimmed = line.trim().to_string();
 
-            if last_trigger.elapsed() < Duration::from_secs(10) {
-                eprintln!("[wfhub] cooldown ativo: {:.1}s restantes",
-                    10.0 - last_trigger.elapsed().as_secs_f32());
-                continue;
-            }
+                        // Trigger only on real prime reward screens.
+                        let is_reward_trigger = trimmed.contains("VoidProjections: OpenVoidProjectionRewardScreen");
+                        let is_trade_success = trimmed == "The trade was successful!"
+                            || trimmed.ends_with("The trade was successful!")
+                            || trimmed.contains("The trade was successful!");
 
-            let mut reward_screen_detected = false;
-            let reader = BufReader::new(file);
-            for line in reader.lines() {
-                match line {
-                    Ok(line) if is_reward_trigger(&line) => {
-                        reward_screen_detected = true;
+                        if is_reward_trigger && last_trigger.elapsed() >= cooldown {
+                            last_trigger = Instant::now();
+                            log_to_file(&format!("[ee_log] trigger: {}", trimmed));
+                            thread::sleep(Duration::from_millis(3500));
+                            match run_detection(&app) {
+                                Ok(Some(payload)) => {
+                                    log_to_file(&format!("[ee_log] {} itens detectados", payload.items.len()));
+                                    append_reward_history(&payload);
+                                    show_overlay(&app, payload);
+                                }
+                                Ok(None) => {
+                                    log_to_file("[ee_log] OCR sem partes detectadas");
+                                }
+                                Err(e) => {
+                                    log_to_file(&format!("[ee_log] erro: {e}"));
+                                }
+                            }
+                            reader.seek(SeekFrom::End(0)).ok();
+                            reader_pos = reader.seek(SeekFrom::Current(0)).unwrap_or(reader_pos);
+                            break;
+                        }
+
+                        if is_trade_success {
+                            log_to_file("[ee_log] trade bem-sucedido detectado");
+                            if let Some(payload) = find_recent_trade_context() {
+                                log_to_file(&format!(
+                                    "[ee_log] trade: {} itens, comprador={}, plat={}",
+                                    payload.items.len(), payload.buyer, payload.platinum
+                                ));
+                                show_trade_overlay(&app, payload);
+                            } else {
+                                log_to_file("[ee_log] trade: nao foi possivel extrair contexto do log");
+                            }
+                        }
                     }
-                    Ok(_) => {}
-                    Err(err) => {
-                        eprintln!("[wfhub] Failed to read EE.log line: {err}");
-                    }
-                }
-            }
-
-            if !reward_screen_detected {
-                continue;
-            }
-
-            let elapsed = last_trigger.elapsed().as_secs_f32();
-            eprintln!("[wfhub] trigger detectado, last_trigger elapsed: {elapsed:.1}s");
-            log_to_file(&format!("[monitor] trigger detectado, elapsed: {elapsed:.1}s"));
-            last_trigger = Instant::now();
-            thread::sleep(Duration::from_millis(1500));
-
-            match run_detection(&app) {
-                Ok(Some(payload)) => {
-                    log_to_file(&format!("[monitor] show_overlay: {} itens", payload.items.len()));
-                    show_overlay(&app, payload);
-                }
-                Ok(None) => {
-                    log_to_file("[monitor] OCR sem partes, overlay não exibido");
-                    eprintln!("[wfhub] OCR preprocessing produced no parts");
-                }
-                Err(err) => {
-                    log_to_file(&format!("[monitor] detection failed: {err}"));
-                    eprintln!("[wfhub] Detection failed: {err}");
+                    Err(_) => break,
                 }
             }
         }
-    });
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let toggle_shortcut_id = Shortcut::from_str("CmdOrCtrl+Shift+W")
         .expect("failed to parse toggle shortcut")
-        .id();
-    let item_search_shortcut_id = Shortcut::from_str("CmdOrCtrl+Shift+3")
-        .expect("failed to parse item search shortcut")
         .id();
 
     tauri::Builder::default()
@@ -2868,20 +4578,26 @@ pub fn run() {
             fetch_riven_auctions,
             read_items_list,
             read_all_mods,
+            read_mod_ranks,
+            read_items_prices,
+            save_item_price,
+            read_mod_images,
+            read_arcane_images,
             read_mod_names,
             read_item_rarities,
             save_temp_image,
             analyze_build_image,
-            capture_item_name,
             search_farm_data,
-            forja::start_forja,
-            forja::stop_forja,
             inventory::start_inventory_scan,
             inventory::stop_inventory_scan,
             inventory::save_inventory_result,
             inventory::read_inventory,
             inventory::save_prime_parts,
+            inventory::debug_inventory_ocr,
             read_prime_parts,
+            read_prime_vault,
+            read_mod_meta,
+            read_ducat_values,
             read_prices,
             read_enemy_mod_tables,
             read_builds,
@@ -2891,47 +4607,43 @@ pub fn run() {
             read_build_screenshot_preview,
             read_hub_state,
             save_hub_settings,
+            read_config,
+            save_log_path,
+            detect_log_path,
             fetch_hub_worldstate,
             fetch_hub_void_trader_inventory,
             fetch_hub_arbitrations_next_days,
             run_shell_action,
             analyze_riven_image,
-            read_riven_weapon_rules
+            read_riven_weapon_rules,
+            read_reward_history,
+            wfmarket_read_auth,
+            wfmarket_save_jwt,
+            wfmarket_logout,
+            wfmarket_set_status,
+            wfmarket_create_sell_order,
+            wfmarket_get_orders,
+            wfmarket_update_order,
+            wfmarket_close_order,
+            wfmarket_confirm_trade,
+            wfmarket_delete_order,
+            test_overlay,
+            test_trade_overlay,
+            test_trade_overlay_set,
+            hide_overlay_window,
+            fetch_weekly_state,
+            read_circuit_images
         ])
-        .manage(forja::ForjaState::default())
         .manage(inventory::InventoryState::default())
         .plugin(tauri_plugin_shell::init())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(move |app, shortcut, event| {
-                    if event.state() == ShortcutState::Pressed {
-                        if shortcut.id() == toggle_shortcut_id {
-                            if let Some(window) = app.get_webview_window("main") {
-                                toggle_main_window(&window);
-                            }
-                        } else if shortcut.id() == item_search_shortcut_id {
-                            let app_clone = app.clone();
-                            thread::spawn(move || {
-                                if let Some(win) = app_clone.get_webview_window("main") {
-                                    let _ = win.show();
-                                    let _ = win.set_focus();
-                                }
-                                match capture_item_from_warframe(&app_clone) {
-                                    Ok(name) => {
-                                        log_to_file(&format!("[item-search] OCR name: {name}"));
-                                        if let Some(win) = app_clone.get_webview_window("main") {
-                                            let _ = win.emit(
-                                                "item-search-requested",
-                                                serde_json::json!({ "name": name }),
-                                            );
-                                        }
-                                    }
-                                    Err(err) => {
-                                        log_to_file(&format!("[item-search] OCR failed: {err}"));
-                                        eprintln!("[wfhub] item OCR failed: {err}");
-                                    }
-                                }
-                            });
+                    if event.state() == ShortcutState::Pressed
+                        && shortcut.id() == toggle_shortcut_id
+                    {
+                        if let Some(window) = app.get_webview_window("main") {
+                            toggle_main_window(&window);
                         }
                     }
                 })
@@ -2943,12 +4655,40 @@ pub fn run() {
 
             let app_handle = app.handle().clone();
 
+            // --- Resolve the writable data dir (repo data/ in dev, app-data in bundle) ---
+            let dev_data = project_root().join("data");
+            if dev_data.exists() {
+                set_data_dir(dev_data);
+            } else if let Ok(app_data) = app.path().app_data_dir() {
+                let data_dir = app_data.join("data");
+                seed_data_from_bundle(app.handle(), &data_dir);
+                set_data_dir(data_dir);
+            }
+
             // --- Tray icon ---
             let icon = Image::from_bytes(include_bytes!("../icons/tray-icon.png"))?;
+            let quit_item = MenuItem::with_id(app, "quit", "Quit WFHub", true, None::<&str>)?;
+            let tray_menu = Menu::with_items(app, &[&quit_item])?;
             TrayIconBuilder::new()
                 .icon(icon)
                 .icon_as_template(true)
                 .tooltip("WFHub")
+                .menu(&tray_menu)
+                .on_menu_event(move |_app, event| {
+                    if event.id() == "quit" {
+                        if EXITING.swap(true, std::sync::atomic::Ordering::SeqCst) {
+                            return;
+                        }
+                        tauri::async_runtime::spawn(async {
+                            let _ = tokio::time::timeout(
+                                std::time::Duration::from_secs(5),
+                                set_wfmarket_status_inner("invisible"),
+                            )
+                            .await;
+                            std::process::exit(0);
+                        });
+                    }
+                })
                 .on_tray_icon_event(move |_tray, event| {
                     if let TrayIconEvent::Click {
                         button: MouseButton::Left,
@@ -2963,6 +4703,18 @@ pub fn run() {
                 })
                 .build(app)?;
 
+            // --- OCR daemon (pré-aquece Python + Vision Framework) ---
+            let app_for_daemon = app.handle().clone();
+            thread::spawn(move || init_ocr_daemon(&app_for_daemon));
+
+            // --- EE.log monitor ---
+            let app_handle_log = app.handle().clone();
+            thread::spawn(move || monitor_ee_log(app_handle_log));
+
+            // --- First-run setup: populate datasets + auto-detect EE.log ---
+            let app_for_setup = app.handle().clone();
+            thread::spawn(move || first_run_setup(app_for_setup));
+
             // --- Close-requested: esconde em vez de fechar ---
             if let Some(main_window) = app.get_webview_window("main") {
                 let win = main_window.clone();
@@ -2976,12 +4728,25 @@ pub fn run() {
 
             // --- Global hotkeys ---
             app.handle().global_shortcut().register("CmdOrCtrl+Shift+W")?;
-            app.handle().global_shortcut().register("CmdOrCtrl+Shift+3")?;
-
-            start_reward_monitor(app.handle().clone());
 
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("error while running WFHub");
+        .build(tauri::generate_context!())
+        .expect("error building WFHub")
+        .run(|_app_handle, event| {
+            if let tauri::RunEvent::ExitRequested { api, .. } = event {
+                if EXITING.swap(true, std::sync::atomic::Ordering::SeqCst) {
+                    return;
+                }
+                api.prevent_exit();
+                tauri::async_runtime::spawn(async {
+                    let _ = tokio::time::timeout(
+                        std::time::Duration::from_secs(5),
+                        set_wfmarket_status_inner("invisible"),
+                    )
+                    .await;
+                    std::process::exit(0);
+                });
+            }
+        });
 }

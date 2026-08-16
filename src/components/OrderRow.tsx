@@ -1,5 +1,4 @@
-import {useState} from "react";
-
+import { useState } from "react";
 export interface TopOrders {
     sell: Order[];
     buy: Order[];
@@ -38,24 +37,31 @@ export function OrderRow({
     }
 
     return (
-        <div className="flex items-center justify-between px-4 py-2.5">
-            <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-200">{order.user.ingameName}</span>
-                <span className="text-xs text-gray-500">rep: {order.user.reputation}</span>
+        <div className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-slate-950/35">
+            <div className="flex min-w-0 items-center gap-2">
+                <span className="truncate text-sm font-bold text-slate-200">{order.user.ingameName}</span>
+                <span className="font-mono text-[10px] text-slate-500">Rep: {order.user.reputation}</span>
                 {order.rank !== undefined && (
-                    <span className="rounded bg-indigo-900/60 px-1.5 py-0.5 text-xs text-indigo-300">
-                        r{order.rank}
+                    <span className="rounded border border-[#ed9a3d]/20 bg-[#ed9a3d]/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#ed9a3d]">
+                        R{order.rank}
                     </span>
                 )}
             </div>
-            <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-500">x{order.quantity}</span>
-                <span className="text-sm font-bold text-purple-400">{order.platinum}p</span>
+            <div className="flex shrink-0 items-center gap-3">
+                <span className="font-mono text-[10px] text-slate-500">x{order.quantity}</span>
+                <span className="flex items-center text-sm font-black text-amber-400">
+                    {order.platinum}
+                    <img src="/icons/PlatinumLarge.webp" alt="Platinum" className="ml-1 inline-block h-4 w-4" />
+                </span>
                 <button
                     onClick={copyWhisper}
-                    className="rounded bg-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-600"
+                    className={`rounded-md border px-2 py-1 font-mono text-[10px] font-bold transition-all ${
+                        copied
+                            ? "border-emerald-500/30 bg-emerald-950/60 text-emerald-300"
+                            : "border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
+                    }`}
                 >
-                    {copied ? "✓ Copied" : buttonLabel}
+                    {copied ? "Copiado" : buttonLabel}
                 </button>
             </div>
         </div>

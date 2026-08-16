@@ -272,15 +272,20 @@ def extract_weapon_from_mod_name(mod_name):
     Extract weapon name from the riven mod name.
     "Tiberon Pura-cronitis"  →  "Tiberon"
     "Kuva Bramma Visi-acripha"  →  "Kuva Bramma"
-    Strips the final generated "Prefix-Suffix" token.
+    "Arca Plasmor Visican"  →  "Arca Plasmor"
+    Strips the final generated suffix token even when OCR drops the hyphen.
     """
     if not mod_name:
         return None
     m = re.match(r'^(.+?)\s+[A-Z][a-z]+-[A-Za-z]+\s*$', mod_name)
     if m:
         return m.group(1).strip()
-    # Fallback: first word
-    return mod_name.split()[0] if mod_name else None
+
+    words = mod_name.split()
+    if len(words) >= 2:
+        return " ".join(words[:-1]).strip()
+
+    return words[0] if words else None
 
 
 def is_probable_mod_name(text):
@@ -342,7 +347,10 @@ def _is_stat_name_continuation(text):
     if t.startswith("(") or t.lower().startswith("note:"):
         return False
     words = re.findall(r"[A-Za-z][A-Za-z'-]*", t)
-    return 1 <= len(words) <= 2 and " ".join(words) == t.replace("’", "'")
+    # Allow trailing ")" so continuations like "Bows)" from "(x2 for Bows)"
+    # stat suffixes are recognized as valid continuations.
+    t_norm = t.replace("’", "'").rstrip(")")
+    return 1 <= len(words) <= 2 and " ".join(words) == t_norm
 
 
 def parse_riven(observations):
@@ -435,6 +443,15 @@ def parse_riven(observations):
         # two-word titles like "Torid Critatis".
         if mod_name is None and is_probable_mod_name(t):
             mod_name = t
+            # When the card art wraps the title onto a second line, the OCR
+            # leaves a trailing hyphen ("Perigale Acri-" + "mantican"). Splice
+            # the next observation onto the current name when it looks like a
+            # pure-letter continuation.
+            if mod_name.endswith("-") and i + 1 < len(expanded_observations):
+                next_text = expanded_observations[i + 1][0].strip()
+                if re.fullmatch(r"[A-Za-z'-]+", next_text):
+                    mod_name += next_text
+                    i += 1
             i += 1
             continue
 
