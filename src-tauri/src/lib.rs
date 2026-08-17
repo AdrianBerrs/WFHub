@@ -3855,13 +3855,45 @@ async fn set_wfmarket_status_inner(status: &str) -> Result<(), String> {
         .body(())
         .map_err(|e| e.to_string())?;
 
-    let (mut ws, _) = tokio::time::timeout(
-        std::time::Duration::from_secs(10),
-        tokio_tungstenite::connect_async(request),
-    )
-    .await
-    .map_err(|_| "WebSocket connection timed out".to_string())?
-    .map_err(|e| format!("WebSocket connect failed: {e}"))?;
+    let addrs = tokio::net::lookup_host(("ws.warframe.market", 443))
+        .await
+        .map_err(|e| format!("DNS lookup failed: {e}"))?
+        .collect::<Vec<_>>();
+    let mut ipv4_addrs: Vec<_> = addrs.iter().filter(|a| a.is_ipv4()).collect();
+    if ipv4_addrs.is_empty() {
+        ipv4_addrs = addrs.iter().collect();
+    }
+    log_to_file(&format!(
+        "[wfmarket_ws] resolved {} addresses, trying {:?}",
+        addrs.len(),
+        ipv4_addrs
+    ));
+
+    let mut ws = None;
+    for addr in ipv4_addrs {
+        log_to_file(&format!("[wfmarket_ws] connecting to {addr}"));
+        let tcp = tokio::time::timeout(
+            std::time::Duration::from_secs(5),
+            tokio::net::TcpStream::connect(*addr),
+        )
+        .await
+        .map_err(|_| format!("TCP connect to {addr} timed out"))?;
+        let tcp = tcp.map_err(|e| format!("TCP connect to {addr} failed: {e}"))?;
+        let connected = tokio::time::timeout(
+            std::time::Duration::from_secs(5),
+            tokio_tungstenite::client_async_tls(request.clone(), tcp),
+        )
+        .await
+        .map_err(|_| format!("TLS handshake to {addr} timed out"))?;
+        match connected {
+            Ok((socket, _)) => {
+                ws = Some(socket);
+                break;
+            }
+            Err(e) => log_to_file(&format!("[wfmarket_ws] TLS handshake to {addr} failed: {e}")),
+        }
+    }
+    let mut ws = ws.ok_or_else(|| "WebSocket connect failed on all resolved addresses".to_string())?;
 
     let timeout_dur = std::time::Duration::from_secs(8);
 
