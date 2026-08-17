@@ -364,7 +364,7 @@ export default function InventoryPage() {
 
     const scanInstructions: Record<ScanType, string> = {
         mods: "Open the in-game Mods terminal.",
-        arcanes: "Open the in-game Arcanes terminal.",
+        arcanes: "Open the in-game Inventory and switch to the Arcanes tab.",
         prime_parts: "Open the in-game Inventory showing your Prime parts.",
     };
 
