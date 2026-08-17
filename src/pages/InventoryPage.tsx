@@ -2,7 +2,7 @@ import {useState, useEffect, useCallback, useRef, useMemo} from "react";
 import {useNavigate} from "react-router-dom";
 import {invoke} from "@tauri-apps/api/core";
 import {listen, UnlistenFn} from "@tauri-apps/api/event";
-import {Box, History, Search, SlidersHorizontal} from "lucide-react";
+import {Box, History, Info, Search, SlidersHorizontal} from "lucide-react";
 import AutocompleteField from "../components/AutocompleteField";
 import {findFuzzyMatches, normalizeSearchText} from "../lib/search";
 
@@ -322,6 +322,12 @@ export default function InventoryPage() {
     const [historyLoaded, setHistoryLoaded] = useState(false);
 
     const tabLabels: Record<ScanType, string> = {mods: "Mods", arcanes: "Arcanes", prime_parts: "Primes"};
+
+    const scanInstructions: Record<ScanType, string> = {
+        mods: "Open the in-game Mods terminal.",
+        arcanes: "Open the in-game Arcanes terminal.",
+        prime_parts: "Open the in-game Inventory showing your Prime parts.",
+    };
 
     const loadInventory = useCallback(async () => {
         try {
@@ -781,6 +787,18 @@ export default function InventoryPage() {
             </div>
 
             {error && <p className="rounded border border-red-700/40 bg-red-900/10 px-3 py-2 text-xs text-red-300">{error}</p>}
+
+            {/* Scan instruction */}
+            <div className="flex items-start gap-2 rounded-lg border border-amber-600/30 bg-amber-950/10 px-4 py-2.5 text-xs text-slate-300">
+                <Info size={14} className="mt-0.5 shrink-0 text-amber-400" />
+                <p>
+                    <span className="font-semibold text-slate-100">{tabLabels[activeTab]} scan:</span>{" "}
+                    {scanInstructions[activeTab]}{" "}
+                    <span className="font-semibold text-amber-300">
+                        Keep Warframe in Windowed or Borderless Fullscreen so the app can capture the screen.
+                    </span>
+                </p>
+            </div>
 
             {/* Main Grid */}
             <div className="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-12 gap-5">

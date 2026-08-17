@@ -48,6 +48,7 @@
       "../scripts": "scripts",
       "../update.sh": "update.sh",
       "../update_prices.sh": "update_prices.sh",
+      "../python": "python",
       "../data/items_list.json": "data/items_list.json",
       "../data/mods_all.json": "data/mods_all.json",
       "../data/prices.json": "data/prices.json",

@@ -406,7 +406,7 @@ fn init_ocr_daemon(app: &tauri::AppHandle) {
     }
     let script_path = ocr_script_path(app);
     log_to_file(&format!("[ocr_daemon] iniciando: {}", script_path.display()));
-    let mut child = match SyncCommand::new("/usr/bin/python3")
+    let mut child = match SyncCommand::new(python_binary(app))
         .arg(&script_path)
         .arg("--daemon")
         .stdin(Stdio::piped())
@@ -721,6 +721,25 @@ pub fn resource_path(app: &tauri::AppHandle, relative: &str) -> PathBuf {
     }
 
     dev_path
+}
+
+// Resolve the Python interpreter: prefer the bundled CPython (repo python/ in
+// dev, resources python/ in a bundle) so pyobjc/numpy/Pillow are always
+// available without a manual install; fall back to the system /usr/bin/python3.
+pub fn python_binary(app: &tauri::AppHandle) -> PathBuf {
+    let dev_path = project_root().join("python/bin/python3");
+    if dev_path.exists() {
+        return dev_path;
+    }
+
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        let bundled_path = resource_dir.join("python/bin/python3");
+        if bundled_path.exists() {
+            return bundled_path;
+        }
+    }
+
+    PathBuf::from("/usr/bin/python3")
 }
 
 fn read_text_cached(path: &str, cache: &OnceLock<String>) -> Result<String, String> {
@@ -1287,6 +1306,7 @@ async fn run_shell_action(app: AppHandle, action: String) -> Result<ShellCommand
     );
     cmd.current_dir(data_dir());
     cmd.env("WFHUB_DATA_DIR", data_dir());
+    cmd.env("WFHUB_PYTHON", python_binary(&app));
     if action == "update_prices" {
         cmd.arg(script.to_string_lossy().as_ref());
     }
@@ -3292,6 +3312,7 @@ fn first_run_setup(app: tauri::AppHandle) {    if !data_path("prices.json").exis
         let _ = SyncCommand::new(&script)
             .current_dir(data_dir())
             .env("WFHUB_DATA_DIR", data_dir())
+            .env("WFHUB_PYTHON", python_binary(&app))
             .output();
         log_to_file("[setup] update.sh concluído");
     }
@@ -4123,7 +4144,7 @@ fn analyze_riven_image(app: tauri::AppHandle, image_path: String) -> Result<Stri
             .map_err(|e| format!("failed to copy riven image to {RIVEN_IMAGE_PATH}: {e}"))?;
     }
     let script_path = riven_ocr_script_path(&app);
-    let output = SyncCommand::new("/usr/bin/python3")
+    let output = SyncCommand::new(python_binary(&app))
         .arg(&script_path)
         .arg(RIVEN_IMAGE_PATH)
         .output()
@@ -4157,7 +4178,7 @@ fn analyze_build_image(app: tauri::AppHandle, image_path: String) -> Result<Stri
     }
 
     let script_path = build_ocr_script_path(&app);
-    let output = SyncCommand::new("/usr/bin/python3")
+    let output = SyncCommand::new(python_binary(&app))
         .arg(&script_path)
         .arg(BUILD_IMAGE_PATH)
         .output()

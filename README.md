@@ -5,8 +5,9 @@ macOS desktop app with utilities for Warframe. Combines a React frontend with a 
 ## Features
 
 - **World State**: live game cycles (Cetus, Vallis, Cambion, Zariman), sortie of the day, active invasions, arbitrations with next 3 upcoming slots, Void Trader, alerts — auto-refresh
+- **Weekly**: Duviri Circuit weekly rotation and rewards
 - **Market Prices**: fuzzy search with autocomplete and top orders from `warframe.market`
-- **My Orders**: view and manage your warframe.market orders (close, edit, delete); auto-detects trades from EE.log and closes matching orders on warframe.market
+- **My Orders**: view and manage your warframe.market orders (close, edit, delete) and set your market status (online / in game / offline); auto-detects trades from EE.log and closes matching orders on warframe.market
 - **Farm Advisor**: drop sources grouped by type, with drop chance and run estimates
 - **Build Analyzer**: OCR of build screenshots to identify mods (accessed from Builds & Mods)
 - **Builds & Mods**: storage and management of saved builds grouped by Warframe / Weapon / Other, with optional linked entity
@@ -71,11 +72,16 @@ WFHub/
 │   └── data/
 │       ├── build_enemy_locations.py  # generates enemyLocations.json
 │       ├── build_riven_weapon_rules.py # generates rivenWeaponRules.json
+│       ├── build_ducat_values.py     # generates ducat_values.json
+│       ├── build_items_prices.py     # generates items_prices.json
+│       ├── build_circuit_images.py   # generates circuit_images.json
 │       ├── generate_prime_parts.py   # prime parts generation helper
 │       └── update_prime_parts.py     # updates prime_parts.json
 ├── data/                             # game datasets (gitignored — see below)
 │   └── rivenWeaponRulesSource_*.csv  # riven CSV sources (versioned)
+├── python/                           # bundled CPython + pyobjc (generated, gitignored)
 ├── xcap-patch/                       # local xcap fork with macOS patches
+├── scripts/prepare_python.sh         # downloads the bundled Python + OCR deps
 ├── update.sh                         # main dataset update script
 └── update_prices.sh
 ```
@@ -86,14 +92,15 @@ WFHub/
 
 ```
 EE.log → lib.rs (thread polling every 200ms)
-  → single trigger: "Created /Lotus/Interface/ProjectionRewardChoice.swf"
-  → 10s cooldown; waits 1.5s before capture
+  → single trigger: "VoidProjections: OpenVoidProjectionRewardScreen"
+      (matches both the host variant and the "...RMI" client variant)
+  → 10s cooldown; waits 3.5s before capture
   → captures "Warframe" window via xcap
   → ocr.rs: detect_theme() + extract_parts() → /tmp/wfinfo_prefilter.png
   → lib.rs: calls pre-warmed OCR daemon (~1-2s)
   → scripts/ocr/ocr_vision.py (daemon mode):
-      → detects gold peaks → clusters by proximity (≤10% width = same card)
-      → splits image into N cards at midpoints between clusters
+      → detects gold peaks to find the cards' start/end
+      → always splits into 4 equal cards (fissures are 4 players)
       → Apple Vision OCR per card + fuzzy match against prices.json
   → lib.rs: show_overlay()
   → RewardOverlay.tsx: displays HUD for 15s
@@ -169,12 +176,11 @@ In a **bundled app** (`.dmg`), the datasets ship inside the app bundle and are s
 ## Requirements
 
 - macOS
-- Node.js + npm
-- Rust + cargo
-- `/usr/bin/python3` with pyobjc:
-  ```bash
-  /usr/bin/python3 -m pip install pyobjc-framework-Vision pyobjc-framework-Quartz
-  ```
+- Node.js + npm (dev only)
+- Rust + cargo (dev only)
+- Python for OCR (bundled in the `.dmg`, so end users need nothing here; for the
+  terminal/dev route use `scripts/prepare_python.sh` or a system python with
+  pyobjc)
 - macOS permissions: screen recording and accessibility (for mouse automation)
 
 ## Initial setup
@@ -183,8 +189,8 @@ In a **bundled app** (`.dmg`), the datasets ship inside the app bundle and are s
 # 1. install Node dependencies
 npm install
 
-# 2. install Python dependencies
-/usr/bin/python3 -m pip install pyobjc-framework-Vision pyobjc-framework-Quartz
+# 2. prepare the bundled Python (downloads a relocatable CPython + pyobjc/numpy/Pillow)
+./scripts/prepare_python.sh
 
 # 3. populate game datasets
 ./update.sh
@@ -224,11 +230,15 @@ tail -f /tmp/wfhub_debug.log
 # ensure datasets are present (bundling requires them)
 ./update.sh
 
+# prepare the bundled Python (skip if already done; the .dmg ships it so end
+# users don't need to install anything)
+./scripts/prepare_python.sh
+
 # build and bundle .app + .dmg
 source ~/.cargo/env && npm run tauri build
 ```
 
-Output goes to `target/release/bundle/macos/WFHub.app` and `target/release/bundle/dmg/WFHub_0.1.0_aarch64.dmg`. The bundle includes the datasets (`data/`), all scripts, and `update.sh`, so end users don't need Node/Rust/Python to run it — only `/usr/bin/python3` with pyobjc for OCR and the macOS screen-recording/accessibility permissions.
+Output goes to `target/release/bundle/macos/WFHub.app` and `target/release/bundle/dmg/WFHub_0.1.0_aarch64.dmg`. The bundle ships the datasets (`data/`), all scripts, `update.sh`, and a self-contained CPython with pyobjc/numpy/Pillow, so end users only need macOS and the screen-recording/accessibility permissions — no Node, Rust, or Python install required.
 
 ## Credits
 
@@ -239,7 +249,7 @@ Output goes to `target/release/bundle/macos/WFHub.app` and `target/release/bundl
 
 ## Notes
 
-- All Python scripts use `/usr/bin/python3` — do not change this
+- Python scripts run via the bundled CPython (`scripts/prepare_python.sh`) when present, falling back to `/usr/bin/python3`; `update.sh` uses `$PYTHON`/`WFHUB_PYTHON`
 - Do not update the `xcap` crate without validating the fork in `xcap-patch/`
 - The app uses a tray icon with `ActivationPolicy::Accessory` (no Dock icon); closing the window hides it, does not quit
 - Changes to `scripts/ocr/ocr_vision.py` take effect on app restart (no Rust rebuild needed); changes to `lib.rs` require `npm run tauri build`

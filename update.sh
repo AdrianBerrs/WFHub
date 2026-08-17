@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 DIR="$(cd "$(dirname "$0")" && pwd)"
 DATA_DIR="${WFHUB_DATA_DIR:-$DIR/data}"
+PYTHON="${WFHUB_PYTHON:-/usr/bin/python3}"
 mkdir -p "$DATA_DIR"
 
 # Baixa para arquivo temporario, valida JSON e conteudo, so entao sobrescreve o destino.
@@ -79,11 +80,11 @@ fetch_json "$BROWSE_BASE/ExportBoosterPacks.json" "$DATA_DIR/ExportBoosterPacks.
 fetch_json "$BROWSE_BASE/ExportBundles.json"      "$DATA_DIR/ExportBundles.json"
 fetch_json "$BROWSE_BASE/ExportRelics.json"       "$DATA_DIR/ExportRelics.json"
 
-/usr/bin/python3 "$DIR/scripts/data/update_prime_parts.py"
-/usr/bin/python3 "$DIR/scripts/data/build_enemy_locations.py"
-/usr/bin/python3 "$DIR/scripts/data/build_ducat_values.py"
+$PYTHON "$DIR/scripts/data/update_prime_parts.py"
+$PYTHON "$DIR/scripts/data/build_enemy_locations.py"
+$PYTHON "$DIR/scripts/data/build_ducat_values.py"
 
-/usr/bin/python3 "$DIR/scripts/data/build_items_prices.py"
+$PYTHON "$DIR/scripts/data/build_items_prices.py"
 
 # Icons do Circuit (auto-crescente: a cada update adiciona os itens da rotacao atual)
-/usr/bin/python3 "$DIR/scripts/data/build_circuit_images.py"
+$PYTHON "$DIR/scripts/data/build_circuit_images.py"

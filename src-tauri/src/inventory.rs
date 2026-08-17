@@ -16,7 +16,7 @@ use xcap::Window as CaptureWindow;
 
 const VALID_SCAN_TYPES: [&str; 3] = ["mods", "arcanes", "prime_parts"];
 
-use crate::{data_path, log_to_file, resource_path, save_debug_image};
+use crate::{data_path, log_to_file, python_binary, resource_path, save_debug_image};
 
 // ─── Managed state ────────────────────────────────────────────────────────────
 
@@ -176,7 +176,7 @@ pub fn start_inventory_scan(
                 });
             }
 
-            let _ = Command::new("/usr/bin/python3")
+            let _ = Command::new(python_binary(&app))
                 .arg(&scroll_script)
                 .arg(&scan_type)
                 .output();
@@ -207,7 +207,7 @@ pub fn start_inventory_scan(
             });
         }
 
-        let mut ocr_cmd = Command::new("/usr/bin/python3");
+        let mut ocr_cmd = Command::new(python_binary(&app));
         ocr_cmd.arg(&ocr_script)
             .arg("--batch")
             .arg(frame_idx.to_string())
@@ -313,7 +313,7 @@ pub fn debug_inventory_ocr(app: AppHandle, scan_type: String) -> Result<String, 
     let _ = fs::copy(tmp_path, "/tmp/wfhub_inv_debug_last.png");
 
     let script = resource_path(&app, "scripts/automation/inventory_ocr_debug.py");
-    let out = Command::new("/usr/bin/python3")
+    let out = Command::new(python_binary(&app))
         .arg(&script)
         .arg(tmp_path)
         .arg(&scan_type)

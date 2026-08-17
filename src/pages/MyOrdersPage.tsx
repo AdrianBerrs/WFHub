@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {invoke} from "@tauri-apps/api/core";
-import {ArrowLeft, CheckCircle, Eye, EyeOff, Pencil, RefreshCw, ShoppingCart, Trash2, Wifi, X} from "lucide-react";
+import {ArrowLeft, CheckCircle, Eye, EyeOff, Pencil, RefreshCw, ShoppingCart, Trash2, X} from "lucide-react";
 
 interface OrderItem {
     id: string;
@@ -28,12 +28,21 @@ interface EditState {
     rank: number | null;
 }
 
+type WfmStatus = "online" | "ingame" | "invisible";
+
+const STATUS_OPTIONS: { value: WfmStatus; label: string }[] = [
+    {value: "online", label: "Online"},
+    {value: "ingame", label: "In Game"},
+    {value: "invisible", label: "Offline"},
+];
+
 export default function MyOrdersPage() {
     const navigate = useNavigate();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [activeStatus, setActiveStatus] = useState<WfmStatus>("ingame");
     const [onlineStatus, setOnlineStatus] = useState<"idle" | "setting" | "ok" | "error">("idle");
     const [onlineError, setOnlineError] = useState<string | null>(null);
 
@@ -50,11 +59,12 @@ export default function MyOrdersPage() {
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-    async function setOnline() {
+    async function setStatus(status: WfmStatus) {
         setOnlineStatus("setting");
         setOnlineError(null);
         try {
-            await invoke("wfmarket_set_status", {status: "ingame"});
+            await invoke("wfmarket_set_status", {status});
+            setActiveStatus(status);
             setOnlineStatus("ok");
         } catch (e) {
             setOnlineStatus("error");
@@ -69,7 +79,7 @@ export default function MyOrdersPage() {
                 if (parsed.jwt) {
                     setIsLoggedIn(true);
                     fetchOrders();
-                    setOnline();
+                    setStatus("ingame");
                 }
             })
             .catch(() => {});
@@ -191,21 +201,32 @@ export default function MyOrdersPage() {
                 </div>
                 {isLoggedIn && (
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={setOnline}
-                            disabled={onlineStatus === "setting"}
-                            title={onlineError ?? "Set your warframe.market status to ingame"}
-                            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors disabled:opacity-50 ${
-                                onlineStatus === "ok"
-                                    ? "border-emerald-800 bg-emerald-950/40 text-emerald-400 hover:border-emerald-700"
-                                    : onlineStatus === "error"
-                                    ? "border-red-900/50 bg-red-950/30 text-red-400 hover:border-red-800"
-                                    : "border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700 hover:text-white"
-                            }`}
+                        <div
+                            title={onlineError ?? "Set your warframe.market status"}
+                            className="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-900 p-1"
                         >
-                            <Wifi size={13} className={onlineStatus === "setting" ? "animate-pulse" : ""} />
-                            {onlineStatus === "ok" ? "Online" : onlineStatus === "setting" ? "..." : "Go Online"}
-                        </button>
+                            {STATUS_OPTIONS.map((opt) => {
+                                const isActive = activeStatus === opt.value;
+                                const accent =
+                                    opt.value === "online"
+                                        ? "bg-emerald-950/60 text-emerald-400 border-emerald-500/30"
+                                        : opt.value === "ingame"
+                                        ? "bg-amber-950/60 text-amber-400 border-amber-500/30"
+                                        : "bg-slate-800 text-slate-400 border-slate-700";
+                                return (
+                                    <button
+                                        key={opt.value}
+                                        onClick={() => setStatus(opt.value)}
+                                        disabled={onlineStatus === "setting"}
+                                        className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
+                                            isActive ? accent : "border-transparent text-slate-500 hover:text-slate-300"
+                                        }`}
+                                    >
+                                        {onlineStatus === "setting" && isActive ? "..." : opt.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
                         <button
                             onClick={fetchOrders}
                             disabled={loading}

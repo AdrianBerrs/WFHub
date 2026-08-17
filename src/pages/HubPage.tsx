@@ -1,6 +1,5 @@
 import {useEffect, useMemo, useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
-import {open} from "@tauri-apps/plugin-shell";
 import {useNavigate} from "react-router-dom";
 import {
     Award,
@@ -10,7 +9,6 @@ import {
     Flame,
     Gamepad2,
     Moon,
-    Newspaper,
     RefreshCw,
     Shield,
     Snowflake,
@@ -47,13 +45,6 @@ interface HubInvasion {
     count?: number;
     required_runs?: number;
     completed?: boolean;
-}
-
-interface HubNews {
-    id: string;
-    title: string;
-    url?: string | null;
-    published_at_ms: number;
 }
 
 interface HubVoidTrader {
@@ -98,7 +89,6 @@ interface HubSnapshot {
     worlds: HubCycle[];
     alerts: HubAlert[];
     invasions: HubInvasion[];
-    news?: HubNews[];
     arbitration?: HubActivity | null;
     sortie?: HubSortie | null;
     archon_hunt?: HubActivity | null;
@@ -129,24 +119,6 @@ function formatCountdown(targetMs: number, nowMs: number): string {
     if (days > 0) return `${days}d ${hours}h ${minutes}m`;
     if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
     return `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
-}
-
-function formatSince(timestampMs: number, nowMs: number): string {
-    const delta = Math.max(0, nowMs - timestampMs);
-    const totalSeconds = Math.floor(delta / 1000);
-    const days = Math.floor(totalSeconds / 86400);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    if (days > 0) return `${days}d ${hours % 24}h ago`;
-    if (hours > 0) return `${hours}h ${minutes}m ago`;
-    return `${minutes}m ago`;
-}
-
-function newsBadge(title: string): "Hotfix" | "Patch" | null {
-    const lower = title.toLowerCase();
-    if (lower.includes("hotfix")) return "Hotfix";
-    if (lower.includes("patch")) return "Patch";
-    return null;
 }
 
 function archonDisplay(activity: HubActivity): { boss: string; stages: string[] } {
@@ -435,14 +407,6 @@ export default function HubPage() {
         if (!snapshot) return [] as HubCycle[];
         return [...snapshot.worlds].sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
     }, [snapshot]);
-
-    const newsItems = snapshot?.news ?? [];
-
-    async function openNews(item: HubNews) {
-        const url = item.url ?? "https://browse.wf/live";
-        await open(url).catch(() => {
-        });
-    }
 
     return (
         <div className="wf-page space-y-6">
@@ -762,7 +726,7 @@ export default function HubPage() {
 
                     </div>
 
-                    {/*INVASOES-NEWS*/}
+                    {/*INVASOES + ALERTAS*/}
                     <div className="grid gap-4 lg:grid-cols-2">
 
                         {/*INVASOES*/}
@@ -827,59 +791,30 @@ export default function HubPage() {
                             )}
                         </section>
 
-                        {/*NEWS*/}
+                        {/*ALERTAS*/}
                         <section className="rounded-xl border border-[#1e1e2d] bg-[#111119] p-5 shadow-lg">
-                            <h2 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-cyan-400">
-                                <Newspaper size={14} />
-                                News
+                            <h2 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-amber-400">
+                                <Zap size={14} className="text-amber-400" />
+                                Alerts
                             </h2>
-                            {newsItems.length === 0 ? (
-                                <p className="mt-2 text-sm text-slate-500">No news at the moment.</p>
+                            {snapshot.alerts.length === 0 ? (
+                                <p className="mt-2 text-sm text-slate-500">No active alerts.</p>
                             ) : (
                                 <div className="custom-scrollbar mt-3 max-h-140 space-y-2 overflow-auto pr-1">
-                                    {newsItems.map((item) => (
-                                        <button
-                                            key={item.id}
-                                            onClick={() => openNews(item)}
-                                            className="w-full rounded-lg border border-slate-900 bg-slate-950/60 px-3 py-2 text-left transition-colors hover:border-slate-800"
-                                        >
-                                            <div className="flex items-center justify-between gap-2">
-                                                <p className="line-clamp-2 text-sm font-semibold text-slate-200">{item.title}</p>
-                                                {newsBadge(item.title) && (
-                                                    <span
-                                                        className="shrink-0 rounded-md border border-orange-500/30 bg-orange-500/15 px-2 py-0.5 text-[10px] font-semibold text-orange-300">
-                            {newsBadge(item.title)}
-                          </span>
-                                                )}
-                                            </div>
-                                            <p className="mt-0.5 font-mono text-[11px] text-slate-500">{formatSince(item.published_at_ms, nowMs)}</p>
-                                        </button>
+                                    {snapshot.alerts.map((alert) => (
+                                        <div key={alert.id}
+                                             className="rounded-lg border border-slate-900 bg-slate-950/60 px-3 py-2 transition-colors hover:border-slate-800">
+                                            <p className="text-sm font-semibold text-slate-200">{alert.title}</p>
+                                            <p className="mt-0.5 font-mono text-[11px] text-slate-500">
+                                                Expires in {formatCountdown(alert.expires_at_ms, nowMs)}
+                                            </p>
+                                        </div>
                                     ))}
                                 </div>
                             )}
                         </section>
 
                     </div>
-
-                    {/*ALERTAS*/}
-                    <section className="rounded-xl border border-[#1e1e2d] bg-[#111119] p-5 shadow-lg">
-                        <h2 className="font-mono text-xs font-bold uppercase tracking-widest text-amber-400">Alerts</h2>
-                        {snapshot.alerts.length === 0 ? (
-                            <p className="mt-2 text-sm text-slate-500">No active alerts.</p>
-                        ) : (
-                            <div className="custom-scrollbar mt-3 max-h-44 space-y-2 overflow-auto pr-1">
-                                {snapshot.alerts.map((alert) => (
-                                    <div key={alert.id}
-                                         className="rounded-lg border border-slate-900 bg-slate-950/60 px-3 py-2 transition-colors hover:border-slate-800">
-                                        <p className="text-sm font-semibold text-slate-200">{alert.title}</p>
-                                        <p className="mt-0.5 font-mono text-[11px] text-slate-500">
-                                            Expires in {formatCountdown(alert.expires_at_ms, nowMs)}
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </section>
                 </div>
             )}
         </div>

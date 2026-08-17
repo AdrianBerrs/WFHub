@@ -278,17 +278,17 @@ export default function SettingsPage() {
                         ) : (
                             <div className="flex flex-col gap-2">
                                 <p className="text-xs text-slate-400">
-                                    Acesse <span className="text-cyan-400">warframe.market</span>, faça login,
-                                    abra DevTools (F12) → Application → Cookies →{" "}
+                                    Go to <span className="text-cyan-400">warframe.market</span>, sign in, open
+                                    DevTools (F12) → Application → Cookies →{" "}
                                     <code className="rounded bg-slate-800 px-1 text-emerald-400">warframe.market</code>{" "}
-                                    → copie o valor do cookie{" "}
-                                    <code className="rounded bg-slate-800 px-1 text-emerald-400">JWT</code>.
+                                    → copy the{" "}
+                                    <code className="rounded bg-slate-800 px-1 text-emerald-400">JWT</code> cookie value.
                                 </p>
                                 <textarea
                                     rows={3}
                                     value={jwtInput}
                                     onChange={(e) => setJwtInput(e.target.value)}
-                                    placeholder="Cole o valor do cookie JWT aqui..."
+                                    placeholder="Paste the JWT cookie value here..."
                                     disabled={jwtSaving}
                                     className="custom-scrollbar resize-none rounded-lg border border-slate-800 bg-slate-950/80 px-3 py-2 font-mono text-xs text-slate-100 focus:border-primary-500 focus:outline-none disabled:opacity-50"
                                 />
@@ -298,7 +298,7 @@ export default function SettingsPage() {
                                     disabled={jwtSaving || !jwtInput.trim()}
                                     className="self-end rounded-lg border border-cyan-500/20 bg-cyan-950/40 px-4 py-2 text-xs font-bold text-cyan-300 transition-colors hover:bg-cyan-950/60 disabled:opacity-50"
                                 >
-                                    {jwtSaving ? "Verificando..." : "Conectar"}
+                                    {jwtSaving ? "Verifying..." : "Connect"}
                                 </button>
                             </div>
                         )}

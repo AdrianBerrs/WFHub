@@ -9,6 +9,9 @@ dist/
 src-tauri/gen/
 src-tauri/target/
 
+# Python empacotado (gerado por scripts/prepare_python.sh)
+/python/
+
 # Dados gerados por update.sh (recrie com ./update.sh após clonar)
 data/items_list.json
 data/mods_all.json
