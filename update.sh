@@ -51,7 +51,6 @@ fetch_json() {
 }
 
 fetch_json "https://api.warframestat.us/wfinfo/prices/"          "$DATA_DIR/prices.json"
-fetch_json "https://api.warframestat.us/wfinfo/filtered_items/"  "$DATA_DIR/filtered_items.json"
 fetch_json "https://api.warframe.market/v2/items"                "$DATA_DIR/items_list.json" '[.data[] | {slug: .slug, name: .i18n.en.name}]'
 fetch_json "https://drops.warframestat.us/data/modLocations.json"      "$DATA_DIR/modLocations.json"
 fetch_json "https://drops.warframestat.us/data/missionRewards.json"    "$DATA_DIR/missionRewards.json"
@@ -62,10 +61,7 @@ fetch_json "https://drops.warframestat.us/data/enemyModTables.json"   "$DATA_DIR
 fetch_json "https://drops.warframestat.us/data/transientRewards.json" "$DATA_DIR/transientRewards.json"
 fetch_json "https://drops.warframestat.us/data/relics.json"           "$DATA_DIR/relics.json"
 fetch_json "https://raw.githubusercontent.com/WFCD/warframe-items/master/data/json/Mods.json" "$DATA_DIR/mods_all.json" '[.[].name]'
-fetch_json "https://raw.githubusercontent.com/WFCD/warframe-items/master/data/json/Arcanes.json" "$DATA_DIR/arcanes_all.json" '[.[].name]'
 fetch_json "https://raw.githubusercontent.com/WFCD/warframe-items/master/data/json/Mods.json" "$DATA_DIR/mod_ranks.json" '[.[] | select(.fusionLimit != null) | {key: .name, value: .fusionLimit}] | from_entries'
-fetch_json "https://raw.githubusercontent.com/WFCD/warframe-items/master/data/json/Resources.json" "$DATA_DIR/resources_wfcd.json"
-fetch_json "https://raw.githubusercontent.com/WFCD/warframe-items/master/data/json/Misc.json"      "$DATA_DIR/misc_wfcd.json"
 
 # Warframe public export data (used for Baro Ki'Teer item name translation)
 # These only change on Warframe game updates (~every 4-8 weeks)

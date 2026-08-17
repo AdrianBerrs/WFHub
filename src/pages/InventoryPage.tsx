@@ -50,8 +50,47 @@ interface ModImageInfo {
 
 const WARFRAME_SUB_BP = /\b(Chassis|Neuroptics|Systems|Harness|Wings) Blueprint$/;
 const WFCD_IMAGE_BASE = "https://cdn.warframestat.us/img/";
+const WFM_IMAGE_BASE = "https://warframe.market/static/assets/";
+const WIKI_IMAGE_BASE = "https://wiki.warframe.com/images/";
 const RARITY_RANK: Record<string, number> = {Common: 0, Uncommon: 1, Rare: 2, Legendary: 3};
 type OrderBy = "name" | "price" | "rarity";
+
+function primeWikiImageUrl(itemName: string): string | null {
+    // "Rhino Prime" -> "RhinoPrime.png"; remove caracteres especiais para nomes de arquivo
+    const file = itemName.replace(/\s+/g, "").replace(/[^A-Za-z0-9_&]/g, "");
+    if (!file) return null;
+    return `${WIKI_IMAGE_BASE}${file}.png`;
+}
+
+function PrimePreviewImg({primarySrc, fallbackName, alt, className, style}: {
+    primarySrc: string;
+    fallbackName?: string;
+    alt: string;
+    className?: string;
+    style?: React.CSSProperties;
+}) {
+    const [attemptedWiki, setAttemptedWiki] = useState(false);
+    const [src, setSrc] = useState(primarySrc);
+    useEffect(() => { setSrc(primarySrc); setAttemptedWiki(false); }, [primarySrc]);
+
+    const handleError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+        const img = e.currentTarget;
+        if (!attemptedWiki && fallbackName) {
+            const wiki = primeWikiImageUrl(fallbackName);
+            if (wiki) {
+                setAttemptedWiki(true);
+                setSrc(wiki);
+                return;
+            }
+        }
+        img.style.display = "none";
+    };
+
+    return (
+        <img key={src} src={src} alt={alt} className={className} style={style}
+             onError={handleError} />
+    );
+}
 
 function getPrimeItemName(partName: string): string {
     const words = partName.split(" ");
@@ -571,11 +610,10 @@ export default function InventoryPage() {
     }
 
     function fetchAndSetPrimeIcon(slug: string) {
-        setPrimePreviewImgUrl(null);
         invoke<string>("fetch_item_info", {slug})
             .then((raw) => {
                 const icon: string | undefined = JSON.parse(raw)?.data?.i18n?.en?.icon;
-                if (icon) setPrimePreviewImgUrl(`https://warframe.market/static/assets/${icon}`);
+                if (icon) setPrimePreviewImgUrl(`${WFM_IMAGE_BASE}${icon}`);
             })
             .catch(() => {});
     }
@@ -609,7 +647,7 @@ export default function InventoryPage() {
         setSellRank(null);
         setSellQuantity(1);
         setSelectedItemPrice(null);
-        setPrimePreviewImgUrl(null);
+        setPrimePreviewImgUrl(primeWikiImageUrl(item.name));
         const setName = `${item.name} Set`;
         const setSlugEntry = allItemSlugs.find((s) => s.name.toLowerCase() === setName.toLowerCase())
             ?? findFuzzyMatches(allItemSlugs, setName, 1)[0];
@@ -1290,10 +1328,10 @@ export default function InventoryPage() {
                                     <>
                                         <div className="flex w-full items-center justify-center rounded-xl border border-slate-800 bg-slate-950/60 overflow-hidden py-3">
                                             {primePreviewImgUrl ? (
-                                                <img key={primePreviewImgUrl} src={primePreviewImgUrl} alt={primePanelPart}
+                                                <PrimePreviewImg primarySrc={primePreviewImgUrl} fallbackName={primePanelPart}
+                                                     alt={primePanelPart}
                                                      className="w-24 h-24 object-contain"
-                                                     style={{imageRendering: "pixelated"}}
-                                                     onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                                                     style={{imageRendering: "pixelated"}} />
                                             ) : (
                                                 <span className="text-xs text-slate-600 font-mono">No preview</span>
                                             )}
@@ -1376,9 +1414,9 @@ export default function InventoryPage() {
                                     <>
                                         <div className="flex aspect-square w-full items-center justify-center rounded-xl border border-slate-800 bg-slate-950/60 overflow-hidden">
                                             {primePreviewImgUrl ? (
-                                                <img key={primePreviewImgUrl} src={primePreviewImgUrl} alt={primePanelSet.name}
-                                                     className="w-full h-full object-contain p-3"
-                                                     onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                                                <PrimePreviewImg primarySrc={primePreviewImgUrl} fallbackName={primePanelSet.name}
+                                                     alt={primePanelSet.name}
+                                                     className="w-full h-full object-contain p-3" />
                                             ) : (
                                                 <span className="text-xs text-slate-600 font-mono">No preview</span>
                                             )}

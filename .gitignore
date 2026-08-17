@@ -57,6 +57,8 @@ data/void_trader_last_inventory.json
 # Instruções de agentes/AI e docs locais
 CLAUDE.md
 AGENTS.md
+.claude
+.idea
 
 # macOS
 .DS_Store

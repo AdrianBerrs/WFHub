@@ -69,7 +69,12 @@ def main():
     log("Loading source files...")
     items_list = load_json(os.path.join(DATA_DIR, "items_list.json"))
     mods = load_json(os.path.join(DATA_DIR, "mods_all.json"))
-    arcanes = load_json(os.path.join(DATA_DIR, "arcanes_all.json"))
+    arcane_images = load_json(os.path.join(DATA_DIR, "arcane_images.json"))
+    arcanes = [
+        entry.get("name")
+        for entry in arcane_images.values()
+        if entry.get("name")
+    ]
     prices = load_json(os.path.join(DATA_DIR, "prices.json"))
     ducats = load_json(os.path.join(DATA_DIR, "ducat_values.json"))
     name_to_slug = build_name_slug_map(items_list)

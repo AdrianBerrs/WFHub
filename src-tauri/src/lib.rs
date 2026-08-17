@@ -29,7 +29,6 @@ use xcap::Window as CaptureWindow;
 
 static EXITING: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
-const REWARD_FILE: &str = "/tmp/wfhub_reward.json";
 const REWARD_HISTORY_FILE: &str = "reward_history.json";
 const MAX_REWARD_HISTORY: usize = 100;
 static CONFIG_LOG_PATH: Mutex<Option<PathBuf>> = Mutex::new(None);
@@ -127,6 +126,7 @@ static DUCAT_VALUES_CACHE: OnceLock<String> = OnceLock::new();
 static PRIME_VAULT_CACHE: OnceLock<String> = OnceLock::new();
 static MOD_META_CACHE: OnceLock<String> = OnceLock::new();
 static BARO_NAME_MAP_CACHE: OnceLock<HashMap<String, String>> = OnceLock::new();
+static WEEKLY_EXPORT_CACHE: OnceLock<WeeklyExportData> = OnceLock::new();
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 struct RewardItem {
@@ -650,22 +650,6 @@ fn append_reward_history(payload: &RewardPayload) {
     history.truncate(MAX_REWARD_HISTORY);
     if let Ok(json) = serde_json::to_string(&history) {
         let _ = fs::write(&path, json);
-    }
-}
-
-fn reward_payload_from_file() -> Result<RewardPayload, String> {
-    let contents = fs::read_to_string(REWARD_FILE)
-        .map_err(|err| format!("failed to read {REWARD_FILE}: {err}"))?;
-    serde_json::from_str::<RewardPayload>(&contents)
-        .map_err(|err| format!("failed to parse reward JSON: {err}"))
-}
-
-fn command_result(output: std::process::Output) -> ShellCommandResult {
-    ShellCommandResult {
-        success: output.status.success(),
-        code: output.status.code(),
-        stdout: String::from_utf8_lossy(&output.stdout).trim().to_string(),
-        stderr: String::from_utf8_lossy(&output.stderr).trim().to_string(),
     }
 }
 
@@ -2664,10 +2648,6 @@ fn next_weekly_reset_ms(now: i64) -> i64 {
     next.and_utc().timestamp_millis()
 }
 
-fn parse_iso_ms(raw: Option<&str>) -> Option<i64> {
-    chrono::DateTime::parse_from_rfc3339(raw?).ok().map(|dt| dt.timestamp_millis())
-}
-
 fn archimedea_type_name(raw: &str) -> &str {
     let cleaned: String = raw.chars().filter(|c| !c.is_whitespace() && *c != '_').collect();
     if cleaned.contains("HEX") {
@@ -2677,131 +2657,579 @@ fn archimedea_type_name(raw: &str) -> &str {
     }
 }
 
+/// Mapas e arrays estáticos replicando a rotação semanal do browse.wf / warframe.worldstate
+/// (essas atividades não têm dados no worldstate cru — o browse.wf calcula por semana no JS).
+const CIRCUIT_EPOCH_MS: i64 = 1_734_307_200_000; // 2024-12-16T00:00:00Z
+const CIRCUIT_FRAMES: [&[&str]; 11] = [
+    &["InfestationName", "BardName", "PriestName"],
+    &["GlassName", "KhoraName", "RevenantName"],
+    &["GarudaName", "PacifistName", "IronFrameName"],
+    &["ExcaliburName", "TrinityName", "EmberName"],
+    &["LokiName", "MagName", "RhinoName"],
+    &["AshName", "FrostName", "NyxName"],
+    &["SarynName", "VaubanName", "NovaName"],
+    &["NekrosName", "ValkyrName", "OberonName"],
+    &["HydroidName", "MirageName", "LimboName"],
+    &["MesaName", "ChromaName", "AtlasName"],
+    &["IvaraName", "InarosName", "TitaniaName"],
+];
+const CIRCUIT_WEAPONS: [&[&str]; 9] = [
+    &["AutoShotgunName", "ReconnasorName", "CorpusHandRocketLauncherName", "HeavyRifleName", "ParisScytheName"],
+    &["StaffName", "SemiAutoRifleName", "AutoPistolName", "FistName", "ShotgunName"],
+    &["Lex", "PaladinMaceName", "BoltoRifleName", "HandCannonName", "CeramicDaggerName"],
+    &["Torid", "InfestedLexName", "InfestedDualAxeName", "GrineerSawbladeGunName", "GrnHeatGunName"],
+    &["RegorAxeShieldName", "TennoAssaultRifleName", "TennoRevolverName", "NamiSoloName", "BurstRifleName"],
+    &["SybarisPistolName", "IceHammerName", "StalkerBowName", "StalkerKunaiName", "StalkerScytheName"],
+    &["EnergyRifleName", "TennoLeverActionRifleName", "CorpusMinigunName", "BurstPistolName", "TennoSaiName"],
+    &["TennoSniperRifleName", "GrineerGooGunName", "AutoCrossBowName", "TnoRapierName", "CorpusPunchKickWeaponName"],
+    &["RifleName", "PistolName", "LongSwordName", "HuntingBowName", "KunaiName"],
+];
+const STEEL_PATH_EPOCH_MS: i64 = 1_736_121_600_000; // 2025-01-06T00:00:00Z
+const STEEL_PATH_ROTATION: [(&str, i64); 8] = [
+    ("Umbra Forma Blueprint", 150),
+    ("50,000 Kuva", 55),
+    ("Kitgun Riven Mod", 75),
+    ("3x Forma", 75),
+    ("Zaw Riven Mod", 75),
+    ("30,000 Endo", 150),
+    ("Rifle Riven Mod", 75),
+    ("Shotgun Riven Mod", 75),
+];
+const STEEL_PATH_EVERGREENS: [(&str, i64); 19] = [
+    ("Veiled Riven Cipher", 20),
+    ("Bishamo Pauldrons Blueprint", 15),
+    ("Bishamo Cuirass Blueprint", 25),
+    ("Bishamo Helmet Blueprint", 20),
+    ("Bishamo Greaves Blueprint", 25),
+    ("10k Kuva", 15),
+    ("Primary Arcane Adapter", 15),
+    ("Secondary Arcane Adapter", 15),
+    ("Relic Pack", 15),
+    ("Stance Forma Blueprint", 10),
+    ("Trio Orbit Ephemera", 3),
+    ("Crania Ephemera", 85),
+    ("Counterbalance", 35),
+    ("Noggle Statue - Teshin", 35),
+    ("Gauss in Action Glyph", 15),
+    ("Grendel in Action Glyph", 15),
+    ("Protea in Action Glyph", 15),
+    ("Orokin Tea Set", 15),
+    ("Xaku in Action Glyph", 15),
+];
+
+/// Converte um loc key tail do Circuit em nome exibível.
+/// Warframes: display name via dict (/Lotus/Language/Suits/...).
+/// Armas: internal name camelCase (AckAndBrunt, NamiSolo...) — o que o frontend
+/// espera para lookup em circuit_images.json e humanizeWeapon.
+fn circuit_choice_label(loc_key_tail: &str, dict: Option<&serde_json::Value>, is_weapon: bool) -> String {
+    if is_weapon {
+        match loc_key_tail {
+            "AutoShotgunName" => "Boar".to_string(),
+            "ReconnasorName" => "Gammacor".to_string(),
+            "CorpusHandRocketLauncherName" => "Angstrum".to_string(),
+            "HeavyRifleName" => "Gorgon".to_string(),
+            "ParisScytheName" => "Anku".to_string(),
+            "StaffName" => "Bo".to_string(),
+            "SemiAutoRifleName" => "Latron".to_string(),
+            "AutoPistolName" => "Furis".to_string(),
+            "FistName" => "Furax".to_string(),
+            "ShotgunName" => "Strun".to_string(),
+            "Lex" => "Lex".to_string(),
+            "PaladinMaceName" => "Magistar".to_string(),
+            "BoltoRifleName" => "Boltor".to_string(),
+            "HandCannonName" => "Bronco".to_string(),
+            "CeramicDaggerName" => "CeramicDagger".to_string(),
+            "Torid" => "Torid".to_string(),
+            "InfestedLexName" => "DualToxocyst".to_string(),
+            "InfestedDualAxeName" => "DualIchor".to_string(),
+            "GrineerSawbladeGunName" => "Miter".to_string(),
+            "GrnHeatGunName" => "Atomos".to_string(),
+            "RegorAxeShieldName" => "AckAndBrunt".to_string(),
+            "TennoAssaultRifleName" => "Soma".to_string(),
+            "TennoRevolverName" => "Vasto".to_string(),
+            "NamiSoloName" => "NamiSolo".to_string(),
+            "BurstRifleName" => "Burston".to_string(),
+            "SybarisPistolName" => "Zylok".to_string(),
+            "IceHammerName" => "Sibear".to_string(),
+            "StalkerBowName" => "Dread".to_string(),
+            "StalkerKunaiName" => "Despair".to_string(),
+            "StalkerScytheName" => "Hate".to_string(),
+            "EnergyRifleName" => "Dera".to_string(),
+            "TennoLeverActionRifleName" => "Sybaris".to_string(),
+            "CorpusMinigunName" => "Cestra".to_string(),
+            "BurstPistolName" => "Sicarus".to_string(),
+            "TennoSaiName" => "Okina".to_string(),
+            "TennoSniperRifleName" => "Vectis".to_string(),
+            "GrineerGooGunName" => "Stug".to_string(),
+            "AutoCrossBowName" => "Ballistica".to_string(),
+            "TnoRapierName" => "Destreza".to_string(),
+            "CorpusPunchKickWeaponName" => "Obex".to_string(),
+            "RifleName" => "Braton".to_string(),
+            "PistolName" => "Lato".to_string(),
+            "LongSwordName" => "Skana".to_string(),
+            "HuntingBowName" => "Paris".to_string(),
+            "KunaiName" => "Kunai".to_string(),
+            other => {
+                let name = other.trim_end_matches("Name");
+                humanize_node(name)
+            }
+        }
+    } else {
+        let full = format!("/Lotus/Language/Suits/{loc_key_tail}");
+        let resolved = resolve_dict_value(dict, &full);
+        if resolved != full {
+            return resolved;
+        }
+        match loc_key_tail {
+            "InfestationName" => "Nidus".to_string(),
+            "BardName" => "Octavia".to_string(),
+            "PriestName" => "Harrow".to_string(),
+            "GlassName" => "Gara".to_string(),
+            "PacifistName" => "Baruuk".to_string(),
+            "IronFrameName" => "Hildryn".to_string(),
+            _ => {
+                let name = loc_key_tail.trim_end_matches("Name");
+                humanize_node(name)
+            }
+        }
+    }
+}
+
+fn sortie_boss_label(raw: &str) -> String {
+    match raw {
+        "SORTIE_BOSS_ALAD" => "Alad V".to_string(),
+        "SORTIE_BOSS_AMAR" => "Archon Amar".to_string(),
+        "SORTIE_BOSS_AMBULAS" => "Ambulas".to_string(),
+        "SORTIE_BOSS_BOREAL" => "Archon Boreal".to_string(),
+        "SORTIE_BOSS_CORRUPTED_VOR" => "Corrupted Vor".to_string(),
+        "SORTIE_BOSS_HEK" => "Councilor Vay Hek".to_string(),
+        "SORTIE_BOSS_HYENA" => "Hyena Pack".to_string(),
+        "SORTIE_BOSS_INFALAD" => "Mutalist Alad V".to_string(),
+        "SORTIE_BOSS_JACKAL" => "Jackal".to_string(),
+        "SORTIE_BOSS_KELA" => "Kela De Thaym".to_string(),
+        "SORTIE_BOSS_KRIL" => "Lech Kril".to_string(),
+        "SORTIE_BOSS_LEPHANTIS" => "Lephantis".to_string(),
+        "SORTIE_BOSS_NEF" => "Nef Anyo".to_string(),
+        "SORTIE_BOSS_NIRA" => "Archon Nira".to_string(),
+        "SORTIE_BOSS_PAAZUL" => "Archon Paazul".to_string(),
+        "SORTIE_BOSS_PHORID" => "Phorid".to_string(),
+        "SORTIE_BOSS_RAPTOR" => "Raptor".to_string(),
+        "SORTIE_BOSS_RUK" => "General Sargas Ruk".to_string(),
+        "SORTIE_BOSS_TYL" => "Tyl Regor".to_string(),
+        "SORTIE_BOSS_VOR" => "Captain Vor".to_string(),
+        other if other.starts_with("SORTIE_BOSS_") => other
+            .trim_start_matches("SORTIE_BOSS_")
+            .replace('_', " ")
+            .to_string(),
+        _ => raw.to_string(),
+    }
+}
+
+fn sortie_boss_faction(raw: &str) -> String {
+    match raw {
+        "SORTIE_BOSS_ALAD" | "SORTIE_BOSS_AMBULAS" | "SORTIE_BOSS_HYENA" | "SORTIE_BOSS_JACKAL"
+        | "SORTIE_BOSS_NEF" | "SORTIE_BOSS_RAPTOR" => "Corpus".to_string(),
+        "SORTIE_BOSS_HEK" | "SORTIE_BOSS_KELA" | "SORTIE_BOSS_KRIL" | "SORTIE_BOSS_RUK"
+        | "SORTIE_BOSS_TYL" | "SORTIE_BOSS_VOR" => "Grineer".to_string(),
+        "SORTIE_BOSS_INFALAD" | "SORTIE_BOSS_LEPHANTIS" | "SORTIE_BOSS_PHORID" => "Infestation".to_string(),
+        "SORTIE_BOSS_AMAR" | "SORTIE_BOSS_BOREAL" | "SORTIE_BOSS_NIRA" | "SORTIE_BOSS_PAAZUL" => "Narmer".to_string(),
+        "SORTIE_BOSS_CORRUPTED_VOR" => "Corrupted".to_string(),
+        _ => String::new(),
+    }
+}
+
+fn sortie_modifier_label(raw: &str) -> String {
+    match raw {
+        "SORTIE_MODIFIER_LOW_ENERGY" => "Energy Reduction".to_string(),
+        "SORTIE_MODIFIER_IMPACT" => "Enemy Physical Enhancement: Impact".to_string(),
+        "SORTIE_MODIFIER_SLASH" => "Enemy Physical Enhancement: Slash".to_string(),
+        "SORTIE_MODIFIER_PUNCTURE" => "Enemy Physical Enhancement: Puncture".to_string(),
+        "SORTIE_MODIFIER_EXIMUS" => "Eximus Stronghold".to_string(),
+        "SORTIE_MODIFIER_MAGNETIC" => "Enemy Elemental Enhancement: Magnetic".to_string(),
+        "SORTIE_MODIFIER_CORROSIVE" => "Enemy Elemental Enhancement: Corrosive".to_string(),
+        "SORTIE_MODIFIER_VIRAL" => "Enemy Elemental Enhancement: Viral".to_string(),
+        "SORTIE_MODIFIER_ELECTRICITY" => "Enemy Elemental Enhancement: Electricity".to_string(),
+        "SORTIE_MODIFIER_RADIATION" => "Enemy Elemental Enhancement: Radiation".to_string(),
+        "SORTIE_MODIFIER_GAS" => "Enemy Elemental Enhancement: Gas".to_string(),
+        "SORTIE_MODIFIER_FIRE" => "Enemy Elemental Enhancement: Heat".to_string(),
+        "SORTIE_MODIFIER_EXPLOSION" => "Enemy Elemental Enhancement: Blast".to_string(),
+        "SORTIE_MODIFIER_FREEZE" => "Enemy Elemental Enhancement: Cold".to_string(),
+        "SORTIE_MODIFIER_TOXIN" | "SORTIE_MODIFIER_POISON" => "Enemy Elemental Enhancement: Toxin".to_string(),
+        "SORTIE_MODIFIER_HAZARD_RADIATION" => "Environmental Hazard: Radiation Pockets".to_string(),
+        "SORTIE_MODIFIER_HAZARD_MAGNETIC" => "Environmental Hazard: Electromagnetic Anomalies".to_string(),
+        "SORTIE_MODIFIER_HAZARD_FOG" => "Environmental Hazard: Dense Fog".to_string(),
+        "SORTIE_MODIFIER_HAZARD_FIRE" => "Environmental Hazard: Fire".to_string(),
+        "SORTIE_MODIFIER_HAZARD_ICE" => "Environmental Effect: Cryogenic Leakage".to_string(),
+        "SORTIE_MODIFIER_HAZARD_COLD" => "Environmental Effect: Extreme Cold".to_string(),
+        "SORTIE_MODIFIER_ARMOR" => "Augmented Enemy Armor".to_string(),
+        "SORTIE_MODIFIER_SHIELDS" => "Enhanced Enemy Shields".to_string(),
+        "SORTIE_MODIFIER_SECONDARY_ONLY" => "Weapon Restriction: Pistol Only".to_string(),
+        "SORTIE_MODIFIER_SHOTGUN_ONLY" => "Weapon Restriction: Shotgun Only".to_string(),
+        "SORTIE_MODIFIER_SNIPER_ONLY" => "Weapon Restriction: Sniper Only".to_string(),
+        "SORTIE_MODIFIER_RIFLE_ONLY" => "Weapon Restriction: Assault Rifle Only".to_string(),
+        "SORTIE_MODIFIER_MELEE_ONLY" => "Weapon Restriction: Melee Only".to_string(),
+        "SORTIE_MODIFIER_BOW_ONLY" => "Weapon Restriction: Bow Only".to_string(),
+        _ => raw.replace("SORTIE_MODIFIER_", "").replace('_', " "),
+    }
+}
+
+/// Resolve um loc key do osdict (Conquest) para nome/descrição.
+fn conquest_label(osdict: Option<&serde_json::Value>, key: &str) -> String {
+    let resolved = resolve_dict_value(osdict, key);
+    if resolved != key {
+        resolved
+    } else {
+        key.rsplit('/').next().unwrap_or(key).to_string()
+    }
+}
+
+fn title_case_words(value: &str) -> String {
+    value
+        .split_whitespace()
+        .map(sentence_case)
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+fn mission_type_label(raw: &str, mission_types: Option<&serde_json::Value>, dict: Option<&serde_json::Value>) -> String {
+    if let Some(mts) = mission_types {
+        if let Some(entry) = mts.get(raw) {
+            if let Some(name_key) = entry.get("name").and_then(|v| v.as_str()) {
+                let resolved = resolve_dict_value(dict, name_key);
+                if resolved != name_key {
+                    return title_case_words(&resolved);
+                }
+            }
+        }
+    }
+    humanize_mission_type(raw)
+}
+
+fn faction_label(raw: &str, factions: Option<&serde_json::Value>, dict: Option<&serde_json::Value>) -> String {
+    if let Some(fs) = factions {
+        if let Some(entry) = fs.get(raw) {
+            if let Some(name_key) = entry.get("name").and_then(|v| v.as_str()) {
+                let resolved = resolve_dict_value(dict, name_key);
+                if resolved != name_key {
+                    return resolved;
+                }
+            }
+        }
+    }
+    humanize_faction(raw)
+}
+
+fn resolve_conquest_risk(tag: &str) -> &str {
+    if tag == "EMPBlackHole" {
+        "MagneticHounds"
+    } else {
+        tag
+    }
+}
+
+fn resolve_conquest_variable(tag: &str) -> &str {
+    match tag {
+        "DullBlades" => "ComboCountChance",
+        "Undersupplied" => "MaxAmmo",
+        _ => tag,
+    }
+}
+
+#[derive(Default)]
+struct WeeklyExportData {
+    dict: Option<serde_json::Value>,
+    osdict: Option<serde_json::Value>,
+    mission_types: Option<serde_json::Value>,
+    factions: Option<serde_json::Value>,
+    export_regions: Option<serde_json::Value>,
+}
+
+async fn load_weekly_export_data(client: &reqwest::Client) -> WeeklyExportData {
+    async fn load_json_optional(client: &reqwest::Client, url: &str) -> Option<serde_json::Value> {
+        match client.get(url).header("Accept", "application/json").send().await {
+            Ok(res) => res.json::<serde_json::Value>().await.ok(),
+            Err(_) => None,
+        }
+    }
+    WeeklyExportData {
+        dict: load_json_optional(client, "https://browse.wf/warframe-public-export-plus/dict.en.json").await,
+        osdict: load_json_optional(client, "https://oracle.browse.wf/dicts/en.json").await,
+        mission_types: load_json_optional(client, "https://browse.wf/warframe-public-export-plus/ExportMissionTypes.json").await,
+        factions: load_json_optional(client, "https://browse.wf/warframe-public-export-plus/ExportFactions.json").await,
+        export_regions: load_json_optional(client, "https://browse.wf/warframe-public-export-plus/ExportRegions.json").await,
+    }
+}
+
 async fn fetch_weekly_state_internal() -> Result<WeeklyState, String> {
     let now = now_ms();
     let client = http_client();
 
-    let payload: serde_json::Value = client
-        .get("https://api.warframestat.us/pc/")
+    let export_data = if let Some(d) = WEEKLY_EXPORT_CACHE.get() {
+        d
+    } else {
+        let data = load_weekly_export_data(client).await;
+        let _ = WEEKLY_EXPORT_CACHE.set(data);
+        WEEKLY_EXPORT_CACHE.get().expect("export cache should be set")
+    };
+
+    let dict = export_data.dict.as_ref();
+    let osdict = export_data.osdict.as_ref();
+    let mission_types = export_data.mission_types.as_ref();
+    let factions = export_data.factions.as_ref();
+    let export_regions = export_data.export_regions.as_ref();
+
+    let worldstate: serde_json::Value = client
+        .get("https://oracle.browse.wf/worldState.min.json")
         .header("Accept", "application/json")
         .send()
         .await
-        .map_err(|e| format!("warframestat request failed: {e}"))?
+        .map_err(|e| format!("browse worldState request failed: {e}"))?
         .json()
         .await
-        .map_err(|e| format!("warframestat parse failed: {e}"))?;
+        .map_err(|e| format!("browse worldState parse failed: {e}"))?;
 
-    let archon_hunt = payload.get("archonHunt").and_then(|v| {
-        if v.is_null() { return None; }
-        let expires = parse_iso_ms(v.get("expiry").and_then(|x| x.as_str()));
-        let missions = v.get("missions").and_then(|x| x.as_array()).map(|arr| {
-            arr.iter().map(|m| WeeklyMission {
-                mission_type: m.get("type").and_then(|x| x.as_str()).unwrap_or("Missao").to_string(),
-                node: m.get("node").and_then(|x| x.as_str()).unwrap_or("Nodo").to_string(),
-                modifier: String::new(),
-            }).collect::<Vec<_>>()
-        }).unwrap_or_default();
-        Some(WeeklyArchonHunt {
-            boss: v.get("boss").and_then(|x| x.as_str()).unwrap_or("Archon").to_string(),
-            faction: v.get("faction").and_then(|x| x.as_str()).unwrap_or("Narmer").to_string(),
-            expires_at_ms: expires.unwrap_or(now + 7 * 86_400_000),
-            missions,
-        })
-    });
-
-    let sortie = payload.get("sortie").and_then(|v| {
-        if v.is_null() { return None; }
-        let expires = parse_iso_ms(v.get("expiry").and_then(|x| x.as_str()));
-        let missions = v.get("variants").or_else(|| v.get("missions")).and_then(|x| x.as_array()).map(|arr| {
-            arr.iter().map(|m| WeeklyMission {
-                mission_type: m.get("missionType").or_else(|| m.get("type")).and_then(|x| x.as_str()).unwrap_or("Missao").to_string(),
-                node: m.get("node").and_then(|x| x.as_str()).unwrap_or("Nodo").to_string(),
-                modifier: m.get("modifier").or_else(|| m.get("modifierType")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
-            }).collect::<Vec<_>>()
-        }).unwrap_or_default();
-        Some(WeeklyArchonHunt {
-            boss: v.get("boss").and_then(|x| x.as_str()).unwrap_or("").to_string(),
-            faction: v.get("faction").and_then(|x| x.as_str()).unwrap_or("").to_string(),
-            expires_at_ms: expires.unwrap_or(now + 86_400_000),
-            missions,
-        })
-    });
-
-    let archimedeas = payload.get("archimedeas").and_then(|v| v.as_array()).map(|arr| {
-        arr.iter().map(|a| {
-            let raw_type = a.get("type").and_then(|x| x.as_str()).unwrap_or("");
-            let expires = parse_iso_ms(a.get("expiry").and_then(|x| x.as_str()));
-            let missions = a.get("missions").and_then(|x| x.as_array()).map(|ms| {
-                ms.iter().map(|m| WeeklyArchimedeaMission {
-                    mission_type: m.get("missionType").and_then(|x| x.as_str()).unwrap_or("Missao").to_string(),
-                    faction: m.get("faction").and_then(|x| x.as_str()).unwrap_or("").to_string(),
-                    deviation: m.get("deviation").and_then(|d| d.get("name")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
-                    deviation_description: m.get("deviation").and_then(|d| d.get("description")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
-                    risks: m.get("risks").and_then(|x| x.as_array()).map(|rs| {
-                        rs.iter().map(|r| WeeklyArchimedeaRisk {
-                            name: r.get("name").and_then(|x| x.as_str()).unwrap_or("").to_string(),
-                            description: r.get("description").and_then(|x| x.as_str()).unwrap_or("").to_string(),
-                            is_hard: r.get("isHard").and_then(|x| x.as_bool()).unwrap_or(false),
-                        }).collect::<Vec<_>>()
-                    }).unwrap_or_default(),
-                }).collect::<Vec<_>>()
-            }).unwrap_or_default();
-            let modifiers = a.get("personalModifiers").and_then(|x| x.as_array()).map(|ms| {
-                ms.iter().map(|m| WeeklyModifier {
-                    name: m.get("name").and_then(|x| x.as_str()).unwrap_or("").to_string(),
-                    description: m.get("description").and_then(|x| x.as_str()).unwrap_or("").to_string(),
-                }).collect::<Vec<_>>()
-            }).unwrap_or_default();
-            WeeklyArchimedea {
-                type_name: archimedea_type_name(raw_type).to_string(),
-                expires_at_ms: expires.unwrap_or(now + 7 * 86_400_000),
+    // --- Archon Hunt (LiteSorties) ---
+    let archon_hunt = worldstate
+        .get("LiteSorties")
+        .and_then(|v| v.as_array())
+        .and_then(|arr| arr.first())
+        .map(|s| {
+            let boss_raw = s.get("Boss").and_then(|v| v.as_str()).unwrap_or("");
+            let expires = s.get("Expiry").and_then(mongo_date_to_ms).unwrap_or(now + 7 * 86_400_000);
+            let missions = s
+                .get("Missions")
+                .and_then(|v| v.as_array())
+                .map(|arr| {
+                    arr.iter()
+                        .map(|m| WeeklyMission {
+                            mission_type: m
+                                .get("missionType")
+                                .and_then(|v| v.as_str())
+                                .map(|mt| mission_type_label(mt, mission_types, dict))
+                                .unwrap_or_else(|| "Missao".to_string()),
+                            node: m
+                                .get("node")
+                                .and_then(|v| v.as_str())
+                                .map(|n| resolve_node_label(n, export_regions, dict))
+                                .unwrap_or_else(|| "Nodo".to_string()),
+                            modifier: String::new(),
+                        })
+                        .collect::<Vec<_>>()
+                })
+                .unwrap_or_default();
+            WeeklyArchonHunt {
+                boss: sortie_boss_label(boss_raw),
+                faction: sortie_boss_faction(boss_raw),
+                expires_at_ms: expires,
                 missions,
-                personal_modifiers: modifiers,
             }
-        }).collect::<Vec<_>>()
-    }).unwrap_or_default();
-
-    let mut circuit_normal = None;
-    let mut circuit_hard = None;
-    if let Some(choices) = payload.get("duviriCycle").and_then(|v| v.get("choices")).and_then(|v| v.as_array()) {
-        for entry in choices {
-            let category = entry.get("category").and_then(|x| x.as_str()).unwrap_or("");
-            let choice_list = entry.get("choices").and_then(|x| x.as_array()).map(|cs| {
-                cs.iter().filter_map(|c| c.as_str().map(|s| s.to_string())).collect::<Vec<_>>()
-            }).unwrap_or_default();
-            let struct_choice = WeeklyCircuitChoices {
-                category: category.to_string(),
-                choices: choice_list,
-            };
-            if category == "hard" {
-                circuit_hard = Some(struct_choice);
-            } else {
-                circuit_normal = Some(struct_choice);
-            }
-        }
-    }
-
-    let steel_path = payload.get("steelPath").and_then(|v| {
-        if v.is_null() { return None; }
-        let reward = |field: &str| -> Vec<WeeklySteelPathReward> {
-            v.get(field).and_then(|x| x.as_array()).map(|arr| {
-                arr.iter().map(|r| WeeklySteelPathReward {
-                    name: r.get("name").and_then(|x| x.as_str()).unwrap_or("").to_string(),
-                    cost: r.get("cost").and_then(|x| x.as_i64()).unwrap_or(0),
-                }).collect::<Vec<_>>()
-            }).unwrap_or_default()
-        };
-        let current = v.get("currentReward").map(|r| WeeklySteelPathReward {
-            name: r.get("name").and_then(|x| x.as_str()).unwrap_or("").to_string(),
-            cost: r.get("cost").and_then(|x| x.as_i64()).unwrap_or(0),
         });
-        let expires = parse_iso_ms(v.get("expiry").and_then(|x| x.as_str()));
-        Some(WeeklySteelPath {
-            current_reward: current.unwrap_or(WeeklySteelPathReward { name: String::new(), cost: 0 }),
-            rotation: reward("rotation"),
-            evergreens: reward("evergreens"),
-            expires_at_ms: expires.unwrap_or(now + 7 * 86_400_000),
+
+    // --- Sortie (Sorties) ---
+    let sortie = worldstate
+        .get("Sorties")
+        .and_then(|v| v.as_array())
+        .and_then(|arr| arr.first())
+        .map(|s| {
+            let boss_raw = s.get("Boss").and_then(|v| v.as_str()).unwrap_or("");
+            let expires = s.get("Expiry").and_then(mongo_date_to_ms).unwrap_or(now + 86_400_000);
+            let missions = s
+                .get("Variants")
+                .or_else(|| s.get("Missions"))
+                .and_then(|v| v.as_array())
+                .map(|arr| {
+                    arr.iter()
+                        .map(|m| WeeklyMission {
+                            mission_type: m
+                                .get("missionType")
+                                .and_then(|v| v.as_str())
+                                .map(|mt| mission_type_label(mt, mission_types, dict))
+                                .unwrap_or_else(|| "Missao".to_string()),
+                            node: m
+                                .get("node")
+                                .and_then(|v| v.as_str())
+                                .map(|n| resolve_node_label(n, export_regions, dict))
+                                .unwrap_or_else(|| "Nodo".to_string()),
+                            modifier: m
+                                .get("modifierType")
+                                .and_then(|v| v.as_str())
+                                .map(sortie_modifier_label)
+                                .unwrap_or_default(),
+                        })
+                        .collect::<Vec<_>>()
+                })
+                .unwrap_or_default();
+            WeeklyArchonHunt {
+                boss: sortie_boss_label(boss_raw),
+                faction: sortie_boss_faction(boss_raw),
+                expires_at_ms: expires,
+                missions,
+            }
+        });
+
+    // --- Archimedeas (Conquests) ---
+    let archimedeas = worldstate
+        .get("Conquests")
+        .and_then(|v| v.as_array())
+        .map(|arr| {
+            arr.iter()
+                .map(|c| {
+                    let raw_type = c.get("Type").and_then(|v| v.as_str()).unwrap_or("");
+                    let is_hex = archimedea_type_name(raw_type) == "Temporal Archimedea";
+                    let dev_prefix = if is_hex { "HexConquest" } else { "LabConquest" };
+                    let expires = c.get("Expiry").and_then(mongo_date_to_ms).unwrap_or(now + 7 * 86_400_000);
+                    let missions = c
+                        .get("Missions")
+                        .and_then(|v| v.as_array())
+                        .map(|ms| {
+                            ms.iter()
+                                .map(|m| {
+                                    let difficulties = m
+                                        .get("difficulties")
+                                        .and_then(|v| v.as_array())
+                                        .cloned()
+                                        .unwrap_or_default();
+                                    let normal = difficulties.first();
+                                    let dev_tag = normal
+                                        .and_then(|d| d.get("deviation"))
+                                        .and_then(|v| v.as_str())
+                                        .unwrap_or("");
+                                    let dev_key = format!(
+                                        "/Lotus/Language/Conquest/MissionVariant_{dev_prefix}_{dev_tag}"
+                                    );
+                                    let mut risks: Vec<WeeklyArchimedeaRisk> = Vec::new();
+                                    for (di, diff) in difficulties.iter().enumerate() {
+                                        let is_hard = diff
+                                            .get("type")
+                                            .and_then(|v| v.as_str())
+                                            .map(|t| t == "CD_HARD")
+                                            .unwrap_or(false);
+                                        if let Some(rs) = diff.get("risks").and_then(|v| v.as_array()) {
+                                            // difficulties[0] = normal (todos os risks);
+                                            // difficulties[1+] = hard (slice(1): pula o 1º risco,
+                                            // que duplica o do normal) — igual ao warframestat.
+                                            let iter: Box<dyn Iterator<Item = &serde_json::Value>> =
+                                                if di == 0 {
+                                                    Box::new(rs.iter())
+                                                } else {
+                                                    Box::new(rs.iter().skip(1))
+                                                };
+                                            for r in iter {
+                                                let tag = r.as_str().unwrap_or("");
+                                                let mapped = resolve_conquest_risk(tag);
+                                                let risk_key =
+                                                    format!("/Lotus/Language/Conquest/Condition_{mapped}");
+                                                risks.push(WeeklyArchimedeaRisk {
+                                                    name: conquest_label(
+                                                        osdict,
+                                                        &format!("{risk_key}"),
+                                                    ),
+                                                    description: conquest_label(
+                                                        osdict,
+                                                        &format!("{risk_key}_Desc"),
+                                                    ),
+                                                    is_hard,
+                                                });
+                                            }
+                                        }
+                                    }
+                                    WeeklyArchimedeaMission {
+                                        mission_type: m
+                                            .get("missionType")
+                                            .and_then(|v| v.as_str())
+                                            .map(|mt| mission_type_label(mt, mission_types, dict))
+                                            .unwrap_or_else(|| "Missao".to_string()),
+                                        faction: m
+                                            .get("faction")
+                                            .and_then(|v| v.as_str())
+                                            .map(|fc| faction_label(fc, factions, dict))
+                                            .unwrap_or_default(),
+                                        deviation: conquest_label(osdict, &dev_key),
+                                        deviation_description: conquest_label(
+                                            osdict,
+                                            &format!("{dev_key}_Desc"),
+                                        ),
+                                        risks,
+                                    }
+                                })
+                                .collect::<Vec<_>>()
+                        })
+                        .unwrap_or_default();
+                    let modifiers = c
+                        .get("Variables")
+                        .and_then(|v| v.as_array())
+                        .map(|vs| {
+                            vs.iter()
+                                .filter_map(|v| v.as_str())
+                                .map(|tag| {
+                                    let mapped = resolve_conquest_variable(tag);
+                                    let mod_key = format!(
+                                        "/Lotus/Language/Conquest/PersonalMod_{mapped}"
+                                    );
+                                    WeeklyModifier {
+                                        name: conquest_label(osdict, &mod_key),
+                                        description: conquest_label(
+                                            osdict,
+                                            &format!("{mod_key}_Desc"),
+                                        ),
+                                    }
+                                })
+                                .collect::<Vec<_>>()
+                        })
+                        .unwrap_or_default();
+                    WeeklyArchimedea {
+                        type_name: archimedea_type_name(raw_type).to_string(),
+                        expires_at_ms: expires,
+                        missions,
+                        personal_modifiers: modifiers,
+                    }
+                })
+                .collect::<Vec<_>>()
         })
+        .unwrap_or_default();
+
+    // --- Circuit (rotação semanal replicada do browse.wf) ---
+    let circuit_week = ((now - CIRCUIT_EPOCH_MS).div_euclid(7 * 86_400_000)) as usize;
+    let frames = CIRCUIT_FRAMES[circuit_week % CIRCUIT_FRAMES.len()];
+    let weapons = CIRCUIT_WEAPONS[circuit_week % CIRCUIT_WEAPONS.len()];
+    let circuit_normal = Some(WeeklyCircuitChoices {
+        category: "normal".to_string(),
+        choices: frames
+            .iter()
+            .map(|tail| circuit_choice_label(tail, dict, false))
+            .collect::<Vec<_>>(),
+    });
+    let circuit_hard = Some(WeeklyCircuitChoices {
+        category: "hard".to_string(),
+        choices: weapons
+            .iter()
+            .map(|tail| circuit_choice_label(tail, dict, true))
+            .collect::<Vec<_>>(),
+    });
+
+    // --- Steel Path (rotação semanal replicada do browse.wf) ---
+    let steel_week = ((now - STEEL_PATH_EPOCH_MS).div_euclid(7 * 86_400_000)) as usize;
+    let current = STEEL_PATH_ROTATION[steel_week % STEEL_PATH_ROTATION.len()];
+    let steel_path = Some(WeeklySteelPath {
+        current_reward: WeeklySteelPathReward {
+            name: current.0.to_string(),
+            cost: current.1,
+        },
+        rotation: STEEL_PATH_ROTATION
+            .iter()
+            .map(|(name, cost)| WeeklySteelPathReward {
+                name: name.to_string(),
+                cost: *cost,
+            })
+            .collect::<Vec<_>>(),
+        evergreens: STEEL_PATH_EVERGREENS
+            .iter()
+            .map(|(name, cost)| WeeklySteelPathReward {
+                name: name.to_string(),
+                cost: *cost,
+            })
+            .collect::<Vec<_>>(),
+        expires_at_ms: next_weekly_reset_ms(now),
     });
 
     // Weekly reset = maior expiry das atividades semanais (Archon/Archimedea),

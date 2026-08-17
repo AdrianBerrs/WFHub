@@ -438,7 +438,7 @@ export default function WeeklyPage() {
               <ul className="space-y-1">
                 {data.archon_hunt.missions.map((m, i) => (
                   <li key={i} className="flex items-center justify-between gap-2 rounded-md bg-slate-900/40 px-2 py-1.5 text-[13px]">
-                    <span className="text-slate-300">{i + 1}. {m.mission_type}</span>
+                    <span className="text-slate-300">{m.mission_type}</span>
                     <span className="truncate text-slate-500">{m.node}</span>
                   </li>
                 ))}
