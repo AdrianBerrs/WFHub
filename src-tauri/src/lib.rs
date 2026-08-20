@@ -279,6 +279,34 @@ struct HubArbitrationScheduleResponse {
     slots: Vec<HubArbitrationSlot>,
 }
 
+#[derive(Deserialize, Serialize, Clone, Debug)]
+struct HubBounty {
+    mission: String,
+    challenge: String,
+    level: String,
+    rep_normal: String,
+    rep_steel: String,
+    #[serde(default)]
+    rep_unit: String,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+struct HubBountySyndicate {
+    tag: String,
+    name: String,
+    expiry_ms: i64,
+    bounties: Vec<HubBounty>,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+struct HubBountiesResponse {
+    source: String,
+    generated_at_ms: i64,
+    rot: String,
+    vault_rot: String,
+    syndicates: Vec<HubBountySyndicate>,
+}
+
 #[derive(Serialize, Clone, Debug)]
 struct WeeklyMission {
     mission_type: String,
@@ -2942,6 +2970,7 @@ struct WeeklyExportData {
     mission_types: Option<serde_json::Value>,
     factions: Option<serde_json::Value>,
     export_regions: Option<serde_json::Value>,
+    export_challenges: Option<serde_json::Value>,
 }
 
 async fn load_weekly_export_data(client: &reqwest::Client) -> WeeklyExportData {
@@ -2957,6 +2986,7 @@ async fn load_weekly_export_data(client: &reqwest::Client) -> WeeklyExportData {
         mission_types: load_json_optional(client, "https://browse.wf/warframe-public-export-plus/ExportMissionTypes.json").await,
         factions: load_json_optional(client, "https://browse.wf/warframe-public-export-plus/ExportFactions.json").await,
         export_regions: load_json_optional(client, "https://browse.wf/warframe-public-export-plus/ExportRegions.json").await,
+        export_challenges: load_json_optional(client, "https://browse.wf/warframe-public-export-plus/ExportChallenges.json").await,
     }
 }
 
@@ -4348,6 +4378,194 @@ async fn fetch_hub_worldstate() -> Result<String, String> {
     }
 }
 
+struct BountyTier {
+    level: &'static str,
+    rep_normal: &'static str,
+    rep_steel: &'static str,
+}
+
+const ZARIMAN_TIERS: &[BountyTier] = &[
+    BountyTier { level: "50-55", rep_normal: "1", rep_steel: "2" },
+    BountyTier { level: "60-65", rep_normal: "2", rep_steel: "3" },
+    BountyTier { level: "70-75", rep_normal: "3", rep_steel: "5" },
+    BountyTier { level: "90-95", rep_normal: "4", rep_steel: "6" },
+    BountyTier { level: "110-115", rep_normal: "5", rep_steel: "8" },
+];
+
+const CAVIA_TIERS: &[BountyTier] = &[
+    BountyTier { level: "55-60", rep_normal: "1000", rep_steel: "1500" },
+    BountyTier { level: "65-70", rep_normal: "2000", rep_steel: "3000" },
+    BountyTier { level: "75-80", rep_normal: "3000", rep_steel: "4500" },
+    BountyTier { level: "95-100", rep_normal: "4000", rep_steel: "6000" },
+    BountyTier { level: "115-120", rep_normal: "5000", rep_steel: "7500" },
+];
+
+const HEX_TIERS: &[BountyTier] = &[
+    BountyTier { level: "65-70", rep_normal: "1000", rep_steel: "1500" },
+    BountyTier { level: "75-80", rep_normal: "2000", rep_steel: "3000" },
+    BountyTier { level: "85-90", rep_normal: "3000", rep_steel: "4500" },
+    BountyTier { level: "95-100", rep_normal: "4000", rep_steel: "6000" },
+    BountyTier { level: "105-110", rep_normal: "5000", rep_steel: "7500" },
+    BountyTier { level: "115-120", rep_normal: "6000", rep_steel: "9000" },
+    BountyTier { level: "125-130", rep_normal: "7500", rep_steel: "11250" },
+];
+
+const BOUNTY_NO_MISSION_SUFFIX_NODES: [&str; 4] = ["SolNode850", "SolNode853", "SolNode854", "SolNode856"];
+
+fn bounty_mission_label(
+    node_id: &str,
+    export_regions: Option<&serde_json::Value>,
+    dict: Option<&serde_json::Value>,
+) -> String {
+    let Some(regions) = export_regions else {
+        return humanize_node(node_id);
+    };
+    let Some(region) = regions.get(node_id) else {
+        return humanize_node(node_id);
+    };
+    let base = region
+        .get("name")
+        .and_then(|v| v.as_str())
+        .map(|key| resolve_dict_value(dict, key))
+        .unwrap_or_else(|| humanize_node(node_id));
+    if BOUNTY_NO_MISSION_SUFFIX_NODES.contains(&node_id) {
+        return base;
+    }
+    let mission = region
+        .get("missionName")
+        .and_then(|v| v.as_str())
+        .map(|key| title_case_words(&resolve_dict_value(dict, key)))
+        .unwrap_or_default();
+    if mission.is_empty() || mission == "Mission" {
+        base
+    } else {
+        format!("{base} ({mission})")
+    }
+}
+
+fn bounty_challenge_label(
+    challenge_id: &str,
+    export_challenges: Option<&serde_json::Value>,
+    dict: Option<&serde_json::Value>,
+) -> String {
+    let Some(challenges) = export_challenges else {
+        return String::new();
+    };
+    let Some(challenge) = challenges.get(challenge_id) else {
+        return String::new();
+    };
+    let Some(desc_key) = challenge.get("description").and_then(|v| v.as_str()) else {
+        return String::new();
+    };
+    let required = challenge.get("requiredCount").and_then(|v| v.as_i64()).unwrap_or(0);
+    let raw = resolve_dict_value(dict, desc_key);
+    let last_line = raw.split('\n').next_back().unwrap_or("").trim();
+    if last_line.is_empty() {
+        last_line.to_string()
+    } else {
+        last_line.replace("|COUNT|", &required.to_string())
+    }
+}
+
+fn hub_bounty_from_entry(
+    entry: &serde_json::Value,
+    tier: &BountyTier,
+    rep_unit: &str,
+    export_regions: Option<&serde_json::Value>,
+    dict: Option<&serde_json::Value>,
+    export_challenges: Option<&serde_json::Value>,
+) -> HubBounty {
+    let node_id = entry.get("node").and_then(|v| v.as_str()).unwrap_or("");
+    let challenge_id = entry.get("challenge").and_then(|v| v.as_str()).unwrap_or("");
+    HubBounty {
+        mission: bounty_mission_label(node_id, export_regions, dict),
+        challenge: bounty_challenge_label(challenge_id, export_challenges, dict),
+        level: tier.level.to_string(),
+        rep_normal: tier.rep_normal.to_string(),
+        rep_steel: tier.rep_steel.to_string(),
+        rep_unit: rep_unit.to_string(),
+    }
+}
+
+#[tauri::command]
+async fn fetch_hub_bounties() -> Result<String, String> {
+    let now = now_ms();
+    let client = http_client();
+
+    let export_data = if let Some(d) = WEEKLY_EXPORT_CACHE.get() {
+        d
+    } else {
+        let data = load_weekly_export_data(client).await;
+        let _ = WEEKLY_EXPORT_CACHE.set(data);
+        WEEKLY_EXPORT_CACHE.get().expect("export cache should be set")
+    };
+
+    let dict = export_data.dict.as_ref();
+    let export_regions = export_data.export_regions.as_ref();
+    let export_challenges = export_data.export_challenges.as_ref();
+
+    let bounty_cycle: serde_json::Value = client
+        .get("https://oracle.browse.wf/bounty-cycle")
+        .header("Accept", "application/json")
+        .send()
+        .await
+        .map_err(|e| format!("browse bounty-cycle request failed: {e}"))?
+        .json()
+        .await
+        .map_err(|e| format!("browse bounty-cycle parse failed: {e}"))?;
+
+    let expiry_ms = bounty_cycle
+        .get("expiry")
+        .and_then(|v| v.as_i64())
+        .unwrap_or(now + 3_000_000);
+    let rot = bounty_cycle
+        .get("rot")
+        .and_then(|v| v.as_str())
+        .unwrap_or("?")
+        .to_string();
+    let vault_rot = bounty_cycle
+        .get("vaultRot")
+        .and_then(|v| v.as_str())
+        .unwrap_or("?")
+        .to_string();
+
+    let bounties_obj = bounty_cycle.get("bounties").cloned().unwrap_or_default();
+
+    let build_syndicate = |tag: &str, name: &str, tiers: &'static [BountyTier], rep_unit: &'static str| -> HubBountySyndicate {
+        let items = bounties_obj
+            .get(tag)
+            .and_then(|v| v.as_array())
+            .map(|arr| {
+                arr.iter()
+                    .zip(tiers.iter())
+                    .map(|(entry, tier)| hub_bounty_from_entry(entry, tier, rep_unit, export_regions, dict, export_challenges))
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default();
+        HubBountySyndicate {
+            tag: tag.to_string(),
+            name: name.to_string(),
+            expiry_ms,
+            bounties: items,
+        }
+    };
+
+    let syndicates = vec![
+        build_syndicate("ZarimanSyndicate", "Zariman", ZARIMAN_TIERS, "VQ"),
+        build_syndicate("HexSyndicate", "Hex", HEX_TIERS, ""),
+        build_syndicate("EntratiLabSyndicate", "Cavia", CAVIA_TIERS, ""),
+    ];
+
+    let response = HubBountiesResponse {
+        source: "browse.wf".to_string(),
+        generated_at_ms: now,
+        rot,
+        vault_rot,
+        syndicates,
+    };
+    serde_json::to_string(&response).map_err(|e| e.to_string())
+}
+
 #[tauri::command]
 async fn fetch_hub_arbitrations_next_days(days: Option<u8>) -> Result<String, String> {
     let now = now_ms();
@@ -5093,6 +5311,7 @@ pub fn run() {
             detect_log_path,
             fetch_hub_worldstate,
             fetch_hub_void_trader_inventory,
+            fetch_hub_bounties,
             fetch_hub_arbitrations_next_days,
             run_shell_action,
             analyze_riven_image,

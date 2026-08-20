@@ -83,6 +83,30 @@ interface HubSortie {
     missions: HubSortieMission[];
 }
 
+interface HubBounty {
+    mission: string;
+    challenge: string;
+    level: string;
+    rep_normal: string;
+    rep_steel: string;
+    rep_unit: string;
+}
+
+interface HubBountySyndicate {
+    tag: string;
+    name: string;
+    expiry_ms: number;
+    bounties: HubBounty[];
+}
+
+interface HubBountiesResponse {
+    source: string;
+    generated_at_ms: number;
+    rot: string;
+    vault_rot: string;
+    syndicates: HubBountySyndicate[];
+}
+
 interface HubSnapshot {
     source: string;
     fetched_at_ms: number;
@@ -335,6 +359,8 @@ export default function HubPage() {
     const [staleMessage, setStaleMessage] = useState<string | null>(null);
     const [nowMs, setNowMs] = useState(Date.now());
     const [upcomingArbs, setUpcomingArbs] = useState<HubArbitrationSlot[]>([]);
+    const [bounties, setBounties] = useState<HubBountiesResponse | null>(null);
+    const [bountyTab, setBountyTab] = useState<"Zariman" | "Hex" | "Cavia">("Zariman");
 
     async function refreshData() {
         setRefreshing(true);
@@ -350,6 +376,15 @@ export default function HubPage() {
         } finally {
             setRefreshing(false);
             setLoading(false);
+        }
+    }
+
+    async function refreshBounties() {
+        try {
+            const raw = await invoke<string>("fetch_hub_bounties");
+            setBounties(JSON.parse(raw));
+        } catch (e) {
+            console.error("Failed to fetch bounties", e);
         }
     }
 
@@ -386,9 +421,14 @@ export default function HubPage() {
         if (!refreshSeconds || refreshSeconds < 15) return;
         const timer = setInterval(() => {
             refreshData();
+            refreshBounties();
         }, refreshSeconds * 1000);
         return () => clearInterval(timer);
     }, [refreshSeconds]);
+
+    useEffect(() => {
+        refreshBounties();
+    }, []);
 
     useEffect(() => {
         invoke<string>("fetch_hub_arbitrations_next_days", {days: 1})
@@ -791,27 +831,68 @@ export default function HubPage() {
                             )}
                         </section>
 
-                        {/*ALERTAS*/}
-                        <section className="rounded-xl border border-[#1e1e2d] bg-[#111119] p-5 shadow-lg">
-                            <h2 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-amber-400">
-                                <Zap size={14} className="text-amber-400" />
-                                Alerts
-                            </h2>
-                            {snapshot.alerts.length === 0 ? (
-                                <p className="mt-2 text-sm text-slate-500">No active alerts.</p>
-                            ) : (
-                                <div className="custom-scrollbar mt-3 max-h-140 space-y-2 overflow-auto pr-1">
-                                    {snapshot.alerts.map((alert) => (
-                                        <div key={alert.id}
+                        {/*BOUNTIES (ZARIMAN / HEX / CAVIA)*/}
+                        <section className="flex flex-col rounded-xl border border-[#1e1e2d] bg-[#111119] p-5 shadow-lg">
+                            <div className="flex items-center justify-between gap-2">
+                                <h2 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-emerald-400">
+                                    <Award size={14} className="text-emerald-400" />
+                                    Bounties
+                                </h2>
+                                {bounties && (
+                                    <span className="font-mono text-[10px] text-slate-500">
+                                        Rotation {bounties.rot} · Reset in {formatCountdown(bounties.syndicates[0]?.expiry_ms ?? 0, nowMs)}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="mt-3 grid grid-cols-3 gap-1 rounded-lg border border-slate-800 bg-slate-950/60 p-1">
+                                {(["Zariman", "Hex", "Cavia"] as const).map((tab) => (
+                                    <button
+                                        key={tab}
+                                        type="button"
+                                        onClick={() => setBountyTab(tab)}
+                                        className={`rounded-md px-2 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors ${
+                                            bountyTab === tab
+                                                ? "bg-emerald-500/20 text-emerald-300"
+                                                : "text-slate-400 hover:bg-slate-900 hover:text-slate-200"
+                                        }`}
+                                    >
+                                        {tab}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="custom-scrollbar mt-3 max-h-140 flex-1 space-y-2 overflow-auto pr-1">
+                                {!bounties ? (
+                                    <p className="text-sm text-slate-500">Loading bounties...</p>
+                                ) : (() => {
+                                    const active = bounties.syndicates.find((s) => s.name === bountyTab);
+                                    if (!active || active.bounties.length === 0) {
+                                        return <p className="text-sm text-slate-500">No open bounties.</p>;
+                                    }
+                                    return active.bounties.map((bounty, idx) => (
+                                        <div key={`${active.tag}-${idx}`}
                                              className="rounded-lg border border-slate-900 bg-slate-950/60 px-3 py-2 transition-colors hover:border-slate-800">
-                                            <p className="text-sm font-semibold text-slate-200">{alert.title}</p>
-                                            <p className="mt-0.5 font-mono text-[11px] text-slate-500">
-                                                Expires in {formatCountdown(alert.expires_at_ms, nowMs)}
-                                            </p>
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-semibold text-slate-200">{bounty.mission}</p>
+                                                    {bounty.challenge && (
+                                                        <p className="mt-0.5 text-[11px] text-slate-400">{bounty.challenge}</p>
+                                                    )}
+                                                </div>
+                                                <div className="shrink-0 text-right">
+                                                    <p className="font-mono text-[10px] text-slate-500">{bounty.level}</p>
+                                                    <p className="mt-0.5 font-mono text-[10px] text-emerald-400/90">
+                                                        {bounty.rep_normal} / {bounty.rep_steel}
+                                                        {bounty.rep_unit ? ` ${bounty.rep_unit}` : ""}
+                                                        <span className="text-slate-600">  (normal / SP)</span>
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
-                                    ))}
-                                </div>
-                            )}
+                                    ));
+                                })()}
+                            </div>
                         </section>
 
                     </div>
